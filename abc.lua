@@ -38,7 +38,7 @@ end)
 function UILibrary:CreateTab(tabName)
 	local Tab = Instance.new("Frame")
 	Tab.Name = "Tab"
-	Tab.Parent = screenGui
+	Tab.Parent = ScreenGui
 	Tab.BackgroundTransparency = 1
 	Tab.Position = UDim2.new(0, 15 + tabCount * 260, 0, 15)
 	Tab.Size = UDim2.new(0, 250, 0, 0)
