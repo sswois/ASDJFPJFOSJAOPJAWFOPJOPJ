@@ -8,7 +8,7 @@ if CoreGui:FindFirstChild("UILibrary") then
 	return
 end
 
-ScreenGui = Instance.new("ScreenGui")
+local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "UILibrary"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
