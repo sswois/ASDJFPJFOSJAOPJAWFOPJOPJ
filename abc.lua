@@ -43,16 +43,22 @@ ActiveModulesLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
 
 local ActiveModules = {}
 
+local TextService = game:GetService("TextService")
+
+local function GetTextWidth(text)
+	return TextService:GetTextSize(text, 20, Enum.Font.Sarpanch, Vector2.new(1000, 20)).X
+end
+
 local function RefreshActiveModules()
 	for _, v in pairs(ActiveModulesDisplay:GetChildren()) do
 		if v:IsA("TextLabel") then
 			v:Destroy()
 		end
 	end
-	
+
 	table.sort(ActiveModules, function(a, b)
 		if #a == #b then
-			return a:lower() < b:lower()
+			return GetTextWidth(a) > GetTextWidth(b)
 		else
 			return #a > #b
 		end
