@@ -4,7 +4,7 @@ local UIS = game:GetService("UserInputService")
 local Jello = {}
 local tabCount = 0
 
-if CoreGui:FindFirstChild("UILibrary") then
+if CoreGui:FindFirstChild("Jello") then
 	return
 end
 
@@ -34,7 +34,7 @@ UIS.InputBegan:Connect(function(Input)
 	end
 end)
 
-function Jello:CreateTab(tabName)
+function Jello:AddTab(tabName)
 	local TabFrame = Instance.new("Frame")
 	TabFrame.Parent = ScreenGui
 	TabFrame.BackgroundTransparency = 1
@@ -110,8 +110,8 @@ function Jello:CreateTab(tabName)
 		Toggle.TextTransparency = 0.5
 		Toggle.TextXAlignment = Enum.TextXAlignment.Left
 
-		local togglePadding = Instance.new("UIPadding", Toggle)
-		togglePadding.PaddingLeft = UDim.new(0, 25)
+		local cheatPadding = Instance.new("UIPadding", Toggle)
+		cheatPadding.PaddingLeft = UDim.new(0, 25)
 
 		local ToggleFeatures = Instance.new("Frame")
 		ToggleFeatures.Parent = ToggleContainer
