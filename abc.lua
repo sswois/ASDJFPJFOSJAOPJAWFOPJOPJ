@@ -81,6 +81,7 @@ local function SendNotification(Title, Message, Duration)
 	MessageLabel.Font = Enum.Font.Sarpanch
 	MessageLabel.TextSize = 20
 	MessageLabel.TextColor3 = Color3.new(1, 1, 1)
+        MessageLabel.TextTransparency = 0.25
 	MessageLabel.TextXAlignment = Enum.TextXAlignment.Left
 	MessageLabel.TextWrapped = true
 	MessageLabel.Text = Message
