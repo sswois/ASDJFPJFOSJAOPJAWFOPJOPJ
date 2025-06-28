@@ -15,11 +15,9 @@ ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 ScreenGui.Parent = CoreGui
 
 local TabsFolder = Instance.new("Folder")
-TabsFolder.Name = "Tabs"
 TabsFolder.Parent = ScreenGui
 
 local NotificationsFolder = Instance.new("Folder")
-NotificationsFolder.Name = "Notifications"
 NotificationsFolder.Parent = ScreenGui
 
 local ModalButton = Instance.new("TextButton")
