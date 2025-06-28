@@ -38,7 +38,8 @@ ActiveModulesDisplay.ZIndex = 10
 local ActiveModulesLayout = Instance.new("UIListLayout")
 ActiveModulesLayout.Parent = ActiveModulesDisplay
 ActiveModulesLayout.SortOrder = Enum.SortOrder.LayoutOrder
-ActiveModulesLayout.Padding = UDim.new(0, 4)
+ActiveModulesLayout.Padding = UDim.new(0, 0)
+ActiveModulesLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
 
 local ActiveModules = {}
 
