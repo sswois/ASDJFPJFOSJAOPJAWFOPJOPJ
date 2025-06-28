@@ -80,7 +80,7 @@ local function SendNotification(Title, Message, Duration)
 	MessageLabel.BackgroundTransparency = 1
 	MessageLabel.Font = Enum.Font.Sarpanch
 	MessageLabel.TextSize = 20
-	MessageLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+	MessageLabel.TextColor3 = Color3.new(1, 1, 1)
 	MessageLabel.TextXAlignment = Enum.TextXAlignment.Left
 	MessageLabel.TextWrapped = true
 	MessageLabel.Text = Message
@@ -89,7 +89,7 @@ local function SendNotification(Title, Message, Duration)
 	table.insert(ActiveNotifications, Data)
 
 	Notification:TweenPosition(UDim2.new(1, -10, 1, y), "Out", "Quad", 0.3, true)
-	Notification.BackgroundTransparency = 0.5
+	Notification.BackgroundTransparency = 0.25
 
 	task.delay(Duration, function()
 		if Notification and Notification.Parent then
@@ -232,7 +232,7 @@ function Jello:AddTab(TabName)
 			Enabled = not Enabled
 			Toggle.TextTransparency = Enabled and 0 or 0.5
 			if callback then callback(Enabled) end
-			SendNotification("Notification", toggleName .. " has been " .. (Enabled and "Enabled" or "Disabled"))
+			SendNotification("Jello", toggleName .. (Enabled and "Enabled" or "Disabled"))
 		end
 
 		Toggle.MouseButton1Click:Connect(ToggleState)
