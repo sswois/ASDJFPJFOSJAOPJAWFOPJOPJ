@@ -50,18 +50,19 @@ local function RefreshActiveModules()
 	end
 
 	table.sort(ActiveModules, function(a, b)
-		return #a < #b
+		return #a > #b
 	end)
 
 	for _, ModuleName in ipairs(ActiveModules) do
 		local Label = Instance.new("TextLabel")
 		Label.Parent = ActiveModulesDisplay
-		Label.BackgroundTransparency = 1
-		Label.Size = UDim2.new(1, 0, 0, 20)
+		Label.BackgroundTransparency = 0.75
+		Label.Size = UDim2.new(1, 0, 0, 25)
 		Label.Font = Enum.Font.Sarpanch
 		Label.Text = ModuleName
 		Label.TextColor3 = Color3.new(1, 1, 1)
-		Label.TextSize = 20
+		Label.TextSize = 25
+		Label.TextTransparency = 0.25
 		Label.TextStrokeTransparency = 0.5
 		Label.TextXAlignment = Enum.TextXAlignment.Right
 	end
