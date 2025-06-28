@@ -57,11 +57,7 @@ local function RefreshActiveModules()
 	end
 
 	table.sort(ActiveModules, function(a, b)
-		if #a == #b then
-			return GetTextWidth(a) > GetTextWidth(b)
-		else
-			return #a > #b
-		end
+		return GetTextWidth(a) > GetTextWidth(b)
 	end)
 
 	for _, ModuleName in ipairs(ActiveModules) do
