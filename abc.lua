@@ -1,7 +1,7 @@
 local CoreGui = game:GetService("CoreGui")
 local UIS = game:GetService("UserInputService")
 
-local UILibrary = {}
+local Jello = {}
 local tabCount = 0
 
 if CoreGui:FindFirstChild("UILibrary") then
@@ -9,7 +9,6 @@ if CoreGui:FindFirstChild("UILibrary") then
 end
 
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "UILibrary"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 ScreenGui.Parent = CoreGui
@@ -35,21 +34,19 @@ UIS.InputBegan:Connect(function(Input)
 	end
 end)
 
-function UILibrary:CreateTab(tabName)
-	local Tab = Instance.new("Frame")
-	Tab.Name = "Tab"
-	Tab.Parent = ScreenGui
-	Tab.BackgroundTransparency = 1
-	Tab.Position = UDim2.new(0, 15 + tabCount * 260, 0, 15)
-	Tab.Size = UDim2.new(0, 250, 0, 0)
-	Tab.AutomaticSize = Enum.AutomaticSize.Y
-	Tab.BorderSizePixel = 0
-	Tab.BorderColor3 = Color3.new(0, 0, 0)
+function Jello:CreateTab(tabName)
+	local TabFrame = Instance.new("Frame")
+	TabFrame.Parent = ScreenGui
+	TabFrame.BackgroundTransparency = 1
+	TabFrame.Position = UDim2.new(0, 15 + tabCount * 260, 0, 15)
+	TabFrame.Size = UDim2.new(0, 250, 0, 0)
+	TabFrame.AutomaticSize = Enum.AutomaticSize.Y
+	TabFrame.BorderSizePixel = 0
+	TabFrame.BorderColor3 = Color3.new(0, 0, 0)
 	tabCount += 1
 
 	local TabHeader = Instance.new("TextButton")
-	TabHeader.Name = "TabHeader"
-	TabHeader.Parent = Tab
+	TabHeader.Parent = TabFrame
 	TabHeader.BackgroundColor3 = Color3.new(0, 0, 0)
 	TabHeader.BackgroundTransparency = 0.25
 	TabHeader.BorderSizePixel = 0
@@ -65,31 +62,29 @@ function UILibrary:CreateTab(tabName)
 	local headerPadding = Instance.new("UIPadding", TabHeader)
 	headerPadding.PaddingLeft = UDim.new(0, 25)
 
-	local Cheats = Instance.new("Frame")
-	Cheats.Name = "Cheats"
-	Cheats.Parent = Tab
-	Cheats.BackgroundTransparency = 1
-	Cheats.BorderSizePixel = 0
-	Cheats.BorderColor3 = Color3.new(0, 0, 0)
-	Cheats.Position = UDim2.new(0, 0, 0, 50)
-	Cheats.Size = UDim2.new(0, 250, 0, 0)
-	Cheats.Visible = false
-	Cheats.AutomaticSize = Enum.AutomaticSize.Y
+	local Toggles = Instance.new("Frame")
+	Toggles.Parent = TabFrame
+	Toggles.BackgroundTransparency = 1
+	Toggles.BorderSizePixel = 0
+	Toggles.BorderColor3 = Color3.new(0, 0, 0)
+	Toggles.Position = UDim2.new(0, 0, 0, 50)
+	Toggles.Size = UDim2.new(0, 250, 0, 0)
+	Toggles.Visible = false
+	Toggles.AutomaticSize = Enum.AutomaticSize.Y
 
-	local layout = Instance.new("UIListLayout", Cheats)
+	local layout = Instance.new("UIListLayout", Toggles)
 	layout.SortOrder = Enum.SortOrder.LayoutOrder
 	layout.Padding = UDim.new(0, 0)
 
 	TabHeader.MouseButton2Click:Connect(function()
-		Cheats.Visible = not Cheats.Visible
+		Toggles.Visible = not Toggles.Visible
 	end)
 
-	local tabObj = {}
+	local Tab = {}
 
-	function tabObj:AddToggle(toggleName, callback)
+	function Tab:AddToggle(toggleName, callback)
 		local ToggleContainer = Instance.new("Frame")
-		ToggleContainer.Name = "ToggleContainer"
-		ToggleContainer.Parent = Cheats
+		ToggleContainer.Parent = Toggles
 		ToggleContainer.BackgroundTransparency = 1
 		ToggleContainer.BorderSizePixel = 0
 		ToggleContainer.BorderColor3 = Color3.new(0, 0, 0)
@@ -100,44 +95,41 @@ function UILibrary:CreateTab(tabName)
 		toggleLayout.SortOrder = Enum.SortOrder.LayoutOrder
 		toggleLayout.Padding = UDim.new(0, 0)
 
-		local Cheat = Instance.new("TextButton")
-		Cheat.Name = "Cheat"
-		Cheat.Parent = ToggleContainer
-		Cheat.BackgroundColor3 = Color3.new(0, 0, 0)
-		Cheat.BackgroundTransparency = 0.5
-		Cheat.BorderSizePixel = 0
-		Cheat.BorderColor3 = Color3.new(0, 0, 0)
-		Cheat.Size = UDim2.new(1, 0, 0, 50)
-		Cheat.AutoButtonColor = false
-		Cheat.Font = Enum.Font.Sarpanch
-		Cheat.Text = toggleName or "Toggle"
-		Cheat.TextColor3 = Color3.new(1, 1, 1)
-		Cheat.TextSize = 20
-		Cheat.TextTransparency = 0.5
-		Cheat.TextXAlignment = Enum.TextXAlignment.Left
+		local Toggle = Instance.new("TextButton")
+		Toggle.Parent = ToggleContainer
+		Toggle.BackgroundColor3 = Color3.new(0, 0, 0)
+		Toggle.BackgroundTransparency = 0.5
+		Toggle.BorderSizePixel = 0
+		Toggle.BorderColor3 = Color3.new(0, 0, 0)
+		Toggle.Size = UDim2.new(1, 0, 0, 50)
+		Toggle.AutoButtonColor = false
+		Toggle.Font = Enum.Font.Sarpanch
+		Toggle.Text = toggleName or "Toggle"
+		Toggle.TextColor3 = Color3.new(1, 1, 1)
+		Toggle.TextSize = 20
+		Toggle.TextTransparency = 0.5
+		Toggle.TextXAlignment = Enum.TextXAlignment.Left
 
-		local cheatPadding = Instance.new("UIPadding", Cheat)
-		cheatPadding.PaddingLeft = UDim.new(0, 25)
+		local togglePadding = Instance.new("UIPadding", Toggle)
+		togglePadding.PaddingLeft = UDim.new(0, 25)
 
-		local CheatFeatures = Instance.new("Frame")
-		CheatFeatures.Name = "CheatFeatures"
-		CheatFeatures.Parent = ToggleContainer
-		CheatFeatures.BackgroundColor3 = Color3.new(0, 0, 0)
-		CheatFeatures.BackgroundTransparency = 0.25
-		CheatFeatures.BorderSizePixel = 0
-		CheatFeatures.BorderColor3 = Color3.new(0, 0, 0)
-		CheatFeatures.Size = UDim2.new(1, 0, 0, 0)
-		CheatFeatures.Visible = false
-		CheatFeatures.AutomaticSize = Enum.AutomaticSize.Y
-		CheatFeatures.ClipsDescendants = true
+		local ToggleFeatures = Instance.new("Frame")
+		ToggleFeatures.Parent = ToggleContainer
+		ToggleFeatures.BackgroundColor3 = Color3.new(0, 0, 0)
+		ToggleFeatures.BackgroundTransparency = 0.25
+		ToggleFeatures.BorderSizePixel = 0
+		ToggleFeatures.BorderColor3 = Color3.new(0, 0, 0)
+		ToggleFeatures.Size = UDim2.new(1, 0, 0, 0)
+		ToggleFeatures.Visible = false
+		ToggleFeatures.AutomaticSize = Enum.AutomaticSize.Y
+		ToggleFeatures.ClipsDescendants = true
 
-		local featuresLayout = Instance.new("UIListLayout", CheatFeatures)
+		local featuresLayout = Instance.new("UIListLayout", ToggleFeatures)
 		featuresLayout.SortOrder = Enum.SortOrder.LayoutOrder
 		featuresLayout.Padding = UDim.new(0, 5)
 
 		local Bind = Instance.new("TextButton")
-		Bind.Name = "Bind"
-		Bind.Parent = CheatFeatures
+		Bind.Parent = ToggleFeatures
 		Bind.BackgroundTransparency = 1
 		Bind.BorderSizePixel = 0
 		Bind.BorderColor3 = Color3.new(0, 0, 0)
@@ -156,14 +148,14 @@ function UILibrary:CreateTab(tabName)
 		local binding = false
 		local skipNext = false
 
-		Cheat.MouseButton1Click:Connect(function()
+		Toggle.MouseButton1Click:Connect(function()
 			enabled = not enabled
-			Cheat.TextTransparency = enabled and 0 or 0.5
+			Toggle.TextTransparency = enabled and 0 or 0.5
 			if callback then callback(enabled) end
 		end)
 
-		Cheat.MouseButton2Click:Connect(function()
-			CheatFeatures.Visible = not CheatFeatures.Visible
+		Toggle.MouseButton2Click:Connect(function()
+			ToggleFeatures.Visible = not ToggleFeatures.Visible
 		end)
 
 		Bind.MouseButton1Click:Connect(function()
@@ -199,12 +191,13 @@ function UILibrary:CreateTab(tabName)
 					return
 				end
 				enabled = not enabled
-				Cheat.TextTransparency = enabled and 0 or 0.5
+				Toggle.TextTransparency = enabled and 0 or 0.5
 				if callback then callback(enabled) end
 			end
 		end)
 	end
 
-	return tabObj
+	return Tab
 end
-return UILibrary
+
+return Jello
