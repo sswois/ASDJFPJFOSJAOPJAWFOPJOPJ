@@ -124,7 +124,7 @@ function SendNotification(Title, Message, Duration)
 	local Notification = Instance.new("Frame")
 	Notification.AnchorPoint = Vector2.new(1, 1)
 	Notification.BackgroundColor3 = Color3.new(0, 0, 0)
-	Notification.BackgroundTransparency = 0.25
+	Notification.BackgroundTransparency = 0.5
 	Notification.BorderSizePixel = 0
 	Notification.Position = UDim2.new(1, 500, 1, y)
 	Notification.Size = UDim2.new(0, 300, 0, 60)
