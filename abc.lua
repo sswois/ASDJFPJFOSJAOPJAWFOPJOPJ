@@ -45,6 +45,8 @@ local ActiveModules = {}
 
 local TextService = game:GetService("TextService")
 
+local TextService = game:GetService("TextService")
+
 local function RefreshActiveModules()
 	for _, v in pairs(ActiveModulesDisplay:GetChildren()) do
 		if v:IsA("TextLabel") then
@@ -63,21 +65,19 @@ local function RefreshActiveModules()
 	for _, ModuleName in ipairs(ActiveModules) do
 		local Label = Instance.new("TextLabel")
 		Label.Parent = ActiveModulesDisplay
-		Label.BackgroundTransparency = 0.5
+		Label.BackgroundTransparency = 0.75
 		Label.BackgroundColor3 = Color3.new(0, 0, 0)
 		Label.BorderColor3 = Color3.new(0, 0, 0)
 		Label.BorderSizePixel = 0
-		Label.Font = Enum.Font.Sarpanch
+		Label.Font = Enum.Font.Code
 		Label.Text = ModuleName
 		Label.TextColor3 = Color3.new(1, 1, 1)
 		Label.TextSize = 20
-		Label.TextTransparency = 0
+		Label.TextTransparency = 0.25
 		Label.TextStrokeTransparency = 0.5
-		Label.TextXAlignment = Enum.TextXAlignment.Right
-		Label.TextWrapped = false
-		Label.AutomaticSize = Enum.AutomaticSize.None
+		Label.TextXAlignment = Enum.TextXAlignment.Left
 
-		local size = TextService:GetTextSize(ModuleName, 20, Enum.Font.Sarpanch, Vector2.new(math.huge, 20))
+		local size = TextService:GetTextSize(ModuleName, 20, Enum.Font.Code, Vector2.new(math.huge, 20))
 		Label.Size = UDim2.new(0, size.X + 10, 0, 20)
 	end
 end
