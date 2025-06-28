@@ -232,7 +232,7 @@ function Jello:AddTab(TabName)
 			Enabled = not Enabled
 			Toggle.TextTransparency = Enabled and 0 or 0.5
 			if callback then callback(Enabled) end
-			SendNotification("Toggle", toggleName .. " has been " .. (Enabled and "Enabled" or "Disabled"))
+			SendNotification("Notification", toggleName .. " has been " .. (Enabled and "Enabled" or "Disabled"))
 		end
 
 		Toggle.MouseButton1Click:Connect(ToggleState)
