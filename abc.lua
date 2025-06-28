@@ -61,18 +61,18 @@ local function RefreshActiveModules()
 	for _, ModuleName in ipairs(ActiveModules) do
 		local Label = Instance.new("TextLabel")
 		Label.Parent = ActiveModulesDisplay
-		Label.BackgroundTransparency = 0.75
+		Label.BackgroundTransparency = 1
 		Label.BackgroundColor3 = Color3.new(0, 0, 0)
 		Label.BorderColor3 = Color3.new(0, 0, 0)
 		Label.BorderSizePixel = 0
 		Label.Size = UDim2.new(0, 0, 0, 20)
 		Label.AutomaticSize = Enum.AutomaticSize.X
-		Label.Font = Enum.Font.Code
+		Label.Font = Enum.Font.Sarpanch
 		Label.Text = ModuleName
 		Label.TextColor3 = Color3.new(1, 1, 1)
-		Label.TextSize = 15
+		Label.TextSize = 20
 		Label.TextTransparency = 0
-		Label.TextStrokeTransparency = 0
+		Label.TextStrokeTransparency = 0.5
 		Label.TextXAlignment = Enum.TextXAlignment.Right
 		Label.TextWrapped = false
 	end
