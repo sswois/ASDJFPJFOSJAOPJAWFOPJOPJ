@@ -149,16 +149,12 @@ function Jello:AddTab(TabName)
 		local Binding = false
 		local SkipNext = false
 
-		function Toggle()
+		Toggle.MouseButton1Click:Connect(function()
 			Enabled = not Enabled
 			Toggle.TextTransparency = Enabled and 0 or 0.5
 			if callback then
 				callback(Enabled)
 			end
-		end
-
-		Toggle.MouseButton1Click:Connect(function()
-			Toggle()
 		end)
 
 		Toggle.MouseButton2Click:Connect(function()
@@ -197,7 +193,11 @@ function Jello:AddTab(TabName)
 					SkipNext = false
 					return
 				end
-				Toggle()
+				Enabled = not Enabled
+				Toggle.TextTransparency = Enabled and 0 or 0.5
+				if callback then
+					callback(Enabled)
+				end
 			end
 		end)
 	end
