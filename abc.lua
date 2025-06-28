@@ -16,7 +16,7 @@ ScreenGui.Parent = CoreGui
 
 local ModalButton = Instance.new("TextButton")
 ModalButton.BackgroundTransparency = 1
-ModalButton.Size = UDim2.new(0, 0, 0, 0)
+ModalButton.Size = UDim2.new()
 ModalButton.Text = ""
 ModalButton.Modal = true
 ModalButton.Visible = false
@@ -122,6 +122,7 @@ function Jello:AddTab(TabName)
 	TabFrame.BackgroundTransparency = 1
 	TabFrame.Position = UDim2.new(0, 15 + TabCount * 260, 0, 15)
 	TabFrame.Size = UDim2.new(0, 250, 0, 0)
+	TabFrame.Visible = false
 	TabFrame.AutomaticSize = Enum.AutomaticSize.Y
 	TabFrame.BorderSizePixel = 0
 	TabFrame.BorderColor3 = Color3.new(0, 0, 0)
