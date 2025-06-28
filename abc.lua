@@ -89,7 +89,7 @@ local function SendNotification(Title, Message, Duration)
 	table.insert(ActiveNotifications, Data)
 
 	Notification:TweenPosition(UDim2.new(1, -10, 1, y), "Out", "Quad", 0.3, true)
-	Notification.BackgroundTransparency = 0.1
+	Notification.BackgroundTransparency = 0.5
 
 	task.delay(Duration, function()
 		if Notification and Notification.Parent then
