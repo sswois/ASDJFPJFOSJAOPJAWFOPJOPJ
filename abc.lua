@@ -15,10 +15,57 @@ ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 ScreenGui.Parent = CoreGui
 
 local TabsFolder = Instance.new("Folder")
+TabsFolder.Name = "Tabs"
 TabsFolder.Parent = ScreenGui
 
 local NotificationsFolder = Instance.new("Folder")
+NotificationsFolder.Name = "Notifications"
 NotificationsFolder.Parent = ScreenGui
+
+local ActiveModulesFolder = Instance.new("Folder")
+ActiveModulesFolder.Name = "ActiveModules"
+ActiveModulesFolder.Parent = ScreenGui
+
+local ActiveModulesDisplay = Instance.new("Frame")
+ActiveModulesDisplay.Name = "ActiveModulesDisplay"
+ActiveModulesDisplay.Parent = ActiveModulesFolder
+ActiveModulesDisplay.AnchorPoint = Vector2.new(1, 0)
+ActiveModulesDisplay.Position = UDim2.new(1, -10, 0, 10)
+ActiveModulesDisplay.Size = UDim2.new(0, 200, 1, -20)
+ActiveModulesDisplay.BackgroundTransparency = 1
+ActiveModulesDisplay.ZIndex = 10
+
+local ActiveModulesLayout = Instance.new("UIListLayout")
+ActiveModulesLayout.Parent = ActiveModulesDisplay
+ActiveModulesLayout.SortOrder = Enum.SortOrder.LayoutOrder
+ActiveModulesLayout.Padding = UDim.new(0, 4)
+
+local ActiveModules = {}
+
+local function RefreshActiveModules()
+	for _, v in pairs(ActiveModulesDisplay:GetChildren()) do
+		if v:IsA("TextLabel") then
+			v:Destroy()
+		end
+	end
+
+	table.sort(ActiveModules, function(a, b)
+		return #a < #b
+	end)
+
+	for _, ModuleName in ipairs(ActiveModules) do
+		local Label = Instance.new("TextLabel")
+		Label.Parent = ActiveModulesDisplay
+		Label.BackgroundTransparency = 1
+		Label.Size = UDim2.new(1, 0, 0, 20)
+		Label.Font = Enum.Font.Sarpanch
+		Label.Text = ModuleName
+		Label.TextColor3 = Color3.new(1, 1, 1)
+		Label.TextSize = 20
+		Label.TextStrokeTransparency = 0.5
+		Label.TextXAlignment = Enum.TextXAlignment.Right
+	end
+end
 
 local ModalButton = Instance.new("TextButton")
 ModalButton.BackgroundTransparency = 1
@@ -142,7 +189,6 @@ function Jello:AddTab(TabName)
 	Header.BackgroundColor3 = Color3.new(0, 0, 0)
 	Header.BackgroundTransparency = 0.25
 	Header.BorderSizePixel = 0
-	Header.BorderColor3 = Color3.new(0, 0, 0)
 	Header.Size = UDim2.new(0, 250, 0, 50)
 	Header.AutoButtonColor = false
 	Header.Font = Enum.Font.Sarpanch
@@ -157,8 +203,6 @@ function Jello:AddTab(TabName)
 	local Modules = Instance.new("Frame")
 	Modules.Parent = TabFrame
 	Modules.BackgroundTransparency = 1
-	Modules.BorderSizePixel = 0
-	Modules.BorderColor3 = Color3.new(0, 0, 0)
 	Modules.Position = UDim2.new(0, 0, 0, 50)
 	Modules.Size = UDim2.new(0, 250, 0, 0)
 	Modules.Visible = false
@@ -166,7 +210,6 @@ function Jello:AddTab(TabName)
 
 	local ModulesListLayout = Instance.new("UIListLayout", Modules)
 	ModulesListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-	ModulesListLayout.Padding = UDim.new(0, 0)
 
 	Header.MouseButton2Click:Connect(function()
 		Modules.Visible = not Modules.Visible
@@ -178,21 +221,17 @@ function Jello:AddTab(TabName)
 		local ModuleContainer = Instance.new("Frame")
 		ModuleContainer.Parent = Modules
 		ModuleContainer.BackgroundTransparency = 1
-		ModuleContainer.BorderSizePixel = 0
-		ModuleContainer.BorderColor3 = Color3.new(0, 0, 0)
 		ModuleContainer.Size = UDim2.new(1, 0, 0, 0)
 		ModuleContainer.AutomaticSize = Enum.AutomaticSize.Y
 
 		local ModuleContainerListLayout = Instance.new("UIListLayout", ModuleContainer)
 		ModuleContainerListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-		ModuleContainerListLayout.Padding = UDim.new(0, 0)
 
 		local Module = Instance.new("TextButton")
 		Module.Parent = ModuleContainer
 		Module.BackgroundColor3 = Color3.new(0, 0, 0)
 		Module.BackgroundTransparency = 0.5
 		Module.BorderSizePixel = 0
-		Module.BorderColor3 = Color3.new(0, 0, 0)
 		Module.Size = UDim2.new(1, 0, 0, 50)
 		Module.AutoButtonColor = false
 		Module.Font = Enum.Font.Sarpanch
@@ -210,7 +249,6 @@ function Jello:AddTab(TabName)
 		ModuleOptions.BackgroundColor3 = Color3.new(0, 0, 0)
 		ModuleOptions.BackgroundTransparency = 0.25
 		ModuleOptions.BorderSizePixel = 0
-		ModuleOptions.BorderColor3 = Color3.new(0, 0, 0)
 		ModuleOptions.Size = UDim2.new(1, 0, 0, 0)
 		ModuleOptions.Visible = false
 		ModuleOptions.AutomaticSize = Enum.AutomaticSize.Y
@@ -223,8 +261,6 @@ function Jello:AddTab(TabName)
 		local Bind = Instance.new("TextButton")
 		Bind.Parent = ModuleOptions
 		Bind.BackgroundTransparency = 1
-		Bind.BorderSizePixel = 0
-		Bind.BorderColor3 = Color3.new(0, 0, 0)
 		Bind.Size = UDim2.new(1, 0, 0, 25)
 		Bind.Font = Enum.Font.Sarpanch
 		Bind.Text = "Bind: None"
@@ -245,6 +281,19 @@ function Jello:AddTab(TabName)
 			Module.TextTransparency = Enabled and 0 or 0.5
 			if callback then callback(Enabled) end
 			SendNotification("Jello", (Enabled and "Enabled " or "Disabled ") .. ModuleName, 1)
+
+			if Enabled then
+				table.insert(ActiveModules, ModuleName)
+			else
+				for i, v in ipairs(ActiveModules) do
+					if v == ModuleName then
+						table.remove(ActiveModules, i)
+						break
+					end
+				end
+			end
+
+			RefreshActiveModules()
 		end
 
 		Module.MouseButton1Click:Connect(ToggleModule)
@@ -257,6 +306,7 @@ function Jello:AddTab(TabName)
 			if Binding then return end
 			Binding = true
 			Bind.Text = "Press Key"
+			local BindConnection
 			BindConnection = UIS.InputBegan:Connect(function(Input)
 				if Input.UserInputType == Enum.UserInputType.Keyboard then
 					if CurrentBind == Input.KeyCode then
