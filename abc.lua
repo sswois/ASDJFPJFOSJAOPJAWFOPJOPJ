@@ -9,6 +9,7 @@ if CoreGui:FindFirstChild("Jello") then
 end
 
 local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "Jello"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 ScreenGui.Parent = CoreGui
