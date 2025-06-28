@@ -63,7 +63,7 @@ local function RefreshActiveModules()
 	for _, ModuleName in ipairs(ActiveModules) do
 		local Label = Instance.new("TextLabel")
 		Label.Parent = ActiveModulesDisplay
-		Label.BackgroundTransparency = 1
+		Label.BackgroundTransparency = 0.5
 		Label.BackgroundColor3 = Color3.new(0, 0, 0)
 		Label.BorderColor3 = Color3.new(0, 0, 0)
 		Label.BorderSizePixel = 0
