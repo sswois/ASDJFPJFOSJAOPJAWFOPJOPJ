@@ -3,6 +3,7 @@ local UIS = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 
 local Jello = {}
+local AllTabs = {}
 local TabCount = 0
 
 if CoreGui:FindFirstChild("Jello") then return end
@@ -12,13 +13,13 @@ ScreenGui.Name = "Jello"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 ScreenGui.Parent = CoreGui
-ScreenGui.Enabled = false
 
 local ModalButton = Instance.new("TextButton")
 ModalButton.BackgroundTransparency = 1
 ModalButton.Size = UDim2.new(0, 0, 0, 0)
 ModalButton.Text = ""
-ModalButton.Modal = false
+ModalButton.Modal = true
+ModalButton.Visible = false
 ModalButton.Parent = ScreenGui
 
 local BlurEffect = Instance.new("BlurEffect")
@@ -28,19 +29,15 @@ BlurEffect.Parent = game.Lighting
 
 UIS.InputBegan:Connect(function(Input)
 	if Input.KeyCode == Enum.KeyCode.RightShift then
-		ScreenGui.Enabled = not ScreenGui.Enabled
-		BlurEffect.Enabled = ScreenGui.Enabled
-		ModalButton.Modal = ScreenGui.Enabled
+		TabsVisible = not TabsVisible
+		BlurEffect.Enabled = TabsVisible
+		ModalButton.Visible = TabsVisible
+		
+		for _, Tab in ipairs(AllTabs) do
+			Tab.Visible = TabsVisible
+		end
 	end
 end)
-
-local NotificationGui = Instance.new("ScreenGui")
-NotificationGui.Name = "JelloNotifications"
-NotificationGui.IgnoreGuiInset = true
-NotificationGui.ResetOnSpawn = false
-NotificationGui.DisplayOrder = 999
-NotificationGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-NotificationGui.Parent = CoreGui
 
 local ActiveNotifications = {}
 
@@ -63,7 +60,7 @@ function SendNotification(Title, Message, Duration)
 	Notification.BorderSizePixel = 0
 	Notification.Position = UDim2.new(1, 500, 1, y)
 	Notification.Size = UDim2.new(0, 300, 0, 60)
-	Notification.Parent = NotificationGui
+	Notification.Parent = ScreenGui
 
 	local TitleLabel = Instance.new("TextLabel")
 	TitleLabel.BackgroundTransparency = 1
@@ -129,6 +126,7 @@ function Jello:AddTab(TabName)
 	TabFrame.BorderSizePixel = 0
 	TabFrame.BorderColor3 = Color3.new(0, 0, 0)
 	TabCount += 1
+	table.insert(AllTabs, TabFrame)
 
 	local Header = Instance.new("TextButton")
 	Header.Parent = TabFrame
