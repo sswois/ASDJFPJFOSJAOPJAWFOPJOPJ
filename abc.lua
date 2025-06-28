@@ -207,3 +207,4 @@ function UILibrary:CreateTab(tabName)
 
 	return tabObj
 end
+return UILibrary
