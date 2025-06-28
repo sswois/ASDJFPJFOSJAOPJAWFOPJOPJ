@@ -22,7 +22,7 @@ ModalButton.Text = ""
 ModalButton.Modal = false
 ModalButton.Parent = ScreenGui
 
-BlurEffect = Instance.new("BlurEffect")
+local BlurEffect = Instance.new("BlurEffect")
 BlurEffect.Size = 10
 BlurEffect.Enabled = false
 BlurEffect.Parent = game.Lighting
@@ -50,7 +50,7 @@ function UILibrary:CreateTab(tabName)
 	local TabHeader = Instance.new("TextButton")
 	TabHeader.Name = "TabHeader"
 	TabHeader.Parent = Tab
-	TabHeader.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+	TabHeader.BackgroundColor3 = Color3.new(0, 0, 0)
 	TabHeader.BackgroundTransparency = 0.25
 	TabHeader.BorderSizePixel = 0
 	TabHeader.BorderColor3 = Color3.new(0, 0, 0)
@@ -58,7 +58,7 @@ function UILibrary:CreateTab(tabName)
 	TabHeader.AutoButtonColor = false
 	TabHeader.Font = Enum.Font.Sarpanch
 	TabHeader.Text = tabName or "Tab"
-	TabHeader.TextColor3 = Color3.fromRGB(255, 255, 255)
+	TabHeader.TextColor3 = Color3.new(1, 1, 1)
 	TabHeader.TextSize = 25
 	TabHeader.TextXAlignment = Enum.TextXAlignment.Left
 
@@ -103,7 +103,7 @@ function UILibrary:CreateTab(tabName)
 		local Cheat = Instance.new("TextButton")
 		Cheat.Name = "Cheat"
 		Cheat.Parent = ToggleContainer
-		Cheat.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+		Cheat.BackgroundColor3 = Color3.new(0, 0, 0)
 		Cheat.BackgroundTransparency = 0.5
 		Cheat.BorderSizePixel = 0
 		Cheat.BorderColor3 = Color3.new(0, 0, 0)
@@ -111,7 +111,7 @@ function UILibrary:CreateTab(tabName)
 		Cheat.AutoButtonColor = false
 		Cheat.Font = Enum.Font.Sarpanch
 		Cheat.Text = toggleName or "Toggle"
-		Cheat.TextColor3 = Color3.fromRGB(255, 255, 255)
+		Cheat.TextColor3 = Color3.new(1, 1, 1)
 		Cheat.TextSize = 20
 		Cheat.TextTransparency = 0.5
 		Cheat.TextXAlignment = Enum.TextXAlignment.Left
@@ -122,7 +122,7 @@ function UILibrary:CreateTab(tabName)
 		local CheatFeatures = Instance.new("Frame")
 		CheatFeatures.Name = "CheatFeatures"
 		CheatFeatures.Parent = ToggleContainer
-		CheatFeatures.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+		CheatFeatures.BackgroundColor3 = Color3.new(0, 0, 0)
 		CheatFeatures.BackgroundTransparency = 0.25
 		CheatFeatures.BorderSizePixel = 0
 		CheatFeatures.BorderColor3 = Color3.new(0, 0, 0)
@@ -144,7 +144,7 @@ function UILibrary:CreateTab(tabName)
 		Bind.Size = UDim2.new(1, 0, 0, 25)
 		Bind.Font = Enum.Font.Sarpanch
 		Bind.Text = "Bind: None"
-		Bind.TextColor3 = Color3.fromRGB(255, 255, 255)
+		Bind.TextColor3 = Color3.new(1, 1, 1)
 		Bind.TextSize = 15
 		Bind.TextXAlignment = Enum.TextXAlignment.Left
 
