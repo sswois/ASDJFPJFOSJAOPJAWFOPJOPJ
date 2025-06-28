@@ -27,43 +27,6 @@ BlurEffect.Size = 25
 BlurEffect.Enabled = false
 BlurEffect.Parent = game.Lighting
 
--- Notification UI
-local Notification = Instance.new("TextLabel")
-Notification.Name = "Notification"
-Notification.Parent = ScreenGui
-Notification.AnchorPoint = Vector2.new(1, 1)
-Notification.Position = UDim2.new(1, 300, 1, -20) -- offscreen
-Notification.Size = UDim2.new(0, 250, 0, 50)
-Notification.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-Notification.BackgroundTransparency = 0.5
-Notification.BorderSizePixel = 0
-Notification.Text = ""
-Notification.TextColor3 = Color3.new(1, 1, 1)
-Notification.Font = Enum.Font.Sarpanch
-Notification.TextSize = 20
-Notification.TextXAlignment = Enum.TextXAlignment.Center
-Notification.TextYAlignment = Enum.TextYAlignment.Center
-Notification.Visible = false
-
-local NotificationCorner = Instance.new("UICorner")
-NotificationCorner.CornerRadius = UDim.new(0, 25)
-NotificationCorner.Parent = Notification
-
--- SendNotification Function
-local function SendNotification(message)
-	Notification.Text = message
-	Notification.Visible = true
-	Notification.Position = UDim2.new(1, 300, 1, -20)
-	Notification:TweenPosition(UDim2.new(1, -20, 1, -20), "Out", "Quad", 0.4, true)
-
-	task.delay(2, function()
-		Notification:TweenPosition(UDim2.new(1, 300, 1, -20), "In", "Quad", 0.4, true)
-		task.wait(0.4)
-		Notification.Visible = false
-	end)
-end
-
--- UI Toggle Key
 UIS.InputBegan:Connect(function(Input)
 	if Input.KeyCode == Enum.KeyCode.RightShift then
 		ScreenGui.Enabled = not ScreenGui.Enabled
@@ -192,7 +155,6 @@ function Jello:AddTab(TabName)
 			if callback then
 				callback(Enabled)
 			end
-			SendNotification(toggleName .. (Enabled and " Enabled" or " Disabled"))
 		end)
 
 		Toggle.MouseButton2Click:Connect(function()
@@ -200,16 +162,16 @@ function Jello:AddTab(TabName)
 		end)
 
 		Bind.MouseButton1Click:Connect(function()
-			if Binding then return end
+			if Binding then
+				return
+			end
 			Binding = true
 			Bind.Text = "Press Key"
-			local BindConnection
 			BindConnection = UIS.InputBegan:Connect(function(Input)
 				if Input.UserInputType == Enum.UserInputType.Keyboard then
 					if CurrentBind == Input.KeyCode then
 						CurrentBind = nil
 						Bind.Text = "Bind Removed"
-						SendNotification("Bind removed")
 						task.delay(1, function()
 							Bind.Text = "Bind: None"
 						end)
@@ -217,7 +179,6 @@ function Jello:AddTab(TabName)
 					else
 						CurrentBind = Input.KeyCode
 						Bind.Text = "Bind: " .. Input.KeyCode.Name
-						SendNotification("Bound to " .. Input.KeyCode.Name)
 						SkipNext = true
 					end
 					BindConnection:Disconnect()
@@ -237,7 +198,6 @@ function Jello:AddTab(TabName)
 				if callback then
 					callback(Enabled)
 				end
-				SendNotification(toggleName .. (Enabled and " Enabled (Bind)" or " Disabled (Bind)"))
 			end
 		end)
 	end
