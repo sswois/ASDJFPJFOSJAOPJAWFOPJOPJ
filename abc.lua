@@ -147,74 +147,74 @@ function Jello:AddTab(TabName)
 	local HeaderPadding = Instance.new("UIPadding", Header)
 	HeaderPadding.PaddingLeft = UDim.new(0, 25)
 
-	local Toggles = Instance.new("Frame")
-	Toggles.Parent = TabFrame
-	Toggles.BackgroundTransparency = 1
-	Toggles.BorderSizePixel = 0
-	Toggles.BorderColor3 = Color3.new(0, 0, 0)
-	Toggles.Position = UDim2.new(0, 0, 0, 50)
-	Toggles.Size = UDim2.new(0, 250, 0, 0)
-	Toggles.Visible = false
-	Toggles.AutomaticSize = Enum.AutomaticSize.Y
+	local Modules = Instance.new("Frame")
+	Modules.Parent = TabFrame
+	Modules.BackgroundTransparency = 1
+	Modules.BorderSizePixel = 0
+	Modules.BorderColor3 = Color3.new(0, 0, 0)
+	Modules.Position = UDim2.new(0, 0, 0, 50)
+	Modules.Size = UDim2.new(0, 250, 0, 0)
+	Modules.Visible = false
+	Modules.AutomaticSize = Enum.AutomaticSize.Y
 
-	local TogglesListLayout = Instance.new("UIListLayout", Toggles)
-	TogglesListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-	TogglesListLayout.Padding = UDim.new(0, 0)
+	local ModulesListLayout = Instance.new("UIListLayout", Modules)
+	ModulesListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+	ModulesListLayout.Padding = UDim.new(0, 0)
 
 	Header.MouseButton2Click:Connect(function()
-		Toggles.Visible = not Toggles.Visible
+		Modules.Visible = not Modules.Visible
 	end)
 
 	local Tab = {}
 
-	function Tab:AddToggle(toggleName, callback)
-		local ToggleContainer = Instance.new("Frame")
-		ToggleContainer.Parent = Toggles
-		ToggleContainer.BackgroundTransparency = 1
-		ToggleContainer.BorderSizePixel = 0
-		ToggleContainer.BorderColor3 = Color3.new(0, 0, 0)
-		ToggleContainer.Size = UDim2.new(1, 0, 0, 0)
-		ToggleContainer.AutomaticSize = Enum.AutomaticSize.Y
+	function Tab:AddModule(ModuleName, callback)
+		local ModuleContainer = Instance.new("Frame")
+		ModuleContainer.Parent = Modules
+		ModuleContainer.BackgroundTransparency = 1
+		ModuleContainer.BorderSizePixel = 0
+		ModuleContainer.BorderColor3 = Color3.new(0, 0, 0)
+		ModuleContainer.Size = UDim2.new(1, 0, 0, 0)
+		ModuleContainer.AutomaticSize = Enum.AutomaticSize.Y
 
-		local ToggleContainerListLayout = Instance.new("UIListLayout", ToggleContainer)
-		ToggleContainerListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-		ToggleContainerListLayout.Padding = UDim.new(0, 0)
+		local ModuleContainerListLayout = Instance.new("UIListLayout", ModuleContainer)
+		ModuleContainerListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+		ModuleContainerListLayout.Padding = UDim.new(0, 0)
 
-		local Toggle = Instance.new("TextButton")
-		Toggle.Parent = ToggleContainer
-		Toggle.BackgroundColor3 = Color3.new(0, 0, 0)
-		Toggle.BackgroundTransparency = 0.5
-		Toggle.BorderSizePixel = 0
-		Toggle.BorderColor3 = Color3.new(0, 0, 0)
-		Toggle.Size = UDim2.new(1, 0, 0, 50)
-		Toggle.AutoButtonColor = false
-		Toggle.Font = Enum.Font.Sarpanch
-		Toggle.Text = toggleName or "Toggle"
-		Toggle.TextColor3 = Color3.new(1, 1, 1)
-		Toggle.TextSize = 20
-		Toggle.TextTransparency = 0.5
-		Toggle.TextXAlignment = Enum.TextXAlignment.Left
+		local Module = Instance.new("TextButton")
+		Module.Parent = ModuleContainer
+		Module.BackgroundColor3 = Color3.new(0, 0, 0)
+		Module.BackgroundTransparency = 0.5
+		Module.BorderSizePixel = 0
+		Module.BorderColor3 = Color3.new(0, 0, 0)
+		Module.Size = UDim2.new(1, 0, 0, 50)
+		Module.AutoButtonColor = false
+		Module.Font = Enum.Font.Sarpanch
+		Module.Text = ModuleName or "Module"
+		Module.TextColor3 = Color3.new(1, 1, 1)
+		Module.TextSize = 20
+		Module.TextTransparency = 0.5
+		Module.TextXAlignment = Enum.TextXAlignment.Left
 
-		local TogglePadding = Instance.new("UIPadding", Toggle)
-		TogglePadding.PaddingLeft = UDim.new(0, 25)
+		local ModulePadding = Instance.new("UIPadding", Module)
+		ModulePadding.PaddingLeft = UDim.new(0, 25)
 
-		local ToggleFeatures = Instance.new("Frame")
-		ToggleFeatures.Parent = ToggleContainer
-		ToggleFeatures.BackgroundColor3 = Color3.new(0, 0, 0)
-		ToggleFeatures.BackgroundTransparency = 0.25
-		ToggleFeatures.BorderSizePixel = 0
-		ToggleFeatures.BorderColor3 = Color3.new(0, 0, 0)
-		ToggleFeatures.Size = UDim2.new(1, 0, 0, 0)
-		ToggleFeatures.Visible = false
-		ToggleFeatures.AutomaticSize = Enum.AutomaticSize.Y
-		ToggleFeatures.ClipsDescendants = true
+		local ModuleOptions = Instance.new("Frame")
+		ModuleOptions.Parent = ModuleContainer
+		ModuleOptions.BackgroundColor3 = Color3.new(0, 0, 0)
+		ModuleOptions.BackgroundTransparency = 0.25
+		ModuleOptions.BorderSizePixel = 0
+		ModuleOptions.BorderColor3 = Color3.new(0, 0, 0)
+		ModuleOptions.Size = UDim2.new(1, 0, 0, 0)
+		ModuleOptions.Visible = false
+		ModuleOptions.AutomaticSize = Enum.AutomaticSize.Y
+		ModuleOptions.ClipsDescendants = true
 
-		local ToggleFeaturesListLayout = Instance.new("UIListLayout", ToggleFeatures)
-		ToggleFeaturesListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-		ToggleFeaturesListLayout.Padding = UDim.new(0, 5)
+		local ModuleOptionsListLayout = Instance.new("UIListLayout", ModuleOptions)
+		ModuleOptionsListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+		ModuleOptionsListLayout.Padding = UDim.new(0, 5)
 
 		local Bind = Instance.new("TextButton")
-		Bind.Parent = ToggleFeatures
+		Bind.Parent = ModuleOptions
 		Bind.BackgroundTransparency = 1
 		Bind.BorderSizePixel = 0
 		Bind.BorderColor3 = Color3.new(0, 0, 0)
@@ -233,17 +233,17 @@ function Jello:AddTab(TabName)
 		local Binding = false
 		local SkipNext = false
 
-		local function ToggleState()
+		local function ToggleModule()
 			Enabled = not Enabled
-			Toggle.TextTransparency = Enabled and 0 or 0.5
+			Module.TextTransparency = Enabled and 0 or 0.5
 			if callback then callback(Enabled) end
-			SendNotification("Jello", (Enabled and "Enabled " or "Disabled ") .. toggleName, 1)
+			SendNotification("Jello", (Enabled and "Enabled " or "Disabled ") .. ModuleName, 1)
 		end
 
-		Toggle.MouseButton1Click:Connect(ToggleState)
+		Module.MouseButton1Click:Connect(ToggleModule)
 
-		Toggle.MouseButton2Click:Connect(function()
-			ToggleFeatures.Visible = not ToggleFeatures.Visible
+		Module.MouseButton2Click:Connect(function()
+			ModuleOptions.Visible = not ModuleOptions.Visible
 		end)
 
 		Bind.MouseButton1Click:Connect(function()
@@ -274,7 +274,7 @@ function Jello:AddTab(TabName)
 					SkipNext = false
 					return
 				end
-				ToggleState()
+				ToggleModule()
 			end
 		end)
 	end
