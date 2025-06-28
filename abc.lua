@@ -52,45 +52,47 @@ local function RepositionNotifications()
 	end
 end
 
-local function SendNotification(Title, Message, Duration)
+function SendNotification(Title, Message, Duration)
 	Duration = Duration or 3
 	local y = -80 - (#ActiveNotifications * 70)
+
 	local Notification = Instance.new("Frame")
-	Notification.Size = UDim2.new(0, 300, 0, 60)
 	Notification.AnchorPoint = Vector2.new(1, 1)
-	Notification.Position = UDim2.new(1, 500, 1, y)
 	Notification.BackgroundColor3 = Color3.new(0, 0, 0)
-	Notification.BackgroundTransparency = 0
+	Notification.BackgroundTransparency = 0.1
 	Notification.BorderSizePixel = 0
+	Notification.Position = UDim2.new(1, 500, 1, y)
+	Notification.Size = UDim2.new(0, 300, 0, 60)
 	Notification.Parent = NotificationGui
 
-	local TitleLabel = Instance.new("TextLabel", Notification)
-	TitleLabel.Size = UDim2.new(1, -20, 0, 20)
-	TitleLabel.Position = UDim2.new(0, 10, 0, 5)
+	local TitleLabel = Instance.new("TextLabel")
 	TitleLabel.BackgroundTransparency = 1
 	TitleLabel.Font = Enum.Font.Sarpanch
-	TitleLabel.TextSize = 20
-	TitleLabel.TextColor3 = Color3.new(1, 1, 1)
-	TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+	TitleLabel.Position = UDim2.new(0, 10, 0, 5)
+	TitleLabel.Size = UDim2.new(1, -20, 0, 20)
 	TitleLabel.Text = Title
+	TitleLabel.TextColor3 = Color3.new(1, 1, 1)
+	TitleLabel.TextSize = 20
+	TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+	TitleLabel.Parent = Notification
 
-	local MessageLabel = Instance.new("TextLabel", Notification)
-	MessageLabel.Size = UDim2.new(1, -20, 0, 30)
-	MessageLabel.Position = UDim2.new(0, 10, 0, 25)
+	local MessageLabel = Instance.new("TextLabel")
 	MessageLabel.BackgroundTransparency = 1
 	MessageLabel.Font = Enum.Font.Sarpanch
-	MessageLabel.TextSize = 20
+	MessageLabel.Position = UDim2.new(0, 10, 0, 25)
+	MessageLabel.Size = UDim2.new(1, -20, 0, 30)
+	MessageLabel.Text = Message
 	MessageLabel.TextColor3 = Color3.new(1, 1, 1)
-        MessageLabel.TextTransparency = 0.25
+	MessageLabel.TextTransparency = 0.25
+	MessageLabel.TextSize = 20
 	MessageLabel.TextXAlignment = Enum.TextXAlignment.Left
 	MessageLabel.TextWrapped = true
-	MessageLabel.Text = Message
+	MessageLabel.Parent = Notification
 
 	local Data = { frame = Notification, y = y }
 	table.insert(ActiveNotifications, Data)
 
 	Notification:TweenPosition(UDim2.new(1, -10, 1, y), "Out", "Quad", 0.3, true)
-	Notification.BackgroundTransparency = 0.25
 
 	task.delay(Duration, function()
 		if Notification and Notification.Parent then
@@ -103,12 +105,14 @@ local function SendNotification(Title, Message, Duration)
 
 			if Notification then
 				Notification:Destroy()
+
 				for i, v in ipairs(ActiveNotifications) do
 					if v == Data then
 						table.remove(ActiveNotifications, i)
 						break
 					end
 				end
+
 				RepositionNotifications()
 			end
 		end
