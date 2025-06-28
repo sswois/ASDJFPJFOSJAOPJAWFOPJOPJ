@@ -14,6 +14,14 @@ ScreenGui.ResetOnSpawn = false
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 ScreenGui.Parent = CoreGui
 
+local TabsFolder = Instance.new("Folder")
+TabsFolder.Name = "Tabs"
+TabsFolder.Parent = ScreenGui
+
+local NotificationsFolder = Instance.new("Folder")
+NotificationsFolder.Name = "Notifications"
+NotificationsFolder.Parent = ScreenGui
+
 local ModalButton = Instance.new("TextButton")
 ModalButton.BackgroundTransparency = 1
 ModalButton.Size = UDim2.new()
@@ -27,12 +35,14 @@ BlurEffect.Size = 25
 BlurEffect.Enabled = false
 BlurEffect.Parent = game.Lighting
 
+local TabsVisible = false
+
 UIS.InputBegan:Connect(function(Input)
 	if Input.KeyCode == Enum.KeyCode.RightShift then
 		TabsVisible = not TabsVisible
 		BlurEffect.Enabled = TabsVisible
 		ModalButton.Visible = TabsVisible
-		
+
 		for _, Tab in ipairs(AllTabs) do
 			Tab.Visible = TabsVisible
 		end
@@ -60,7 +70,7 @@ function SendNotification(Title, Message, Duration)
 	Notification.BorderSizePixel = 0
 	Notification.Position = UDim2.new(1, 500, 1, y)
 	Notification.Size = UDim2.new(0, 300, 0, 60)
-	Notification.Parent = ScreenGui
+	Notification.Parent = NotificationsFolder
 
 	local TitleLabel = Instance.new("TextLabel")
 	TitleLabel.BackgroundTransparency = 1
@@ -118,7 +128,7 @@ end
 
 function Jello:AddTab(TabName)
 	local TabFrame = Instance.new("Frame")
-	TabFrame.Parent = ScreenGui
+	TabFrame.Parent = TabsFolder
 	TabFrame.BackgroundTransparency = 1
 	TabFrame.Position = UDim2.new(0, 15 + TabCount * 260, 0, 15)
 	TabFrame.Size = UDim2.new(0, 250, 0, 0)
