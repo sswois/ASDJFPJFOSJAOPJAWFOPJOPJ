@@ -1,12 +1,11 @@
 local CoreGui = game:GetService("CoreGui")
 local UIS = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
 
 local Jello = {}
 local TabCount = 0
 
-if CoreGui:FindFirstChild("Jello") then
-	return
-end
+if CoreGui:FindFirstChild("Jello") then return end
 
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "Jello"
@@ -34,6 +33,86 @@ UIS.InputBegan:Connect(function(Input)
 		ModalButton.Modal = ScreenGui.Enabled
 	end
 end)
+
+local NotificationGui = Instance.new("ScreenGui")
+NotificationGui.Name = "JelloNotifications"
+NotificationGui.IgnoreGuiInset = true
+NotificationGui.ResetOnSpawn = false
+NotificationGui.DisplayOrder = 999
+NotificationGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+NotificationGui.Parent = CoreGui
+
+local ActiveNotifications = {}
+
+local function RepositionNotifications()
+	for i, Data in ipairs(ActiveNotifications) do
+		local y = -80 - ((i - 1) * 70)
+		Data.y = y
+		Data.frame:TweenPosition(UDim2.new(1, -10, 1, y), "Out", "Quad", 0.2, true)
+	end
+end
+
+local function SendNotification(Title, Message, Duration)
+	Duration = Duration or 3
+	local y = -80 - (#ActiveNotifications * 70)
+	local Notification = Instance.new("Frame")
+	Notification.Size = UDim2.new(0, 300, 0, 60)
+	Notification.AnchorPoint = Vector2.new(1, 1)
+	Notification.Position = UDim2.new(1, 500, 1, y)
+	Notification.BackgroundColor3 = Color3.new(0, 0, 0)
+	Notification.BackgroundTransparency = 0
+	Notification.BorderSizePixel = 0
+	Notification.Parent = NotificationGui
+
+	local TitleLabel = Instance.new("TextLabel", Notification)
+	TitleLabel.Size = UDim2.new(1, -20, 0, 20)
+	TitleLabel.Position = UDim2.new(0, 10, 0, 5)
+	TitleLabel.BackgroundTransparency = 1
+	TitleLabel.Font = Enum.Font.Sarpanch
+	TitleLabel.TextSize = 20
+	TitleLabel.TextColor3 = Color3.new(1, 1, 1)
+	TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+	TitleLabel.Text = Title
+
+	local MessageLabel = Instance.new("TextLabel", Notification)
+	MessageLabel.Size = UDim2.new(1, -20, 0, 30)
+	MessageLabel.Position = UDim2.new(0, 10, 0, 25)
+	MessageLabel.BackgroundTransparency = 1
+	MessageLabel.Font = Enum.Font.Sarpanch
+	MessageLabel.TextSize = 20
+	MessageLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+	MessageLabel.TextXAlignment = Enum.TextXAlignment.Left
+	MessageLabel.TextWrapped = true
+	MessageLabel.Text = Message
+
+	local Data = { frame = Notification, y = y }
+	table.insert(ActiveNotifications, Data)
+
+	Notification:TweenPosition(UDim2.new(1, -10, 1, y), "Out", "Quad", 0.3, true)
+	Notification.BackgroundTransparency = 0.1
+
+	task.delay(Duration, function()
+		if Notification and Notification.Parent then
+			local TweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+			local Tween = TweenService:Create(Notification, TweenInfo, {
+				Position = UDim2.new(1, 500, 1, Data.y)
+			})
+			Tween:Play()
+			Tween.Completed:Wait()
+
+			if Notification then
+				Notification:Destroy()
+				for i, v in ipairs(ActiveNotifications) do
+					if v == Data then
+						table.remove(ActiveNotifications, i)
+						break
+					end
+				end
+				RepositionNotifications()
+			end
+		end
+	end)
+end
 
 function Jello:AddTab(TabName)
 	local TabFrame = Instance.new("Frame")
@@ -149,22 +228,21 @@ function Jello:AddTab(TabName)
 		local Binding = false
 		local SkipNext = false
 
-		Toggle.MouseButton1Click:Connect(function()
+		local function ToggleState()
 			Enabled = not Enabled
 			Toggle.TextTransparency = Enabled and 0 or 0.5
-			if callback then
-				callback(Enabled)
-			end
-		end)
+			if callback then callback(Enabled) end
+			SendNotification("Toggle", toggleName .. " has been " .. (Enabled and "Enabled" or "Disabled"))
+		end
+
+		Toggle.MouseButton1Click:Connect(ToggleState)
 
 		Toggle.MouseButton2Click:Connect(function()
 			ToggleFeatures.Visible = not ToggleFeatures.Visible
 		end)
 
 		Bind.MouseButton1Click:Connect(function()
-			if Binding then
-				return
-			end
+			if Binding then return end
 			Binding = true
 			Bind.Text = "Press Key"
 			BindConnection = UIS.InputBegan:Connect(function(Input)
@@ -172,9 +250,7 @@ function Jello:AddTab(TabName)
 					if CurrentBind == Input.KeyCode then
 						CurrentBind = nil
 						Bind.Text = "Bind Removed"
-						task.delay(1, function()
-							Bind.Text = "Bind: None"
-						end)
+						task.delay(1, function() Bind.Text = "Bind: None" end)
 						SkipNext = true
 					else
 						CurrentBind = Input.KeyCode
@@ -193,11 +269,7 @@ function Jello:AddTab(TabName)
 					SkipNext = false
 					return
 				end
-				Enabled = not Enabled
-				Toggle.TextTransparency = Enabled and 0 or 0.5
-				if callback then
-					callback(Enabled)
-				end
+				ToggleState()
 			end
 		end)
 	end
