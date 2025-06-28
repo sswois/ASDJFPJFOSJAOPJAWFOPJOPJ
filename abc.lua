@@ -30,8 +30,8 @@ local ActiveModulesDisplay = Instance.new("Frame")
 ActiveModulesDisplay.Name = "ActiveModulesDisplay"
 ActiveModulesDisplay.Parent = ActiveModulesFolder
 ActiveModulesDisplay.AnchorPoint = Vector2.new(1, 0)
-ActiveModulesDisplay.Position = UDim2.new(1, -5, 0, -52.5)
-ActiveModulesDisplay.Size = UDim2.new(0, 200, 1, -20)
+ActiveModulesDisplay.Position = UDim2.new(1, -5, 0, -57.5)
+ActiveModulesDisplay.Size = UDim2.new(0, 250, 1, 1000)
 ActiveModulesDisplay.BackgroundTransparency = 1
 ActiveModulesDisplay.ZIndex = 10
 
