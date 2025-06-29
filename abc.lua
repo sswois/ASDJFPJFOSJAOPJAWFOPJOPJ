@@ -191,110 +191,6 @@ function SendNotification(Title, Message, Duration)
 	end)
 end
 
-local TargetHUDFolder = Instance.new("Folder")
-TargetHUDFolder.Name = "TargetHUDFolder"
-TargetHUDFolder.Parent = ScreenGui
-
-local TargetHUD = Instance.new("Frame")
-TargetHUD.Name = "TargetHUD"
-TargetHUD.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-TargetHUD.BackgroundTransparency = 0.25
-TargetHUD.BorderSizePixel = 0
-TargetHUD.Position = UDim2.new(0.435, 0, 0.75, 0)
-TargetHUD.Size = UDim2.new(0, 250, 0, 75)
-TargetHUD.Visible = false
-TargetHUD.Parent = TargetHUDFolder
-
-local TargetPhoto = Instance.new("ImageLabel")
-TargetPhoto.BackgroundTransparency = 1
-TargetPhoto.BorderSizePixel = 0
-TargetPhoto.Position = UDim2.new(0, 10, 0, 12)
-TargetPhoto.Size = UDim2.new(0, 50, 0, 50)
-TargetPhoto.Image = "rbxasset://textures/ui/GuiImagePlaceholder.png"
-TargetPhoto.Parent = TargetHUD
-
-local TargetName = Instance.new("TextLabel")
-TargetName.BackgroundTransparency = 1
-TargetName.Position = UDim2.new(0.275, 0, 0.15, 0)
-TargetName.Size = UDim2.new(0, 150, 0, 25)
-TargetName.Font = Enum.Font.Sarpanch
-TargetName.Text = "Name"
-TargetName.TextColor3 = Color3.new(1, 1, 1)
-TargetName.TextSize = 20
-TargetName.TextXAlignment = Enum.TextXAlignment.Left
-TargetName.Parent = TargetHUD
-
-local HPBG = Instance.new("Frame")
-HPBG.BackgroundColor3 = Color3.new(1, 1, 1)
-HPBG.BackgroundTransparency = 0.85
-HPBG.BorderSizePixel = 0
-HPBG.Position = UDim2.new(0.275, 0, 0.5, 0)
-HPBG.Size = UDim2.new(0, 150, 0, 10)
-HPBG.Parent = TargetHUD
-
-local HPBar = Instance.new("Frame")
-HPBar.BackgroundColor3 = Color3.new(0, 0, 0)
-HPBar.BorderSizePixel = 0
-HPBar.Position = UDim2.new(0, 0, 0, 0)
-HPBar.Size = UDim2.new(1, 0, 1, 0)
-HPBar.Parent = HPBG
-
-local MaxDistance = 15
-
-local function GetHealthColor(HealthPercent)
-	local R = math.clamp(1 - HealthPercent, 0, 1)
-	local G = math.clamp(HealthPercent, 0, 1)
-	return Color3.new(R, G, 0)
-end
-
-local function IsAlive(Player)
-	return Player and Player.Character and Player.Character:FindFirstChild("Humanoid") and Player.Character:FindFirstChild("HumanoidRootPart") and Player.Character.Humanoid.Health > 0
-end
-
-local function IsEnemy(Player)
-	return Player and Player ~= LocalPlayer and (Player.Neutral or Player.Team ~= LocalPlayer.Team)
-end
-
-local function GetClosestPlayer()
-	local ClosestPlayer, ClosestDistance = nil, MaxDistance
-	for _, Player in ipairs(Players:GetPlayers()) do
-		if IsAlive(LocalPlayer) and IsAlive(Player) and IsEnemy(Player) then
-			local Distance = (Player.Character.HumanoidRootPart.Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
-			if Distance < ClosestDistance then
-				ClosestPlayer = Player
-				ClosestDistance = Distance
-			end
-		end
-	end
-	return ClosestPlayer
-end
-
-local TargetHUDEnabled = true
-
-while wait() do
-	if not TargetHUDEnabled then
-		TargetHUD.Visible = false
-		return
-	end
-	local Target = GetClosestPlayer()
-	if IsAlive(Target) then
-		local Humanoid = Target.Character.Humanoid
-		local HP = math.clamp(Humanoid.Health / Humanoid.MaxHealth, 0, 1)
-		TargetName.Text = Target.Name
-		HPBar.Size = UDim2.new(HP, 0, 1, 0)
-		HPBar.BackgroundColor3 = GetHealthColor(HP)
-		TargetPhoto.Image = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. Target.UserId .. "&width=420&height=420&format=png"
-		TargetHUD.Visible = true
-	else
-		TargetHUD.Visible = false
-	end
-end
-
-function Jello:ToggleTargetHUD()
-	TargetHUDEnabled = not TargetHUDEnabled
-	TargetHUD.Visible = TargetHUDEnabled
-end
-
 function Jello:AddTab(TabName)
 	local TabFrame = Instance.new("Frame")
 	TabFrame.BackgroundColor3 = Color3.new(0, 0, 0)
@@ -479,6 +375,110 @@ function Jello:AddTab(TabName)
 	end
 
 	return Tab
+end
+
+local TargetHUDFolder = Instance.new("Folder")
+TargetHUDFolder.Name = "TargetHUDFolder"
+TargetHUDFolder.Parent = ScreenGui
+
+local TargetHUD = Instance.new("Frame")
+TargetHUD.Name = "TargetHUD"
+TargetHUD.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+TargetHUD.BackgroundTransparency = 0.25
+TargetHUD.BorderSizePixel = 0
+TargetHUD.Position = UDim2.new(0.435, 0, 0.75, 0)
+TargetHUD.Size = UDim2.new(0, 250, 0, 75)
+TargetHUD.Visible = false
+TargetHUD.Parent = TargetHUDFolder
+
+local TargetPhoto = Instance.new("ImageLabel")
+TargetPhoto.BackgroundTransparency = 1
+TargetPhoto.BorderSizePixel = 0
+TargetPhoto.Position = UDim2.new(0, 10, 0, 12)
+TargetPhoto.Size = UDim2.new(0, 50, 0, 50)
+TargetPhoto.Image = "rbxasset://textures/ui/GuiImagePlaceholder.png"
+TargetPhoto.Parent = TargetHUD
+
+local TargetName = Instance.new("TextLabel")
+TargetName.BackgroundTransparency = 1
+TargetName.Position = UDim2.new(0.275, 0, 0.15, 0)
+TargetName.Size = UDim2.new(0, 150, 0, 25)
+TargetName.Font = Enum.Font.Sarpanch
+TargetName.Text = "Name"
+TargetName.TextColor3 = Color3.new(1, 1, 1)
+TargetName.TextSize = 20
+TargetName.TextXAlignment = Enum.TextXAlignment.Left
+TargetName.Parent = TargetHUD
+
+local HPBG = Instance.new("Frame")
+HPBG.BackgroundColor3 = Color3.new(1, 1, 1)
+HPBG.BackgroundTransparency = 0.85
+HPBG.BorderSizePixel = 0
+HPBG.Position = UDim2.new(0.275, 0, 0.5, 0)
+HPBG.Size = UDim2.new(0, 150, 0, 10)
+HPBG.Parent = TargetHUD
+
+local HPBar = Instance.new("Frame")
+HPBar.BackgroundColor3 = Color3.new(0, 0, 0)
+HPBar.BorderSizePixel = 0
+HPBar.Position = UDim2.new(0, 0, 0, 0)
+HPBar.Size = UDim2.new(1, 0, 1, 0)
+HPBar.Parent = HPBG
+
+local MaxDistance = 15
+
+local function GetHealthColor(HealthPercent)
+	local R = math.clamp(1 - HealthPercent, 0, 1)
+	local G = math.clamp(HealthPercent, 0, 1)
+	return Color3.new(R, G, 0)
+end
+
+local function IsAlive(Player)
+	return Player and Player.Character and Player.Character:FindFirstChild("Humanoid") and Player.Character:FindFirstChild("HumanoidRootPart") and Player.Character.Humanoid.Health > 0
+end
+
+local function IsEnemy(Player)
+	return Player and Player ~= LocalPlayer and (Player.Neutral or Player.Team ~= LocalPlayer.Team)
+end
+
+local function GetClosestPlayer()
+	local ClosestPlayer, ClosestDistance = nil, MaxDistance
+	for _, Player in ipairs(Players:GetPlayers()) do
+		if IsAlive(LocalPlayer) and IsAlive(Player) and IsEnemy(Player) then
+			local Distance = (Player.Character.HumanoidRootPart.Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
+			if Distance < ClosestDistance then
+				ClosestPlayer = Player
+				ClosestDistance = Distance
+			end
+		end
+	end
+	return ClosestPlayer
+end
+
+local TargetHUDEnabled = true
+
+while wait() do
+	if not TargetHUDEnabled then
+		TargetHUD.Visible = false
+		return
+	end
+	local Target = GetClosestPlayer()
+	if IsAlive(Target) then
+		local Humanoid = Target.Character.Humanoid
+		local HP = math.clamp(Humanoid.Health / Humanoid.MaxHealth, 0, 1)
+		TargetName.Text = Target.Name
+		HPBar.Size = UDim2.new(HP, 0, 1, 0)
+		HPBar.BackgroundColor3 = GetHealthColor(HP)
+		TargetPhoto.Image = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. Target.UserId .. "&width=420&height=420&format=png"
+		TargetHUD.Visible = true
+	else
+		TargetHUD.Visible = false
+	end
+end
+
+function Jello:ToggleTargetHUD()
+	TargetHUDEnabled = not TargetHUDEnabled
+	TargetHUD.Visible = TargetHUDEnabled
 end
 
 return Jello
