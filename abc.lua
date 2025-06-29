@@ -1,18 +1,21 @@
 local CoreGui = game:GetService("CoreGui")
 local UIS = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
+local TextService = game:GetService("TextService")
 
 local Jello = {}
 local AllTabs = {}
 local TabCount = 0
+local ActiveModules = {}
+local ActiveNotifications = {}
 
 if CoreGui:FindFirstChild("Jello") then return end
 
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "Jello"
-ScreenGui.Parent = CoreGui
 ScreenGui.ResetOnSpawn = false
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+ScreenGui.Parent = CoreGui
 
 local TabsFolder = Instance.new("Folder")
 TabsFolder.Name = "Tabs"
@@ -27,23 +30,22 @@ ActiveModulesFolder.Name = "ActiveModules"
 ActiveModulesFolder.Parent = ScreenGui
 
 local ActiveModulesDisplay = Instance.new("Frame")
-ActiveModulesDisplay.AnchorPoint = Vector2.new(1, 0)
-ActiveModulesDisplay.BackgroundTransparency = 1
 ActiveModulesDisplay.Name = "ActiveModulesDisplay"
-ActiveModulesDisplay.Parent = ActiveModulesFolder
+ActiveModulesDisplay.AnchorPoint = Vector2.new(1, 0)
+ActiveModulesDisplay.BackgroundColor3 = Color3.new(0, 0, 0)
+ActiveModulesDisplay.BackgroundTransparency = 1
+ActiveModulesDisplay.BorderColor3 = Color3.new(0, 0, 0)
+ActiveModulesDisplay.BorderSizePixel = 0
 ActiveModulesDisplay.Position = UDim2.new(1, -5, 0, -57.5)
 ActiveModulesDisplay.Size = UDim2.new(0, 250, 1, 1000)
 ActiveModulesDisplay.ZIndex = 10
+ActiveModulesDisplay.Parent = ActiveModulesFolder
 
 local ActiveModulesLayout = Instance.new("UIListLayout")
-ActiveModulesLayout.Padding = UDim.new(0, 0)
-ActiveModulesLayout.Parent = ActiveModulesDisplay
-ActiveModulesLayout.SortOrder = Enum.SortOrder.LayoutOrder
 ActiveModulesLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
-
-local ActiveModules = {}
-
-local TextService = game:GetService("TextService")
+ActiveModulesLayout.Padding = UDim.new(0, 0)
+ActiveModulesLayout.SortOrder = Enum.SortOrder.LayoutOrder
+ActiveModulesLayout.Parent = ActiveModulesDisplay
 
 local function GetTextWidth(text)
 	return TextService:GetTextSize(text, 20, Enum.Font.Sarpanch, Vector2.new(1000, 20)).X
@@ -55,20 +57,17 @@ local function RefreshActiveModules()
 			v:Destroy()
 		end
 	end
-
 	table.sort(ActiveModules, function(a, b)
 		return GetTextWidth(a) > GetTextWidth(b)
 	end)
 
 	for _, ModuleName in ipairs(ActiveModules) do
 		local Label = Instance.new("TextLabel")
-		Label.AutomaticSize = Enum.AutomaticSize.X
 		Label.BackgroundColor3 = Color3.new(0, 0, 0)
 		Label.BackgroundTransparency = 1
 		Label.BorderColor3 = Color3.new(0, 0, 0)
 		Label.BorderSizePixel = 0
 		Label.Font = Enum.Font.Sarpanch
-		Label.Parent = ActiveModulesDisplay
 		Label.Size = UDim2.new(0, 0, 0, 20)
 		Label.Text = ModuleName
 		Label.TextColor3 = Color3.new(1, 1, 1)
@@ -77,21 +76,27 @@ local function RefreshActiveModules()
 		Label.TextTransparency = 0
 		Label.TextWrapped = false
 		Label.TextXAlignment = Enum.TextXAlignment.Right
+		Label.AutomaticSize = Enum.AutomaticSize.X
+		Label.Name = "Label"
+		Label.Parent = ActiveModulesDisplay
 	end
 end
 
 local ModalButton = Instance.new("TextButton")
+ModalButton.BackgroundColor3 = Color3.new(0, 0, 0)
 ModalButton.BackgroundTransparency = 1
-ModalButton.Modal = true
-ModalButton.Parent = ScreenGui
+ModalButton.BorderColor3 = Color3.new(0, 0, 0)
+ModalButton.BorderSizePixel = 0
 ModalButton.Size = UDim2.new()
 ModalButton.Text = ""
 ModalButton.Visible = false
+ModalButton.Modal = true
+ModalButton.Parent = ScreenGui
 
 local BlurEffect = Instance.new("BlurEffect")
 BlurEffect.Enabled = false
-BlurEffect.Parent = game.Lighting
 BlurEffect.Size = 25
+BlurEffect.Parent = game.Lighting
 
 local TabsVisible = false
 
@@ -100,14 +105,11 @@ UIS.InputBegan:Connect(function(Input)
 		TabsVisible = not TabsVisible
 		BlurEffect.Enabled = TabsVisible
 		ModalButton.Visible = TabsVisible
-
 		for _, Tab in ipairs(AllTabs) do
 			Tab.Visible = TabsVisible
 		end
 	end
 end)
-
-local ActiveNotifications = {}
 
 local function RepositionNotifications()
 	for i, Data in ipairs(ActiveNotifications) do
@@ -115,7 +117,7 @@ local function RepositionNotifications()
 		Data.y = y
 		Data.frame:TweenPosition(UDim2.new(1, -10, 1, y), "Out", "Quad", 0.2, true)
 	end
-}
+end
 
 function SendNotification(Title, Message, Duration)
 	Duration = Duration or 3
@@ -125,34 +127,41 @@ function SendNotification(Title, Message, Duration)
 	Notification.AnchorPoint = Vector2.new(1, 1)
 	Notification.BackgroundColor3 = Color3.new(0, 0, 0)
 	Notification.BackgroundTransparency = 0.5
+	Notification.BorderColor3 = Color3.new(0, 0, 0)
 	Notification.BorderSizePixel = 0
-	Notification.Parent = NotificationsFolder
 	Notification.Position = UDim2.new(1, 500, 1, y)
 	Notification.Size = UDim2.new(0, 300, 0, 60)
+	Notification.Parent = NotificationsFolder
 
 	local TitleLabel = Instance.new("TextLabel")
+	TitleLabel.BackgroundColor3 = Color3.new(0, 0, 0)
 	TitleLabel.BackgroundTransparency = 1
+	TitleLabel.BorderColor3 = Color3.new(0, 0, 0)
+	TitleLabel.BorderSizePixel = 0
 	TitleLabel.Font = Enum.Font.Sarpanch
-	TitleLabel.Parent = Notification
 	TitleLabel.Position = UDim2.new(0, 10, 0, 5)
 	TitleLabel.Size = UDim2.new(1, -20, 0, 20)
 	TitleLabel.Text = Title
 	TitleLabel.TextColor3 = Color3.new(1, 1, 1)
 	TitleLabel.TextSize = 20
 	TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+	TitleLabel.Parent = Notification
 
 	local MessageLabel = Instance.new("TextLabel")
+	MessageLabel.BackgroundColor3 = Color3.new(0, 0, 0)
 	MessageLabel.BackgroundTransparency = 1
+	MessageLabel.BorderColor3 = Color3.new(0, 0, 0)
+	MessageLabel.BorderSizePixel = 0
 	MessageLabel.Font = Enum.Font.Sarpanch
-	MessageLabel.Parent = Notification
 	MessageLabel.Position = UDim2.new(0, 10, 0, 25)
 	MessageLabel.Size = UDim2.new(1, -20, 0, 30)
 	MessageLabel.Text = Message
 	MessageLabel.TextColor3 = Color3.new(1, 1, 1)
-	MessageLabel.TextSize = 20
 	MessageLabel.TextTransparency = 0.25
+	MessageLabel.TextSize = 20
 	MessageLabel.TextWrapped = true
 	MessageLabel.TextXAlignment = Enum.TextXAlignment.Left
+	MessageLabel.Parent = Notification
 
 	local Data = { frame = Notification, y = y }
 	table.insert(ActiveNotifications, Data)
@@ -162,22 +171,17 @@ function SendNotification(Title, Message, Duration)
 	task.delay(Duration, function()
 		if Notification and Notification.Parent then
 			local TweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
-			local Tween = TweenService:Create(Notification, TweenInfo, {
-				Position = UDim2.new(1, 500, 1, Data.y)
-			})
+			local Tween = TweenService:Create(Notification, TweenInfo, { Position = UDim2.new(1, 500, 1, Data.y) })
 			Tween:Play()
 			Tween.Completed:Wait()
-
 			if Notification then
 				Notification:Destroy()
-
 				for i, v in ipairs(ActiveNotifications) do
 					if v == Data then
 						table.remove(ActiveNotifications, i)
 						break
 					end
 				end
-
 				RepositionNotifications()
 			end
 		end
@@ -186,43 +190,50 @@ end
 
 function Jello:AddTab(TabName)
 	local TabFrame = Instance.new("Frame")
-	TabFrame.AutomaticSize = Enum.AutomaticSize.Y
+	TabFrame.BackgroundColor3 = Color3.new(0, 0, 0)
 	TabFrame.BackgroundTransparency = 1
 	TabFrame.BorderColor3 = Color3.new(0, 0, 0)
 	TabFrame.BorderSizePixel = 0
-	TabFrame.Parent = TabsFolder
 	TabFrame.Position = UDim2.new(0, 15 + TabCount * 260, 0, 15)
 	TabFrame.Size = UDim2.new(0, 250, 0, 0)
 	TabFrame.Visible = false
+	TabFrame.AutomaticSize = Enum.AutomaticSize.Y
+	TabFrame.Parent = TabsFolder
 	TabCount += 1
 	table.insert(AllTabs, TabFrame)
 
 	local Header = Instance.new("TextButton")
-	Header.AutoButtonColor = false
 	Header.BackgroundColor3 = Color3.new(0, 0, 0)
 	Header.BackgroundTransparency = 0.25
+	Header.BorderColor3 = Color3.new(0, 0, 0)
 	Header.BorderSizePixel = 0
 	Header.Font = Enum.Font.Sarpanch
-	Header.Parent = TabFrame
 	Header.Size = UDim2.new(0, 250, 0, 50)
 	Header.Text = TabName or "Tab"
 	Header.TextColor3 = Color3.new(1, 1, 1)
 	Header.TextSize = 25
 	Header.TextXAlignment = Enum.TextXAlignment.Left
+	Header.AutoButtonColor = false
+	Header.Parent = TabFrame
 
-	local HeaderPadding = Instance.new("UIPadding", Header)
+	local HeaderPadding = Instance.new("UIPadding")
 	HeaderPadding.PaddingLeft = UDim.new(0, 25)
+	HeaderPadding.Parent = Header
 
 	local Modules = Instance.new("Frame")
-	Modules.AutomaticSize = Enum.AutomaticSize.Y
+	Modules.BackgroundColor3 = Color3.new(0, 0, 0)
 	Modules.BackgroundTransparency = 1
-	Modules.Parent = TabFrame
+	Modules.BorderColor3 = Color3.new(0, 0, 0)
+	Modules.BorderSizePixel = 0
 	Modules.Position = UDim2.new(0, 0, 0, 50)
 	Modules.Size = UDim2.new(0, 250, 0, 0)
 	Modules.Visible = false
+	Modules.AutomaticSize = Enum.AutomaticSize.Y
+	Modules.Parent = TabFrame
 
-	local ModulesListLayout = Instance.new("UIListLayout", Modules)
+	local ModulesListLayout = Instance.new("UIListLayout")
 	ModulesListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+	ModulesListLayout.Parent = Modules
 
 	Header.MouseButton2Click:Connect(function()
 		Modules.Visible = not Modules.Visible
@@ -232,57 +243,69 @@ function Jello:AddTab(TabName)
 
 	function Tab:AddModule(ModuleName, callback)
 		local ModuleContainer = Instance.new("Frame")
-		ModuleContainer.AutomaticSize = Enum.AutomaticSize.Y
+		ModuleContainer.BackgroundColor3 = Color3.new(0, 0, 0)
 		ModuleContainer.BackgroundTransparency = 1
-		ModuleContainer.Parent = Modules
+		ModuleContainer.BorderColor3 = Color3.new(0, 0, 0)
+		ModuleContainer.BorderSizePixel = 0
 		ModuleContainer.Size = UDim2.new(1, 0, 0, 0)
+		ModuleContainer.AutomaticSize = Enum.AutomaticSize.Y
+		ModuleContainer.Parent = Modules
 
-		local ModuleContainerListLayout = Instance.new("UIListLayout", ModuleContainer)
+		local ModuleContainerListLayout = Instance.new("UIListLayout")
 		ModuleContainerListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+		ModuleContainerListLayout.Parent = ModuleContainer
 
 		local Module = Instance.new("TextButton")
-		Module.AutoButtonColor = false
 		Module.BackgroundColor3 = Color3.new(0, 0, 0)
 		Module.BackgroundTransparency = 0.5
+		Module.BorderColor3 = Color3.new(0, 0, 0)
 		Module.BorderSizePixel = 0
 		Module.Font = Enum.Font.Sarpanch
-		Module.Parent = ModuleContainer
 		Module.Size = UDim2.new(1, 0, 0, 50)
 		Module.Text = ModuleName or "Module"
 		Module.TextColor3 = Color3.new(1, 1, 1)
 		Module.TextSize = 20
 		Module.TextTransparency = 0.5
 		Module.TextXAlignment = Enum.TextXAlignment.Left
+		Module.AutoButtonColor = false
+		Module.Parent = ModuleContainer
 
-		local ModulePadding = Instance.new("UIPadding", Module)
+		local ModulePadding = Instance.new("UIPadding")
 		ModulePadding.PaddingLeft = UDim.new(0, 25)
+		ModulePadding.Parent = Module
 
 		local ModuleOptions = Instance.new("Frame")
-		ModuleOptions.AutomaticSize = Enum.AutomaticSize.Y
 		ModuleOptions.BackgroundColor3 = Color3.new(0, 0, 0)
 		ModuleOptions.BackgroundTransparency = 0.25
+		ModuleOptions.BorderColor3 = Color3.new(0, 0, 0)
 		ModuleOptions.BorderSizePixel = 0
-		ModuleOptions.ClipsDescendants = true
-		ModuleOptions.Parent = ModuleContainer
 		ModuleOptions.Size = UDim2.new(1, 0, 0, 0)
 		ModuleOptions.Visible = false
+		ModuleOptions.AutomaticSize = Enum.AutomaticSize.Y
+		ModuleOptions.ClipsDescendants = true
+		ModuleOptions.Parent = ModuleContainer
 
-		local ModuleOptionsListLayout = Instance.new("UIListLayout", ModuleOptions)
-		ModuleOptionsListLayout.Padding = UDim.new(0, 5)
+		local ModuleOptionsListLayout = Instance.new("UIListLayout")
 		ModuleOptionsListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+		ModuleOptionsListLayout.Padding = UDim.new(0, 5)
+		ModuleOptionsListLayout.Parent = ModuleOptions
 
 		local Bind = Instance.new("TextButton")
+		Bind.BackgroundColor3 = Color3.new(0, 0, 0)
 		Bind.BackgroundTransparency = 1
+		Bind.BorderColor3 = Color3.new(0, 0, 0)
+		Bind.BorderSizePixel = 0
 		Bind.Font = Enum.Font.Sarpanch
-		Bind.Parent = ModuleOptions
 		Bind.Size = UDim2.new(1, 0, 0, 25)
 		Bind.Text = "Bind: None"
 		Bind.TextColor3 = Color3.new(1, 1, 1)
 		Bind.TextSize = 15
 		Bind.TextXAlignment = Enum.TextXAlignment.Left
+		Bind.Parent = ModuleOptions
 
-		local BindPadding = Instance.new("UIPadding", Bind)
+		local BindPadding = Instance.new("UIPadding")
 		BindPadding.PaddingLeft = UDim.new(0, 25)
+		BindPadding.Parent = Bind
 
 		local Enabled = false
 		local CurrentBind = nil
@@ -310,7 +333,6 @@ function Jello:AddTab(TabName)
 		end
 
 		Module.MouseButton1Click:Connect(ToggleModule)
-
 		Module.MouseButton2Click:Connect(function()
 			ModuleOptions.Visible = not ModuleOptions.Visible
 		end)
