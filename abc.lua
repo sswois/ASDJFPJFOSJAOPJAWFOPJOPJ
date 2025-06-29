@@ -21,6 +21,15 @@ local TabsFolder = Instance.new("Folder")
 TabsFolder.Name = "Tabs"
 TabsFolder.Parent = ScreenGui
 
+local TabsContainer = Instance.new("Frame")
+TabsContainer.Name = "TabsContainer"
+TabsContainer.BackgroundColor3 = Color3.new(0, 0, 0)
+TabsContainer.BackgroundTransparency = 1
+TabsContainer.BorderSizePixel = 0
+TabsContainer.Size = UDim2.new(1, 0, 1, 0)
+TabsContainer.Visible = false
+TabsContainer.Parent = TabsFolder
+
 local NotificationsFolder = Instance.new("Folder")
 NotificationsFolder.Name = "Notifications"
 NotificationsFolder.Parent = ScreenGui
@@ -115,9 +124,7 @@ UIS.InputBegan:Connect(function(Input)
 		TabsVisible = not TabsVisible
 		BlurEffect.Enabled = TabsVisible
 		ModalButton.Visible = TabsVisible
-		for _, Tab in ipairs(AllTabs) do
-			Tab.Visible = TabsVisible
-		end
+		TabsContainer.Visible = TabsVisible
 	end
 end)
 
@@ -206,7 +213,7 @@ function Jello:AddTab(TabName)
 	TabFrame.BorderSizePixel = 0
 	TabFrame.Position = UDim2.new(0, 15 + TabCount * 260, 0, 15)
 	TabFrame.Size = UDim2.new(0, 250, 0, 0)
-	TabFrame.Visible = false
+	TabFrame.Visible = true
 	TabFrame.AutomaticSize = Enum.AutomaticSize.Y
 	TabFrame.Parent = TabsFolder
 	TabCount += 1
@@ -475,6 +482,14 @@ function Jello:ToggleArrayList(State)
 	end
 end
 
+function Jello:ToggleNotifications(State)
+    if State == nil then
+        NotificationsContainer.Visible = not NotificationsContainer.Visible
+    else
+        NotificationsContainer.Visible = State
+    end
+end
+
 function Jello:ToggleTargetHUD(State)
 	if State == nil then
 		TargetHUDEnabled = not TargetHUDEnabled
@@ -515,14 +530,6 @@ function Jello:ToggleTargetHUD(State)
 	else
 		TargetHUDEnabled = false
 	end
-end
-
-function Jello:ToggleNotifications(State)
-    if State == nil then
-        NotificationsContainer.Visible = not NotificationsContainer.Visible
-    else
-        NotificationsContainer.Visible = State
-    end
 end
 
 return Jello
