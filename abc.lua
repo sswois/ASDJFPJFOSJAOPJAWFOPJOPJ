@@ -1,11 +1,7 @@
-local ContentProvider = game:GetService("ContentProvider")
 local CoreGui = game:GetService("CoreGui")
-local Players = game:GetService("Players")
-local TextService = game:GetService("TextService")
-local TweenService = game:GetService("TweenService")
 local UIS = game:GetService("UserInputService")
-
-local LocalPlayer = Players.LocalPlayer
+local TweenService = game:GetService("TweenService")
+local TextService = game:GetService("TextService")
 
 local Jello = {}
 local AllTabs = {}
@@ -29,14 +25,15 @@ local NotificationsFolder = Instance.new("Folder")
 NotificationsFolder.Name = "Notifications"
 NotificationsFolder.Parent = ScreenGui
 
-local NotificationsFrame = Instance.new("Frame")
-NotificationsFrame.Name = "NotificationsFrame"
-NotificationsFrame.BackgroundTransparency = 1
-NotificationsFrame.Size = UDim2.new(1, 0, 1, 0)
-NotificationsFrame.Position = UDim2.new(0, 0, 0, 0)
-NotificationsFrame.ZIndex = 10
-NotificationsFrame.Visible = true
-NotificationsFrame.Parent = NotificationsFolder
+-- New: NotificationsContainer Frame
+local NotificationsContainer = Instance.new("Frame")
+NotificationsContainer.Name = "NotificationsContainer"
+NotificationsContainer.BackgroundColor3 = Color3.new(0, 0, 0)
+NotificationsContainer.BackgroundTransparency = 1
+NotificationsContainer.BorderSizePixel = 0
+NotificationsContainer.Size = UDim2.new(1, 0, 1, 0) -- Takes up full space of its parent
+NotificationsContainer.Visible = true -- Default to visible
+NotificationsContainer.Parent = NotificationsFolder
 
 local ActiveModulesFolder = Instance.new("Folder")
 ActiveModulesFolder.Name = "ActiveModules"
@@ -47,15 +44,16 @@ ActiveModulesDisplay.Name = "ActiveModulesDisplay"
 ActiveModulesDisplay.AnchorPoint = Vector2.new(1, 0)
 ActiveModulesDisplay.BackgroundColor3 = Color3.new(0, 0, 0)
 ActiveModulesDisplay.BackgroundTransparency = 1
+ActiveModulesDisplay.BorderColor3 = Color3.new(0, 0, 0)
 ActiveModulesDisplay.BorderSizePixel = 0
 ActiveModulesDisplay.Position = UDim2.new(1, -5, 0, -57.5)
 ActiveModulesDisplay.Size = UDim2.new(0, 250, 1, 1000)
 ActiveModulesDisplay.ZIndex = 10
-ActiveModulesDisplay.Visible = true
 ActiveModulesDisplay.Parent = ActiveModulesFolder
 
 local ActiveModulesLayout = Instance.new("UIListLayout")
 ActiveModulesLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
+ActiveModulesLayout.Padding = UDim.new(0, 0)
 ActiveModulesLayout.SortOrder = Enum.SortOrder.LayoutOrder
 ActiveModulesLayout.Parent = ActiveModulesDisplay
 
@@ -75,7 +73,10 @@ local function RefreshActiveModules()
 
 	for _, ModuleName in ipairs(ActiveModules) do
 		local Label = Instance.new("TextLabel")
+		Label.BackgroundColor3 = Color3.new(0, 0, 0)
 		Label.BackgroundTransparency = 1
+		Label.BorderColor3 = Color3.new(0, 0, 0)
+		Label.BorderSizePixel = 0
 		Label.Font = Enum.Font.Sarpanch
 		Label.Size = UDim2.new(0, 0, 0, 20)
 		Label.Text = ModuleName
@@ -83,12 +84,42 @@ local function RefreshActiveModules()
 		Label.TextSize = 20
 		Label.TextStrokeTransparency = 0.5
 		Label.TextTransparency = 0
+		Label.TextWrapped = false
 		Label.TextXAlignment = Enum.TextXAlignment.Right
 		Label.AutomaticSize = Enum.AutomaticSize.X
 		Label.Name = "Label"
 		Label.Parent = ActiveModulesDisplay
 	end
 end
+
+local ModalButton = Instance.new("TextButton")
+ModalButton.BackgroundColor3 = Color3.new(0, 0, 0)
+ModalButton.BackgroundTransparency = 1
+ModalButton.BorderColor3 = Color3.new(0, 0, 0)
+ModalButton.BorderSizePixel = 0
+ModalButton.Size = UDim2.new()
+ModalButton.Text = ""
+ModalButton.Visible = false
+ModalButton.Modal = true
+ModalButton.Parent = ScreenGui
+
+local BlurEffect = Instance.new("BlurEffect")
+BlurEffect.Enabled = false
+BlurEffect.Size = 25
+BlurEffect.Parent = game.Lighting
+
+local TabsVisible = false
+
+UIS.InputBegan:Connect(function(Input)
+	if Input.KeyCode == Enum.KeyCode.RightShift then
+		TabsVisible = not TabsVisible
+		BlurEffect.Enabled = TabsVisible
+		ModalButton.Visible = TabsVisible
+		for _, Tab in ipairs(AllTabs) do
+			Tab.Visible = TabsVisible
+		end
+	end
+end)
 
 local function RepositionNotifications()
 	for i, Data in ipairs(ActiveNotifications) do
@@ -99,8 +130,6 @@ local function RepositionNotifications()
 end
 
 function SendNotification(Title, Message, Duration)
-	if not NotificationsFrame.Visible then return end
-
 	Duration = Duration or 3
 	local y = -80 - (#ActiveNotifications * 70)
 
@@ -108,13 +137,17 @@ function SendNotification(Title, Message, Duration)
 	Notification.AnchorPoint = Vector2.new(1, 1)
 	Notification.BackgroundColor3 = Color3.new(0, 0, 0)
 	Notification.BackgroundTransparency = 0.5
+	Notification.BorderColor3 = Color3.new(0, 0, 0)
 	Notification.BorderSizePixel = 0
 	Notification.Position = UDim2.new(1, 500, 1, y)
 	Notification.Size = UDim2.new(0, 300, 0, 60)
-	Notification.Parent = NotificationsFrame
+	Notification.Parent = NotificationsContainer -- Parent to the new NotificationsContainer
 
 	local TitleLabel = Instance.new("TextLabel")
+	TitleLabel.BackgroundColor3 = Color3.new(0, 0, 0)
 	TitleLabel.BackgroundTransparency = 1
+	TitleLabel.BorderColor3 = Color3.new(0, 0, 0)
+	TitleLabel.BorderSizePixel = 0
 	TitleLabel.Font = Enum.Font.Sarpanch
 	TitleLabel.Position = UDim2.new(0, 10, 0, 5)
 	TitleLabel.Size = UDim2.new(1, -20, 0, 20)
@@ -125,7 +158,10 @@ function SendNotification(Title, Message, Duration)
 	TitleLabel.Parent = Notification
 
 	local MessageLabel = Instance.new("TextLabel")
+	MessageLabel.BackgroundColor3 = Color3.new(0, 0, 0)
 	MessageLabel.BackgroundTransparency = 1
+	MessageLabel.BorderColor3 = Color3.new(0, 0, 0)
+	MessageLabel.BorderSizePixel = 0
 	MessageLabel.Font = Enum.Font.Sarpanch
 	MessageLabel.Position = UDim2.new(0, 10, 0, 25)
 	MessageLabel.Size = UDim2.new(1, -20, 0, 30)
@@ -160,6 +196,15 @@ function SendNotification(Title, Message, Duration)
 			end
 		end
 	end)
+end
+
+-- New: ToggleNotifications function
+function Jello:ToggleNotifications(State)
+    if State == nil then
+        NotificationsContainer.Visible = not NotificationsContainer.Visible
+    else
+        NotificationsContainer.Visible = State
+    end
 end
 
 function Jello:AddTab(TabName)
@@ -348,12 +393,15 @@ function Jello:AddTab(TabName)
 	return Tab
 end
 
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
 local MaxDistance = 15
 local TargetHUDEnabled = false
 local TargetHUDThread = nil
 
 local TargetHUDFolder = Instance.new("Folder")
-TargetHUDFolder.Name = "TargetHUD"
+TargetHUDFolder.Name = "TargetHUDFolder"
 TargetHUDFolder.Parent = ScreenGui
 
 local TargetHUD = Instance.new("Frame")
@@ -364,7 +412,6 @@ TargetHUD.BorderSizePixel = 0
 TargetHUD.Position = UDim2.new(0.435, 0, 0.75, 0)
 TargetHUD.Size = UDim2.new(0, 250, 0, 75)
 TargetHUD.Visible = false
-TargetHUD.ZIndex = 10
 TargetHUD.Parent = TargetHUDFolder
 
 local TargetPhoto = Instance.new("ImageLabel")
@@ -401,22 +448,6 @@ HPBar.Position = UDim2.new(0, 0, 0, 0)
 HPBar.Size = UDim2.new(0, 0, 1, 0)
 HPBar.Parent = HPBG
 
-local function PreloadProfileImages()
-	local assets = {}
-	for _, player in ipairs(Players:GetPlayers()) do
-		table.insert(assets, "https://www.roblox.com/headshot-thumbnail/image?userId=" .. player.UserId .. "&width=420&height=420&format=png")
-	end
-	table.insert(assets, "https://www.roblox.com/headshot-thumbnail/image?userId=1&width=420&height=420&format=png")
-	ContentProvider:PreloadAsync(assets)
-end
-
-Players.PlayerAdded:Connect(function(player)
-	local url = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. player.UserId .. "&width=420&height=420&format=png"
-	ContentProvider:PreloadAsync({url})
-end)
-
-PreloadProfileImages()
-
 local function GetHealthColor(HealthPercent)
 	local R = math.clamp(1 - HealthPercent, 0, 1)
 	local G = math.clamp(HealthPercent, 0, 1)
@@ -445,14 +476,6 @@ local function GetClosestPlayer()
 	return ClosestPlayer
 end
 
-function Jello:ToggleArrayList(State)
-	if State == nil then
-		ActiveModulesDisplay.Visible = not ActiveModulesDisplay.Visible
-	else
-		ActiveModulesDisplay.Visible = State
-	end
-end
-
 function Jello:ToggleTargetHUD(State)
 	if State == nil then
 		TargetHUDEnabled = not TargetHUDEnabled
@@ -465,8 +488,9 @@ function Jello:ToggleTargetHUD(State)
 			TargetHUDThread = task.spawn(function()
 				while TargetHUDEnabled do
 					task.wait()
+
 					local Target = GetClosestPlayer()
-					local ShouldShow = false
+					local shouldShow = false
 
 					if IsAlive(Target) then
 						local Humanoid = Target.Character.Humanoid
@@ -475,31 +499,30 @@ function Jello:ToggleTargetHUD(State)
 						HPBar.Size = UDim2.new(HP, 0, 1, 0)
 						HPBar.BackgroundColor3 = GetHealthColor(HP)
 						TargetPhoto.Image = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. Target.UserId .. "&width=420&height=420&format=png"
-						ShouldShow = true
+						shouldShow = true
 					elseif TabsVisible then
 						TargetName.Text = "Roblox"
 						HPBar.Size = UDim2.new(0, 0, 1, 0)
 						HPBar.BackgroundColor3 = Color3.new(0, 0, 0)
 						TargetPhoto.Image = "https://www.roblox.com/headshot-thumbnail/image?userId=1&width=420&height=420&format=png"
-						ShouldShow = true
+						shouldShow = true
+					else
+						shouldShow = false
 					end
 
-					TargetHUD.Visible = ShouldShow
+					if TabsVisible or shouldShow then
+						TargetHUD.Visible = true
+					else
+						TargetHUD.Visible = false
+					end
 				end
+
 				TargetHUD.Visible = false
 				TargetHUDThread = nil
 			end)
 		end
 	else
 		TargetHUDEnabled = false
-	end
-end
-
-function Jello:ToggleNotifications(State)
-	if State == nil then
-		NotificationsFrame.Visible = not NotificationsFrame.Visible
-	else
-		NotificationsFrame.Visible = State
 	end
 end
 
