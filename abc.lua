@@ -215,7 +215,7 @@ function Jello:AddTab(TabName)
 	TabFrame.Size = UDim2.new(0, 250, 0, 0)
 	TabFrame.Visible = true
 	TabFrame.AutomaticSize = Enum.AutomaticSize.Y
-	TabFrame.Parent = TabsFolder
+	TabFrame.Parent = TabsContainer
 	TabCount += 1
 	table.insert(AllTabs, TabFrame)
 
