@@ -198,15 +198,6 @@ function SendNotification(Title, Message, Duration)
 	end)
 end
 
--- New: ToggleNotifications function
-function Jello:ToggleNotifications(State)
-    if State == nil then
-        NotificationsContainer.Visible = not NotificationsContainer.Visible
-    else
-        NotificationsContainer.Visible = State
-    end
-end
-
 function Jello:AddTab(TabName)
 	local TabFrame = Instance.new("Frame")
 	TabFrame.BackgroundColor3 = Color3.new(0, 0, 0)
@@ -476,6 +467,14 @@ local function GetClosestPlayer()
 	return ClosestPlayer
 end
 
+function Jello:ToggleArrayList(State)
+	if State == nil then
+		ActiveModulesDisplay.Visible = not ActiveModulesDisplay.Visible
+	else
+		ActiveModulesDisplay.Visible = State
+	end
+end
+
 function Jello:ToggleTargetHUD(State)
 	if State == nil then
 		TargetHUDEnabled = not TargetHUDEnabled
@@ -488,9 +487,8 @@ function Jello:ToggleTargetHUD(State)
 			TargetHUDThread = task.spawn(function()
 				while TargetHUDEnabled do
 					task.wait()
-
 					local Target = GetClosestPlayer()
-					local shouldShow = false
+					local ShouldShow = false
 
 					if IsAlive(Target) then
 						local Humanoid = Target.Character.Humanoid
@@ -499,24 +497,17 @@ function Jello:ToggleTargetHUD(State)
 						HPBar.Size = UDim2.new(HP, 0, 1, 0)
 						HPBar.BackgroundColor3 = GetHealthColor(HP)
 						TargetPhoto.Image = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. Target.UserId .. "&width=420&height=420&format=png"
-						shouldShow = true
+						ShouldShow = true
 					elseif TabsVisible then
 						TargetName.Text = "Roblox"
 						HPBar.Size = UDim2.new(0, 0, 1, 0)
 						HPBar.BackgroundColor3 = Color3.new(0, 0, 0)
 						TargetPhoto.Image = "https://www.roblox.com/headshot-thumbnail/image?userId=1&width=420&height=420&format=png"
-						shouldShow = true
-					else
-						shouldShow = false
+						ShouldShow = true
 					end
 
-					if TabsVisible or shouldShow then
-						TargetHUD.Visible = true
-					else
-						TargetHUD.Visible = false
-					end
+					TargetHUD.Visible = ShouldShow
 				end
-
 				TargetHUD.Visible = false
 				TargetHUDThread = nil
 			end)
@@ -524,6 +515,14 @@ function Jello:ToggleTargetHUD(State)
 	else
 		TargetHUDEnabled = false
 	end
+end
+
+function Jello:ToggleNotifications(State)
+    if State == nil then
+        NotificationsContainer.Visible = not NotificationsContainer.Visible
+    else
+        NotificationsContainer.Visible = State
+    end
 end
 
 return Jello
