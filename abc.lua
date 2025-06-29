@@ -374,7 +374,12 @@ function Jello:AddTab(TabName)
 	return Tab
 end
 
-local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+local MaxDistance = 15
+local TargetHUDEnabled = false
+local TargetHUDThread = nil
 
 local TargetHUDFolder = Instance.new("Folder")
 TargetHUDFolder.Name = "TargetHUDFolder"
@@ -403,7 +408,7 @@ TargetName.BackgroundTransparency = 1
 TargetName.Position = UDim2.new(0.275, 0, 0.15, 0)
 TargetName.Size = UDim2.new(0, 150, 0, 25)
 TargetName.Font = Enum.Font.Sarpanch
-TargetName.Text = "Name"
+TargetName.Text = "No Target"
 TargetName.TextColor3 = Color3.new(1, 1, 1)
 TargetName.TextSize = 20
 TargetName.TextXAlignment = Enum.TextXAlignment.Left
@@ -421,12 +426,8 @@ local HPBar = Instance.new("Frame")
 HPBar.BackgroundColor3 = Color3.new(0, 0, 0)
 HPBar.BorderSizePixel = 0
 HPBar.Position = UDim2.new(0, 0, 0, 0)
-HPBar.Size = UDim2.new(1, 0, 1, 0)
+HPBar.Size = UDim2.new(0, 0, 1, 0)
 HPBar.Parent = HPBG
-
-local MaxDistance = 15
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
 
 local function GetHealthColor(HealthPercent)
 	local R = math.clamp(1 - HealthPercent, 0, 1)
@@ -456,31 +457,48 @@ local function GetClosestPlayer()
 	return ClosestPlayer
 end
 
-local TargetHUDEnabled = true
-
-RunService.Heartbeat:Connect(function()
-	if not TargetHUDEnabled then
-		TargetHUD.Visible = false
-		return
-	end
-
-	local Target = GetClosestPlayer()
-	if IsAlive(Target) then
-		local Humanoid = Target.Character.Humanoid
-		local HP = math.clamp(Humanoid.Health / Humanoid.MaxHealth, 0, 1)
-		TargetName.Text = Target.Name
-		HPBar.Size = UDim2.new(HP, 0, 1, 0)
-		HPBar.BackgroundColor3 = GetHealthColor(HP)
-		TargetPhoto.Image = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. Target.UserId .. "&width=420&height=420&format=png"
-		TargetHUD.Visible = true
+function Jello:ToggleTargetHUD(State)
+	if State == nil then
+		TargetHUDEnabled = not TargetHUDEnabled
 	else
-		TargetHUD.Visible = false
+		TargetHUDEnabled = State
 	end
-end)
 
-function Jello:ToggleTargetHUD()
-	TargetHUDEnabled = not TargetHUDEnabled
-	TargetHUD.Visible = TargetHUDEnabled
+	if TargetHUDEnabled then
+		if not TargetHUDThread then
+			TargetHUDThread = task.spawn(function()
+				while TargetHUDEnabled do
+					task.wait(0.2)
+
+					local Target = GetClosestPlayer()
+					local shouldShow = false
+
+					if IsAlive(Target) then
+						local Humanoid = Target.Character.Humanoid
+						local HP = math.clamp(Humanoid.Health / Humanoid.MaxHealth, 0, 1)
+						TargetName.Text = Target.Name
+						HPBar.Size = UDim2.new(HP, 0, 1, 0)
+						HPBar.BackgroundColor3 = GetHealthColor(HP)
+						TargetPhoto.Image = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. Target.UserId .. "&width=420&height=420&format=png"
+						shouldShow = true
+					end
+
+					if TabsVisible then
+						TargetHUD.Visible = true
+					elseif shouldShow then
+						TargetHUD.Visible = true
+					else
+						TargetHUD.Visible = false
+					end
+				end
+
+				TargetHUD.Visible = false
+				TargetHUDThread = nil
+			end)
+		end
+	else
+		TargetHUDEnabled = false
+	end
 end
 
 return Jello
