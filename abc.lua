@@ -1,10 +1,10 @@
 local ContentProvider = game:GetService("ContentProvider")
 local CoreGui = game:GetService("CoreGui")
+local Players = game:GetService("Players")
 local TextService = game:GetService("TextService")
 local TweenService = game:GetService("TweenService")
 local UIS = game:GetService("UserInputService")
 
-local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
 local Jello = {}
@@ -29,6 +29,15 @@ local NotificationsFolder = Instance.new("Folder")
 NotificationsFolder.Name = "Notifications"
 NotificationsFolder.Parent = ScreenGui
 
+local NotificationsFrame = Instance.new("Frame")
+NotificationsFrame.Name = "NotificationsFrame"
+NotificationsFrame.BackgroundTransparency = 1
+NotificationsFrame.Size = UDim2.new(1, 0, 1, 0)
+NotificationsFrame.Position = UDim2.new(0, 0, 0, 0)
+NotificationsFrame.ZIndex = 10
+NotificationsFrame.Visible = true
+NotificationsFrame.Parent = NotificationsFolder
+
 local ActiveModulesFolder = Instance.new("Folder")
 ActiveModulesFolder.Name = "ActiveModules"
 ActiveModulesFolder.Parent = ScreenGui
@@ -38,16 +47,15 @@ ActiveModulesDisplay.Name = "ActiveModulesDisplay"
 ActiveModulesDisplay.AnchorPoint = Vector2.new(1, 0)
 ActiveModulesDisplay.BackgroundColor3 = Color3.new(0, 0, 0)
 ActiveModulesDisplay.BackgroundTransparency = 1
-ActiveModulesDisplay.BorderColor3 = Color3.new(0, 0, 0)
 ActiveModulesDisplay.BorderSizePixel = 0
 ActiveModulesDisplay.Position = UDim2.new(1, -5, 0, -57.5)
 ActiveModulesDisplay.Size = UDim2.new(0, 250, 1, 1000)
 ActiveModulesDisplay.ZIndex = 10
+ActiveModulesDisplay.Visible = true
 ActiveModulesDisplay.Parent = ActiveModulesFolder
 
 local ActiveModulesLayout = Instance.new("UIListLayout")
 ActiveModulesLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
-ActiveModulesLayout.Padding = UDim.new(0, 0)
 ActiveModulesLayout.SortOrder = Enum.SortOrder.LayoutOrder
 ActiveModulesLayout.Parent = ActiveModulesDisplay
 
@@ -67,10 +75,7 @@ local function RefreshActiveModules()
 
 	for _, ModuleName in ipairs(ActiveModules) do
 		local Label = Instance.new("TextLabel")
-		Label.BackgroundColor3 = Color3.new(0, 0, 0)
 		Label.BackgroundTransparency = 1
-		Label.BorderColor3 = Color3.new(0, 0, 0)
-		Label.BorderSizePixel = 0
 		Label.Font = Enum.Font.Sarpanch
 		Label.Size = UDim2.new(0, 0, 0, 20)
 		Label.Text = ModuleName
@@ -78,42 +83,12 @@ local function RefreshActiveModules()
 		Label.TextSize = 20
 		Label.TextStrokeTransparency = 0.5
 		Label.TextTransparency = 0
-		Label.TextWrapped = false
 		Label.TextXAlignment = Enum.TextXAlignment.Right
 		Label.AutomaticSize = Enum.AutomaticSize.X
 		Label.Name = "Label"
 		Label.Parent = ActiveModulesDisplay
 	end
 end
-
-local ModalButton = Instance.new("TextButton")
-ModalButton.BackgroundColor3 = Color3.new(0, 0, 0)
-ModalButton.BackgroundTransparency = 1
-ModalButton.BorderColor3 = Color3.new(0, 0, 0)
-ModalButton.BorderSizePixel = 0
-ModalButton.Size = UDim2.new()
-ModalButton.Text = ""
-ModalButton.Visible = false
-ModalButton.Modal = true
-ModalButton.Parent = ScreenGui
-
-local BlurEffect = Instance.new("BlurEffect")
-BlurEffect.Enabled = false
-BlurEffect.Size = 25
-BlurEffect.Parent = game.Lighting
-
-local TabsVisible = false
-
-UIS.InputBegan:Connect(function(Input)
-	if Input.KeyCode == Enum.KeyCode.RightShift then
-		TabsVisible = not TabsVisible
-		BlurEffect.Enabled = TabsVisible
-		ModalButton.Visible = TabsVisible
-		for _, Tab in ipairs(AllTabs) do
-			Tab.Visible = TabsVisible
-		end
-	end
-end)
 
 local function RepositionNotifications()
 	for i, Data in ipairs(ActiveNotifications) do
@@ -124,6 +99,8 @@ local function RepositionNotifications()
 end
 
 function SendNotification(Title, Message, Duration)
+	if not NotificationsFrame.Visible then return end
+
 	Duration = Duration or 3
 	local y = -80 - (#ActiveNotifications * 70)
 
@@ -131,17 +108,13 @@ function SendNotification(Title, Message, Duration)
 	Notification.AnchorPoint = Vector2.new(1, 1)
 	Notification.BackgroundColor3 = Color3.new(0, 0, 0)
 	Notification.BackgroundTransparency = 0.5
-	Notification.BorderColor3 = Color3.new(0, 0, 0)
 	Notification.BorderSizePixel = 0
 	Notification.Position = UDim2.new(1, 500, 1, y)
 	Notification.Size = UDim2.new(0, 300, 0, 60)
-	Notification.Parent = NotificationsFolder
+	Notification.Parent = NotificationsFrame
 
 	local TitleLabel = Instance.new("TextLabel")
-	TitleLabel.BackgroundColor3 = Color3.new(0, 0, 0)
 	TitleLabel.BackgroundTransparency = 1
-	TitleLabel.BorderColor3 = Color3.new(0, 0, 0)
-	TitleLabel.BorderSizePixel = 0
 	TitleLabel.Font = Enum.Font.Sarpanch
 	TitleLabel.Position = UDim2.new(0, 10, 0, 5)
 	TitleLabel.Size = UDim2.new(1, -20, 0, 20)
@@ -152,10 +125,7 @@ function SendNotification(Title, Message, Duration)
 	TitleLabel.Parent = Notification
 
 	local MessageLabel = Instance.new("TextLabel")
-	MessageLabel.BackgroundColor3 = Color3.new(0, 0, 0)
 	MessageLabel.BackgroundTransparency = 1
-	MessageLabel.BorderColor3 = Color3.new(0, 0, 0)
-	MessageLabel.BorderSizePixel = 0
 	MessageLabel.Font = Enum.Font.Sarpanch
 	MessageLabel.Position = UDim2.new(0, 10, 0, 25)
 	MessageLabel.Size = UDim2.new(1, -20, 0, 30)
@@ -526,23 +496,10 @@ function Jello:ToggleTargetHUD(State)
 end
 
 function Jello:ToggleNotifications(State)
-	local NewState
-
 	if State == nil then
-		for _, Notification in ipairs(NotificationsFolder:GetChildren()) do
-			if Notification:IsA("GuiObject") then
-				NewState = not Notification.Visible
-				break
-			end
-		end
+		NotificationsFrame.Visible = not NotificationsFrame.Visible
 	else
-		NewState = State
-	end
-
-	for _, Notification in ipairs(NotificationsFolder:GetChildren()) do
-		if Notification:IsA("GuiObject") then
-			Notification.Visible = NewState
-		end
+		NotificationsFrame.Visible = State
 	end
 end
 
