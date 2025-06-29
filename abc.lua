@@ -175,15 +175,13 @@ function SendNotification(Title, Message, Duration)
 end
 
 local TargetHUDFolder = Instance.new("Folder")
-TargetHUDFolder.Name = "TargetHUDFolder"
 TargetHUDFolder.Parent = ScreenGui
 
 local TargetHUD = Instance.new("Frame")
-TargetHUD.Name = "TargetHUD"
 TargetHUD.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 TargetHUD.BackgroundTransparency = 0.25
 TargetHUD.BorderSizePixel = 0
-TargetHUD.Position = UDim2.new(0.435, 0, 0.75, 0)
+TargetHUD.Position = UDim2.new(0.435, 0, 0.77, 0)
 TargetHUD.Size = UDim2.new(0, 250, 0, 75)
 TargetHUD.Visible = false
 TargetHUD.Parent = TargetHUDFolder
