@@ -526,15 +526,22 @@ function Jello:ToggleTargetHUD(State)
 end
 
 function Jello:ToggleNotifications(State)
+	local NewState
+
 	if State == nil then
-		NotificationsFolder.Enabled = not NotificationsFolder.Enabled
+		for _, Notification in ipairs(NotificationsFolder:GetChildren()) do
+			if Notification:IsA("GuiObject") then
+				NewState = not Notification.Visible
+				break
+			end
+		end
 	else
-		NotificationsFolder.Enabled = State
+		NewState = State
 	end
 
-	for _, child in ipairs(NotificationsFolder:GetChildren()) do
-		if child:IsA("GuiObject") then
-			child.Visible = NotificationsFolder.Enabled
+	for _, Notification in ipairs(NotificationsFolder:GetChildren()) do
+		if Notification:IsA("GuiObject") then
+			Notification.Visible = NewState
 		end
 	end
 end
