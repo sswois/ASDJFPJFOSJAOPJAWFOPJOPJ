@@ -595,7 +595,7 @@ function Jello:ToggleTargetHUD(State)
 		if not TargetHUDThread then
 			TargetHUDThread = task.spawn(function()
 				while TargetHUDEnabled do
-					task.wait(0.2)
+					task.wait()
 
 					local Target = GetClosestPlayer()
 					local shouldShow = false
