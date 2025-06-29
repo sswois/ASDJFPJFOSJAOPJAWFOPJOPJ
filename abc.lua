@@ -25,44 +25,44 @@ local NotificationsFolder = Instance.new("Folder")
 NotificationsFolder.Name = "Notifications"
 NotificationsFolder.Parent = ScreenGui
 
--- New: NotificationsContainer Frame
 local NotificationsContainer = Instance.new("Frame")
 NotificationsContainer.Name = "NotificationsContainer"
 NotificationsContainer.BackgroundColor3 = Color3.new(0, 0, 0)
 NotificationsContainer.BackgroundTransparency = 1
 NotificationsContainer.BorderSizePixel = 0
-NotificationsContainer.Size = UDim2.new(1, 0, 1, 0) -- Takes up full space of its parent
-NotificationsContainer.Visible = true -- Default to visible
+NotificationsContainer.Size = UDim2.new(1, 0, 1, 0)
+NotificationsContainer.Visible = false
 NotificationsContainer.Parent = NotificationsFolder
 
-local ActiveModulesFolder = Instance.new("Folder")
-ActiveModulesFolder.Name = "ActiveModules"
-ActiveModulesFolder.Parent = ScreenGui
+local ArrayListFolder = Instance.new("Folder")
+ArrayListFolder.Name = "ArrayList"
+ArrayListFolder.Parent = ScreenGui
 
-local ActiveModulesDisplay = Instance.new("Frame")
-ActiveModulesDisplay.Name = "ActiveModulesDisplay"
-ActiveModulesDisplay.AnchorPoint = Vector2.new(1, 0)
-ActiveModulesDisplay.BackgroundColor3 = Color3.new(0, 0, 0)
-ActiveModulesDisplay.BackgroundTransparency = 1
-ActiveModulesDisplay.BorderColor3 = Color3.new(0, 0, 0)
-ActiveModulesDisplay.BorderSizePixel = 0
-ActiveModulesDisplay.Position = UDim2.new(1, -5, 0, -57.5)
-ActiveModulesDisplay.Size = UDim2.new(0, 250, 1, 1000)
-ActiveModulesDisplay.ZIndex = 10
-ActiveModulesDisplay.Parent = ActiveModulesFolder
+local ArrayListDisplay = Instance.new("Frame")
+ArrayListDisplay.Name = "ArrayListDisplay"
+ArrayListDisplay.AnchorPoint = Vector2.new(1, 0)
+ArrayListDisplay.BackgroundColor3 = Color3.new(0, 0, 0)
+ArrayListDisplay.BackgroundTransparency = 1
+ArrayListDisplay.BorderColor3 = Color3.new(0, 0, 0)
+ArrayListDisplay.BorderSizePixel = 0
+ArrayListDisplay.Position = UDim2.new(1, -5, 0, -57.5)
+ArrayListDisplay.Size = UDim2.new(0, 250, 1, 1000)
+ArrayListDisplay.ZIndex = 10
+ArrayListDisplay.Parent = ArrayListFolder
+ArrayListDisplay.Visible = false
 
-local ActiveModulesLayout = Instance.new("UIListLayout")
-ActiveModulesLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
-ActiveModulesLayout.Padding = UDim.new(0, 0)
-ActiveModulesLayout.SortOrder = Enum.SortOrder.LayoutOrder
-ActiveModulesLayout.Parent = ActiveModulesDisplay
+local ArrayListLayout = Instance.new("UIListLayout")
+ArrayListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
+ArrayListLayout.Padding = UDim.new(0, 0)
+ArrayListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+ArrayListLayout.Parent = ArrayListDisplay
 
 local function GetTextWidth(text)
 	return TextService:GetTextSize(text, 20, Enum.Font.Sarpanch, Vector2.new(1000, 20)).X
 end
 
 local function RefreshActiveModules()
-	for _, v in pairs(ActiveModulesDisplay:GetChildren()) do
+	for _, v in pairs(ArrayListDisplay:GetChildren()) do
 		if v:IsA("TextLabel") then
 			v:Destroy()
 		end
@@ -88,7 +88,7 @@ local function RefreshActiveModules()
 		Label.TextXAlignment = Enum.TextXAlignment.Right
 		Label.AutomaticSize = Enum.AutomaticSize.X
 		Label.Name = "Label"
-		Label.Parent = ActiveModulesDisplay
+		Label.Parent = ArrayListDisplay
 	end
 end
 
@@ -141,7 +141,7 @@ function SendNotification(Title, Message, Duration)
 	Notification.BorderSizePixel = 0
 	Notification.Position = UDim2.new(1, 500, 1, y)
 	Notification.Size = UDim2.new(0, 300, 0, 60)
-	Notification.Parent = NotificationsContainer -- Parent to the new NotificationsContainer
+	Notification.Parent = NotificationsContainer
 
 	local TitleLabel = Instance.new("TextLabel")
 	TitleLabel.BackgroundColor3 = Color3.new(0, 0, 0)
@@ -469,9 +469,9 @@ end
 
 function Jello:ToggleArrayList(State)
 	if State == nil then
-		ActiveModulesDisplay.Visible = not ActiveModulesDisplay.Visible
+		ArrayListDisplay.Visible = not ArrayListDisplay.Visible
 	else
-		ActiveModulesDisplay.Visible = State
+		ArrayListDisplay.Visible = State
 	end
 end
 
