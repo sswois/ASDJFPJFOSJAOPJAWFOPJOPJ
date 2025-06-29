@@ -3,6 +3,9 @@ local UIS = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 local TextService = game:GetService("TextService")
 
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
 local Jello = {}
 local AllTabs = {}
 local TabCount = 0
@@ -18,11 +21,9 @@ ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 ScreenGui.Parent = CoreGui
 
 local TabsFolder = Instance.new("Folder")
-TabsFolder.Name = "Tabs"
 TabsFolder.Parent = ScreenGui
 
 local TabsContainer = Instance.new("Frame")
-TabsContainer.Name = "TabsContainer"
 TabsContainer.BackgroundColor3 = Color3.new(0, 0, 0)
 TabsContainer.BackgroundTransparency = 1
 TabsContainer.BorderSizePixel = 0
@@ -31,102 +32,15 @@ TabsContainer.Visible = false
 TabsContainer.Parent = TabsFolder
 
 local NotificationsFolder = Instance.new("Folder")
-NotificationsFolder.Name = "Notifications"
 NotificationsFolder.Parent = ScreenGui
 
 local NotificationsContainer = Instance.new("Frame")
-NotificationsContainer.Name = "NotificationsContainer"
 NotificationsContainer.BackgroundColor3 = Color3.new(0, 0, 0)
 NotificationsContainer.BackgroundTransparency = 1
 NotificationsContainer.BorderSizePixel = 0
 NotificationsContainer.Size = UDim2.new(1, 0, 1, 0)
 NotificationsContainer.Visible = false
 NotificationsContainer.Parent = NotificationsFolder
-
-local ArrayListFolder = Instance.new("Folder")
-ArrayListFolder.Name = "ArrayList"
-ArrayListFolder.Parent = ScreenGui
-
-local ArrayListDisplay = Instance.new("Frame")
-ArrayListDisplay.Name = "ArrayListDisplay"
-ArrayListDisplay.AnchorPoint = Vector2.new(1, 0)
-ArrayListDisplay.BackgroundColor3 = Color3.new(0, 0, 0)
-ArrayListDisplay.BackgroundTransparency = 1
-ArrayListDisplay.BorderColor3 = Color3.new(0, 0, 0)
-ArrayListDisplay.BorderSizePixel = 0
-ArrayListDisplay.Position = UDim2.new(1, -5, 0, -57.5)
-ArrayListDisplay.Size = UDim2.new(0, 250, 1, 1000)
-ArrayListDisplay.ZIndex = 10
-ArrayListDisplay.Parent = ArrayListFolder
-ArrayListDisplay.Visible = false
-
-local ArrayListLayout = Instance.new("UIListLayout")
-ArrayListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
-ArrayListLayout.Padding = UDim.new(0, 0)
-ArrayListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-ArrayListLayout.Parent = ArrayListDisplay
-
-local function GetTextWidth(text)
-	return TextService:GetTextSize(text, 20, Enum.Font.Sarpanch, Vector2.new(1000, 20)).X
-end
-
-local function RefreshActiveModules()
-	for _, v in pairs(ArrayListDisplay:GetChildren()) do
-		if v:IsA("TextLabel") then
-			v:Destroy()
-		end
-	end
-	table.sort(ActiveModules, function(a, b)
-		return GetTextWidth(a) > GetTextWidth(b)
-	end)
-
-	for _, ModuleName in ipairs(ActiveModules) do
-		local Label = Instance.new("TextLabel")
-		Label.BackgroundColor3 = Color3.new(0, 0, 0)
-		Label.BackgroundTransparency = 1
-		Label.BorderColor3 = Color3.new(0, 0, 0)
-		Label.BorderSizePixel = 0
-		Label.Font = Enum.Font.Sarpanch
-		Label.Size = UDim2.new(0, 0, 0, 20)
-		Label.Text = ModuleName
-		Label.TextColor3 = Color3.new(1, 1, 1)
-		Label.TextSize = 20
-		Label.TextStrokeTransparency = 0.5
-		Label.TextTransparency = 0
-		Label.TextWrapped = false
-		Label.TextXAlignment = Enum.TextXAlignment.Right
-		Label.AutomaticSize = Enum.AutomaticSize.X
-		Label.Name = "Label"
-		Label.Parent = ArrayListDisplay
-	end
-end
-
-local ModalButton = Instance.new("TextButton")
-ModalButton.BackgroundColor3 = Color3.new(0, 0, 0)
-ModalButton.BackgroundTransparency = 1
-ModalButton.BorderColor3 = Color3.new(0, 0, 0)
-ModalButton.BorderSizePixel = 0
-ModalButton.Size = UDim2.new()
-ModalButton.Text = ""
-ModalButton.Visible = false
-ModalButton.Modal = true
-ModalButton.Parent = ScreenGui
-
-local BlurEffect = Instance.new("BlurEffect")
-BlurEffect.Enabled = false
-BlurEffect.Size = 25
-BlurEffect.Parent = game.Lighting
-
-local TabsVisible = false
-
-UIS.InputBegan:Connect(function(Input)
-	if Input.KeyCode == Enum.KeyCode.RightShift then
-		TabsVisible = not TabsVisible
-		BlurEffect.Enabled = TabsVisible
-		ModalButton.Visible = TabsVisible
-		TabsContainer.Visible = TabsVisible
-	end
-end)
 
 local function RepositionNotifications()
 	for i, Data in ipairs(ActiveNotifications) do
@@ -204,6 +118,226 @@ function SendNotification(Title, Message, Duration)
 		end
 	end)
 end
+
+local ArrayListFolder = Instance.new("Folder")
+ArrayListFolder.Parent = ScreenGui
+
+local ArrayListDisplay = Instance.new("Frame")
+ArrayListDisplay.AnchorPoint = Vector2.new(1, 0)
+ArrayListDisplay.BackgroundColor3 = Color3.new(0, 0, 0)
+ArrayListDisplay.BackgroundTransparency = 1
+ArrayListDisplay.BorderColor3 = Color3.new(0, 0, 0)
+ArrayListDisplay.BorderSizePixel = 0
+ArrayListDisplay.Position = UDim2.new(1, -5, 0, -57.5)
+ArrayListDisplay.Size = UDim2.new(0, 250, 1, 1000)
+ArrayListDisplay.ZIndex = 10
+ArrayListDisplay.Parent = ArrayListFolder
+ArrayListDisplay.Visible = false
+
+local ArrayListLayout = Instance.new("UIListLayout")
+ArrayListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
+ArrayListLayout.Padding = UDim.new(0, 0)
+ArrayListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+ArrayListLayout.Parent = ArrayListDisplay
+
+local function GetTextWidth(text)
+	return TextService:GetTextSize(text, 20, Enum.Font.Sarpanch, Vector2.new(1000, 20)).X
+end
+
+local function RefreshActiveModules()
+	for _, v in pairs(ArrayListDisplay:GetChildren()) do
+		if v:IsA("TextLabel") then
+			v:Destroy()
+		end
+	end
+	table.sort(ActiveModules, function(a, b)
+		return GetTextWidth(a) > GetTextWidth(b)
+	end)
+
+	for _, ModuleName in ipairs(ActiveModules) do
+		local Label = Instance.new("TextLabel")
+		Label.BackgroundColor3 = Color3.new(0, 0, 0)
+		Label.BackgroundTransparency = 1
+		Label.BorderColor3 = Color3.new(0, 0, 0)
+		Label.BorderSizePixel = 0
+		Label.Font = Enum.Font.Sarpanch
+		Label.Size = UDim2.new(0, 0, 0, 20)
+		Label.Text = ModuleName
+		Label.TextColor3 = Color3.new(1, 1, 1)
+		Label.TextSize = 20
+		Label.TextStrokeTransparency = 0.5
+		Label.TextTransparency = 0
+		Label.TextWrapped = false
+		Label.TextXAlignment = Enum.TextXAlignment.Right
+		Label.AutomaticSize = Enum.AutomaticSize.X
+		Label.Parent = ArrayListDisplay
+	end
+end
+
+local TargetHUDFolder = Instance.new("Folder")
+TargetHUDFolder.Name = "TargetHUDFolder"
+TargetHUDFolder.Parent = ScreenGui
+
+local TargetHUD = Instance.new("Frame")
+TargetHUD.Name = "TargetHUD"
+TargetHUD.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+TargetHUD.BackgroundTransparency = 0.25
+TargetHUD.BorderSizePixel = 0
+TargetHUD.Position = UDim2.new(0.435, 0, 0.75, 0)
+TargetHUD.Size = UDim2.new(0, 250, 0, 75)
+TargetHUD.Visible = false
+TargetHUD.Parent = TargetHUDFolder
+
+local TargetPhoto = Instance.new("ImageLabel")
+TargetPhoto.BackgroundTransparency = 1
+TargetPhoto.BorderSizePixel = 0
+TargetPhoto.Position = UDim2.new(0, 10, 0, 12)
+TargetPhoto.Size = UDim2.new(0, 50, 0, 50)
+TargetPhoto.Image = "rbxasset://textures/ui/GuiImagePlaceholder.png"
+TargetPhoto.Parent = TargetHUD
+
+local TargetName = Instance.new("TextLabel")
+TargetName.BackgroundTransparency = 1
+TargetName.Position = UDim2.new(0.275, 0, 0.15, 0)
+TargetName.Size = UDim2.new(0, 150, 0, 25)
+TargetName.Font = Enum.Font.Sarpanch
+TargetName.Text = "No Target"
+TargetName.TextColor3 = Color3.new(1, 1, 1)
+TargetName.TextSize = 20
+TargetName.TextXAlignment = Enum.TextXAlignment.Left
+TargetName.Parent = TargetHUD
+
+local HPBG = Instance.new("Frame")
+HPBG.BackgroundColor3 = Color3.new(1, 1, 1)
+HPBG.BackgroundTransparency = 0.85
+HPBG.BorderSizePixel = 0
+HPBG.Position = UDim2.new(0.275, 0, 0.5, 0)
+HPBG.Size = UDim2.new(0, 150, 0, 10)
+HPBG.Parent = TargetHUD
+
+local HPBar = Instance.new("Frame")
+HPBar.BackgroundColor3 = Color3.new(0, 0, 0)
+HPBar.BorderSizePixel = 0
+HPBar.Position = UDim2.new(0, 0, 0, 0)
+HPBar.Size = UDim2.new(0, 0, 1, 0)
+HPBar.Parent = HPBG
+
+local MaxDistance = 15
+local TargetHUDEnabled = false
+local TargetHUDThread = nil
+
+local function GetHealthColor(HealthPercent)
+	local R = math.clamp(1 - HealthPercent, 0, 1)
+	local G = math.clamp(HealthPercent, 0, 1)
+	return Color3.new(R, G, 0)
+end
+
+local function IsAlive(Player)
+	return Player and Player.Character and Player.Character:FindFirstChild("Humanoid") and Player.Character:FindFirstChild("HumanoidRootPart") and Player.Character.Humanoid.Health > 0
+end
+
+local function IsEnemy(Player)
+	return Player and Player ~= LocalPlayer and (Player.Neutral or Player.Team ~= LocalPlayer.Team)
+end
+
+local function GetClosestPlayer()
+	local ClosestPlayer, ClosestDistance = nil, MaxDistance
+	for _, Player in ipairs(Players:GetPlayers()) do
+		if IsAlive(LocalPlayer) and IsAlive(Player) and IsEnemy(Player) then
+			local Distance = (Player.Character.HumanoidRootPart.Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
+			if Distance < ClosestDistance then
+				ClosestPlayer = Player
+				ClosestDistance = Distance
+			end
+		end
+	end
+	return ClosestPlayer
+end
+
+function Jello:ToggleArrayList(State)
+	if State == nil then
+		ArrayListDisplay.Visible = not ArrayListDisplay.Visible
+	else
+		ArrayListDisplay.Visible = State
+	end
+end
+
+function Jello:ToggleNotifications(State)
+    if State == nil then
+        NotificationsContainer.Visible = not NotificationsContainer.Visible
+    else
+        NotificationsContainer.Visible = State
+    end
+end
+
+function Jello:ToggleTargetHUD(State)
+	if State == nil then
+		TargetHUDEnabled = not TargetHUDEnabled
+	else
+		TargetHUDEnabled = State
+	end
+
+	if TargetHUDEnabled then
+		if not TargetHUDThread then
+			TargetHUDThread = task.spawn(function()
+				while TargetHUDEnabled do
+					task.wait()
+					local Target = GetClosestPlayer()
+					local ShouldShow = false
+
+					if IsAlive(Target) then
+						local Humanoid = Target.Character.Humanoid
+						local HP = math.clamp(Humanoid.Health / Humanoid.MaxHealth, 0, 1)
+						TargetName.Text = Target.Name
+						HPBar.Size = UDim2.new(HP, 0, 1, 0)
+						HPBar.BackgroundColor3 = GetHealthColor(HP)
+						TargetPhoto.Image = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. Target.UserId .. "&width=420&height=420&format=png"
+						ShouldShow = true
+					elseif TabsVisible then
+						TargetName.Text = "Roblox"
+						HPBar.Size = UDim2.new(0, 0, 1, 0)
+						HPBar.BackgroundColor3 = Color3.new(0, 0, 0)
+						TargetPhoto.Image = "https://www.roblox.com/headshot-thumbnail/image?userId=1&width=420&height=420&format=png"
+						ShouldShow = true
+					end
+
+					TargetHUD.Visible = ShouldShow
+				end
+				TargetHUD.Visible = false
+				TargetHUDThread = nil
+			end)
+		end
+	else
+		TargetHUDEnabled = false
+	end
+end
+
+local ModalButton = Instance.new("TextButton")
+ModalButton.BackgroundColor3 = Color3.new(0, 0, 0)
+ModalButton.BackgroundTransparency = 1
+ModalButton.BorderColor3 = Color3.new(0, 0, 0)
+ModalButton.BorderSizePixel = 0
+ModalButton.Size = UDim2.new()
+ModalButton.Text = ""
+ModalButton.Visible = false
+ModalButton.Modal = true
+ModalButton.Parent = ScreenGui
+
+local BlurEffect = Instance.new("BlurEffect")
+BlurEffect.Enabled = false
+BlurEffect.Size = 25
+BlurEffect.Parent = game.Lighting
+
+local TabsVisible = false
+
+UIS.InputBegan:Connect(function(Input)
+	if Input.KeyCode == Enum.KeyCode.RightShift then
+		TabsVisible = not TabsVisible
+		BlurEffect.Enabled = TabsVisible
+		ModalButton.Visible = TabsVisible
+		TabsContainer.Visible = TabsVisible
+	end
+end)
 
 function Jello:AddTab(TabName)
 	local TabFrame = Instance.new("Frame")
@@ -389,147 +523,6 @@ function Jello:AddTab(TabName)
 	end
 
 	return Tab
-end
-
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-
-local MaxDistance = 15
-local TargetHUDEnabled = false
-local TargetHUDThread = nil
-
-local TargetHUDFolder = Instance.new("Folder")
-TargetHUDFolder.Name = "TargetHUDFolder"
-TargetHUDFolder.Parent = ScreenGui
-
-local TargetHUD = Instance.new("Frame")
-TargetHUD.Name = "TargetHUD"
-TargetHUD.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-TargetHUD.BackgroundTransparency = 0.25
-TargetHUD.BorderSizePixel = 0
-TargetHUD.Position = UDim2.new(0.435, 0, 0.75, 0)
-TargetHUD.Size = UDim2.new(0, 250, 0, 75)
-TargetHUD.Visible = false
-TargetHUD.Parent = TargetHUDFolder
-
-local TargetPhoto = Instance.new("ImageLabel")
-TargetPhoto.BackgroundTransparency = 1
-TargetPhoto.BorderSizePixel = 0
-TargetPhoto.Position = UDim2.new(0, 10, 0, 12)
-TargetPhoto.Size = UDim2.new(0, 50, 0, 50)
-TargetPhoto.Image = "rbxasset://textures/ui/GuiImagePlaceholder.png"
-TargetPhoto.Parent = TargetHUD
-
-local TargetName = Instance.new("TextLabel")
-TargetName.BackgroundTransparency = 1
-TargetName.Position = UDim2.new(0.275, 0, 0.15, 0)
-TargetName.Size = UDim2.new(0, 150, 0, 25)
-TargetName.Font = Enum.Font.Sarpanch
-TargetName.Text = "No Target"
-TargetName.TextColor3 = Color3.new(1, 1, 1)
-TargetName.TextSize = 20
-TargetName.TextXAlignment = Enum.TextXAlignment.Left
-TargetName.Parent = TargetHUD
-
-local HPBG = Instance.new("Frame")
-HPBG.BackgroundColor3 = Color3.new(1, 1, 1)
-HPBG.BackgroundTransparency = 0.85
-HPBG.BorderSizePixel = 0
-HPBG.Position = UDim2.new(0.275, 0, 0.5, 0)
-HPBG.Size = UDim2.new(0, 150, 0, 10)
-HPBG.Parent = TargetHUD
-
-local HPBar = Instance.new("Frame")
-HPBar.BackgroundColor3 = Color3.new(0, 0, 0)
-HPBar.BorderSizePixel = 0
-HPBar.Position = UDim2.new(0, 0, 0, 0)
-HPBar.Size = UDim2.new(0, 0, 1, 0)
-HPBar.Parent = HPBG
-
-local function GetHealthColor(HealthPercent)
-	local R = math.clamp(1 - HealthPercent, 0, 1)
-	local G = math.clamp(HealthPercent, 0, 1)
-	return Color3.new(R, G, 0)
-end
-
-local function IsAlive(Player)
-	return Player and Player.Character and Player.Character:FindFirstChild("Humanoid") and Player.Character:FindFirstChild("HumanoidRootPart") and Player.Character.Humanoid.Health > 0
-end
-
-local function IsEnemy(Player)
-	return Player and Player ~= LocalPlayer and (Player.Neutral or Player.Team ~= LocalPlayer.Team)
-end
-
-local function GetClosestPlayer()
-	local ClosestPlayer, ClosestDistance = nil, MaxDistance
-	for _, Player in ipairs(Players:GetPlayers()) do
-		if IsAlive(LocalPlayer) and IsAlive(Player) and IsEnemy(Player) then
-			local Distance = (Player.Character.HumanoidRootPart.Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
-			if Distance < ClosestDistance then
-				ClosestPlayer = Player
-				ClosestDistance = Distance
-			end
-		end
-	end
-	return ClosestPlayer
-end
-
-function Jello:ToggleArrayList(State)
-	if State == nil then
-		ArrayListDisplay.Visible = not ArrayListDisplay.Visible
-	else
-		ArrayListDisplay.Visible = State
-	end
-end
-
-function Jello:ToggleNotifications(State)
-    if State == nil then
-        NotificationsContainer.Visible = not NotificationsContainer.Visible
-    else
-        NotificationsContainer.Visible = State
-    end
-end
-
-function Jello:ToggleTargetHUD(State)
-	if State == nil then
-		TargetHUDEnabled = not TargetHUDEnabled
-	else
-		TargetHUDEnabled = State
-	end
-
-	if TargetHUDEnabled then
-		if not TargetHUDThread then
-			TargetHUDThread = task.spawn(function()
-				while TargetHUDEnabled do
-					task.wait()
-					local Target = GetClosestPlayer()
-					local ShouldShow = false
-
-					if IsAlive(Target) then
-						local Humanoid = Target.Character.Humanoid
-						local HP = math.clamp(Humanoid.Health / Humanoid.MaxHealth, 0, 1)
-						TargetName.Text = Target.Name
-						HPBar.Size = UDim2.new(HP, 0, 1, 0)
-						HPBar.BackgroundColor3 = GetHealthColor(HP)
-						TargetPhoto.Image = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. Target.UserId .. "&width=420&height=420&format=png"
-						ShouldShow = true
-					elseif TabsVisible then
-						TargetName.Text = "Roblox"
-						HPBar.Size = UDim2.new(0, 0, 1, 0)
-						HPBar.BackgroundColor3 = Color3.new(0, 0, 0)
-						TargetPhoto.Image = "https://www.roblox.com/headshot-thumbnail/image?userId=1&width=420&height=420&format=png"
-						ShouldShow = true
-					end
-
-					TargetHUD.Visible = ShouldShow
-				end
-				TargetHUD.Visible = false
-				TargetHUDThread = nil
-			end)
-		end
-	else
-		TargetHUDEnabled = false
-	end
 end
 
 return Jello
