@@ -2,6 +2,8 @@ local CoreGui = game:GetService("CoreGui")
 local UIS = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 local TextService = game:GetService("TextService")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
 
 local Jello = {}
 local AllTabs = {}
@@ -9,89 +11,297 @@ local TabCount = 0
 local ActiveModules = {}
 local ActiveNotifications = {}
 
-if CoreGui:FindFirstChild("Jello") then return end
+if CoreGui:FindFirstChild("Jello") then
+	return
+end
 
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "Jello"
-ScreenGui.ResetOnSpawn = false
-ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-ScreenGui.Parent = CoreGui
+local JelloScreenGui = Instance.new("ScreenGui")
+JelloScreenGui.Name = "Jello"
+JelloScreenGui.ResetOnSpawn = false
+JelloScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+JelloScreenGui.Parent = CoreGui
 
 local TabsFolder = Instance.new("Folder")
 TabsFolder.Name = "Tabs"
-TabsFolder.Parent = ScreenGui
+TabsFolder.Parent = JelloScreenGui
 
-local NotificationsFolder = Instance.new("Folder")
-NotificationsFolder.Name = "Notifications"
-NotificationsFolder.Parent = ScreenGui
+local ArrayListFrame
+local NotificationsParentFolder
+local TargetHUDDisplayFrame
 
-local ActiveModulesFolder = Instance.new("Folder")
-ActiveModulesFolder.Name = "ActiveModules"
-ActiveModulesFolder.Parent = ScreenGui
+local function setupArrayList()
+	local ArrayListFolder = Instance.new("Folder")
+	ArrayListFolder.Name = "ArrayListFolder"
+	ArrayListFolder.Parent = JelloScreenGui
 
-local ActiveModulesDisplay = Instance.new("Frame")
-ActiveModulesDisplay.Name = "ActiveModulesDisplay"
-ActiveModulesDisplay.AnchorPoint = Vector2.new(1, 0)
-ActiveModulesDisplay.BackgroundColor3 = Color3.new(0, 0, 0)
-ActiveModulesDisplay.BackgroundTransparency = 1
-ActiveModulesDisplay.BorderColor3 = Color3.new(0, 0, 0)
-ActiveModulesDisplay.BorderSizePixel = 0
-ActiveModulesDisplay.Position = UDim2.new(1, -5, 0, -57.5)
-ActiveModulesDisplay.Size = UDim2.new(0, 250, 1, 1000)
-ActiveModulesDisplay.ZIndex = 10
-ActiveModulesDisplay.Parent = ActiveModulesFolder
+	local ArrayList = Instance.new("Frame")
+	ArrayList.Name = "ArrayList"
+	ArrayList.AnchorPoint = Vector2.new(1, 0)
+	ArrayList.BackgroundColor3 = Color3.new(0, 0, 0)
+	ArrayList.BackgroundTransparency = 1
+	ArrayList.BorderColor3 = Color3.new(0, 0, 0)
+	ArrayList.BorderSizePixel = 0
+	ArrayList.Position = UDim2.new(1, -5, 0, -57.5)
+	ArrayList.Size = UDim2.new(0, 250, 1, 1000)
+	ArrayList.ZIndex = 10
+	ArrayList.Parent = ArrayListFolder
+	ArrayList.Visible = true
 
-local ActiveModulesLayout = Instance.new("UIListLayout")
-ActiveModulesLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
-ActiveModulesLayout.Padding = UDim.new(0, 0)
-ActiveModulesLayout.SortOrder = Enum.SortOrder.LayoutOrder
-ActiveModulesLayout.Parent = ActiveModulesDisplay
+	local ArrayListLayout = Instance.new("UIListLayout")
+	ArrayListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
+	ArrayListLayout.Padding = UDim.new(0, 0)
+	ArrayListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+	ArrayListLayout.Parent = ArrayList
 
-local function GetTextWidth(text)
-	return TextService:GetTextSize(text, 20, Enum.Font.Sarpanch, Vector2.new(1000, 20)).X
-end
+	local function GetTextWidth(text)
+		return TextService:GetTextSize(text, 20, Enum.Font.Sarpanch, Vector2.new(1000, 20)).X
+	end
 
-local function RefreshActiveModules()
-	for _, v in pairs(ActiveModulesDisplay:GetChildren()) do
-		if v:IsA("TextLabel") then
-			v:Destroy()
+	local function RefreshActiveModules()
+		for _, v in pairs(ArrayList:GetChildren()) do
+			if v:IsA("TextLabel") then
+				v:Destroy()
+			end
+		end
+		table.sort(ActiveModules, function(a, b)
+			return GetTextWidth(a) > GetTextWidth(b)
+		end)
+
+		for _, ModuleName in ipairs(ActiveModules) do
+			local Label = Instance.new("TextLabel")
+			Label.BackgroundColor3 = Color3.new(0, 0, 0)
+			Label.BackgroundTransparency = 1
+			Label.BorderColor3 = Color3.new(0, 0, 0)
+			Label.BorderSizePixel = 0
+			Label.Font = Enum.Font.Sarpanch
+			Label.Size = UDim2.new(0, 0, 0, 20)
+			Label.Text = ModuleName
+			Label.TextColor3 = Color3.new(1, 1, 1)
+			Label.TextSize = 20
+			Label.TextStrokeTransparency = 0.5
+			Label.TextTransparency = 0
+			Label.TextWrapped = false
+			Label.TextXAlignment = Enum.TextXAlignment.Right
+			Label.AutomaticSize = Enum.AutomaticSize.X
+			Label.Name = "Label"
+			Label.Parent = ArrayList
 		end
 	end
-	table.sort(ActiveModules, function(a, b)
-		return GetTextWidth(a) > GetTextWidth(b)
-	end)
-
-	for _, ModuleName in ipairs(ActiveModules) do
-		local Label = Instance.new("TextLabel")
-		Label.BackgroundColor3 = Color3.new(0, 0, 0)
-		Label.BackgroundTransparency = 1
-		Label.BorderColor3 = Color3.new(0, 0, 0)
-		Label.BorderSizePixel = 0
-		Label.Font = Enum.Font.Sarpanch
-		Label.Size = UDim2.new(0, 0, 0, 20)
-		Label.Text = ModuleName
-		Label.TextColor3 = Color3.new(1, 1, 1)
-		Label.TextSize = 20
-		Label.TextStrokeTransparency = 0.5
-		Label.TextTransparency = 0
-		Label.TextWrapped = false
-		Label.TextXAlignment = Enum.TextXAlignment.Right
-		Label.AutomaticSize = Enum.AutomaticSize.X
-		Label.Name = "Label"
-		Label.Parent = ActiveModulesDisplay
-	end
+	ArrayListFrame = ArrayList
+	return RefreshActiveModules
 end
+
+local RefreshActiveModules = setupArrayList()
+
+local function setupNotifications()
+	local NotificationsFolder = Instance.new("Folder")
+	NotificationsFolder.Name = "Notifications"
+	NotificationsFolder.Parent = JelloScreenGui
+	NotificationsParentFolder = NotificationsFolder
+
+	local function RepositionNotifications()
+		for i, Data in ipairs(ActiveNotifications) do
+			local y = -80 - ((i - 1) * 70)
+			Data.y = y
+			Data.frame:TweenPosition(UDim2.new(1, -10, 1, y), "Out", "Quad", 0.2, true)
+		end
+	end
+
+	local function SendNotification(Title, Message, Duration)
+		Duration = Duration or 3
+		local y = -80 - (#ActiveNotifications * 70)
+
+		local Notification = Instance.new("Frame")
+		Notification.AnchorPoint = Vector2.new(1, 1)
+		Notification.BackgroundColor3 = Color3.new(0, 0, 0)
+		Notification.BackgroundTransparency = 0.5
+		Notification.BorderColor3 = Color3.new(0, 0, 0)
+		Notification.BorderSizePixel = 0
+		Notification.Position = UDim2.new(1, 500, 1, y)
+		Notification.Size = UDim2.new(0, 300, 0, 60)
+		Notification.Parent = NotificationsFolder
+
+		local TitleLabel = Instance.new("TextLabel")
+		TitleLabel.BackgroundColor3 = Color3.new(0, 0, 0)
+		TitleLabel.BackgroundTransparency = 1
+		TitleLabel.BorderColor3 = Color3.new(0, 0, 0)
+		TitleLabel.BorderSizePixel = 0
+		TitleLabel.Font = Enum.Font.Sarpanch
+		TitleLabel.Position = UDim2.new(0, 10, 0, 5)
+		TitleLabel.Size = UDim2.new(1, -20, 0, 20)
+		TitleLabel.Text = Title
+		TitleLabel.TextColor3 = Color3.new(1, 1, 1)
+		TitleLabel.TextSize = 20
+		TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+		TitleLabel.Parent = Notification
+
+		local MessageLabel = Instance.new("TextLabel")
+		MessageLabel.BackgroundColor3 = Color3.new(0, 0, 0)
+		MessageLabel.BackgroundTransparency = 1
+		MessageLabel.BorderColor3 = Color3.new(0, 0, 0)
+		MessageLabel.BorderSizePixel = 0
+		MessageLabel.Font = Enum.Font.Sarpanch
+		MessageLabel.Position = UDim2.new(0, 10, 0, 25)
+		MessageLabel.Size = UDim2.new(1, -20, 0, 30)
+		MessageLabel.Text = Message
+		MessageLabel.TextColor3 = Color3.new(1, 1, 1)
+		MessageLabel.TextTransparency = 0.25
+		MessageLabel.TextSize = 20
+		MessageLabel.TextWrapped = true
+		MessageLabel.TextXAlignment = Enum.TextXAlignment.Left
+		MessageLabel.Parent = Notification
+
+		local Data = { frame = Notification, y = y }
+		table.insert(ActiveNotifications, Data)
+
+		Notification:TweenPosition(UDim2.new(1, -10, 1, y), "Out", "Quad", 0.3, true)
+
+		task.delay(Duration, function()
+			if Notification and Notification.Parent then
+				local TweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+				local Tween = TweenService:Create(Notification, TweenInfo, { Position = UDim2.new(1, 500, 1, Data.y) })
+				Tween:Play()
+				Tween.Completed:Wait()
+				if Notification then
+					Notification:Destroy()
+					for i, v in ipairs(ActiveNotifications) do
+						if v == Data then
+							table.remove(ActiveNotifications, i)
+							break
+						end
+					end
+					RepositionNotifications()
+				end
+			end
+		end)
+	end
+	return SendNotification
+end
+
+local SendNotification = setupNotifications()
+
+local function setupTargetHUD()
+	local MaxDistance = 15
+
+	local TargetHUDFolder = Instance.new("Folder")
+	TargetHUDFolder.Name = "TargetHUD"
+	TargetHUDFolder.Parent = JelloScreenGui
+
+	local TargetHUDFrame = Instance.new("Frame")
+	TargetHUDFrame.Parent = TargetHUDFolder
+	TargetHUDFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+	TargetHUDFrame.BackgroundTransparency = 0.25
+	TargetHUDFrame.BorderSizePixel = 0
+	TargetHUDFrame.Position = UDim2.new(0.435, 0, 0.75, 0)
+	TargetHUDFrame.Size = UDim2.new(0, 250, 0, 75)
+	TargetHUDFrame.Visible = false
+
+	local TargetPhoto = Instance.new("ImageLabel")
+	TargetPhoto.Parent = TargetHUDFrame
+	TargetPhoto.BackgroundTransparency = 1
+	TargetPhoto.BorderSizePixel = 0
+	TargetPhoto.Position = UDim2.new(0, 10, 0, 12)
+	TargetPhoto.Size = UDim2.new(0, 50, 0, 50)
+	TargetPhoto.Image = "rbxasset://textures/ui/GuiImagePlaceholder.png"
+
+	local TargetName = Instance.new("TextLabel")
+	TargetName.Parent = TargetHUDFrame
+	TargetName.BackgroundTransparency = 1
+	TargetName.Position = UDim2.new(0.275, 0, 0.15, 0)
+	TargetName.Size = UDim2.new(0, 150, 0, 25)
+	TargetName.Font = Enum.Font.Sarpanch
+	TargetName.Text = "Name"
+	TargetName.TextColor3 = Color3.new(1, 1, 1)
+	TargetName.TextSize = 20
+	TargetName.TextXAlignment = Enum.TextXAlignment.Left
+
+	local HPBG = Instance.new("Frame")
+	HPBG.Parent = TargetHUDFrame
+	HPBG.BackgroundColor3 = Color3.new(1, 1, 1)
+	HPBG.BackgroundTransparency = 0.85
+	HPBG.BorderSizePixel = 0
+	HPBG.Position = UDim2.new(0.275, 0, 0.5, 0)
+	HPBG.Size = UDim2.new(0, 150, 0, 10)
+
+	local HPBar = Instance.new("Frame")
+	HPBar.Parent = HPBG
+	HPBar.BackgroundColor3 = Color3.new(0, 0, 0)
+	HPBar.BorderSizePixel = 0
+	HPBar.Position = UDim2.new(0, 0, 0, 0)
+	HPBar.Size = UDim2.new(1, 0, 1, 0)
+
+	local function GetHealthColor(HealthPercent)
+		local R = math.clamp(1 - HealthPercent, 0, 1)
+		local G = math.clamp(HealthPercent, 0, 1)
+		return Color3.new(R, G, 0)
+	end
+
+	local function IsAlive(Player)
+		return Player and Player.Character and Player.Character:FindFirstChild("Humanoid") and Player.Character:FindFirstChild("HumanoidRootPart") and Player.Character.Humanoid.Health > 0
+	end
+
+	local function IsEnemy(Player)
+		return Player and Player ~= LocalPlayer and (Player.Neutral or Player.Team ~= LocalPlayer.Team)
+	end
+
+	local function GetClosestPlayer()
+		local ClosestPlayer, ClosestDistance = nil, MaxDistance
+		local localHumanoidRootPart = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+
+		if not localHumanoidRootPart then
+			return nil
+		end
+
+		for _, Player in ipairs(Players:GetPlayers()) do
+			if IsAlive(Player) and IsEnemy(Player) then
+				local targetHumanoidRootPart = Player.Character:FindFirstChild("HumanoidRootPart")
+				if targetHumanoidRootPart then
+					local Distance = (targetHumanoidRootPart.Position - localHumanoidRootPart.Position).Magnitude
+					if Distance < ClosestDistance then
+						ClosestPlayer = Player
+						ClosestDistance = Distance
+					end
+				end
+			end
+		end
+		return ClosestPlayer
+	end
+	TargetHUDDisplayFrame = TargetHUDFrame
+
+	task.spawn(function()
+		while task.wait() do
+			local Target = GetClosestPlayer()
+			if TargetHUDDisplayFrame.Visible then
+				if IsAlive(Target) then
+					local Humanoid = Target.Character.Humanoid
+					local HP = math.clamp(Humanoid.Health / Humanoid.MaxHealth, 0, 1)
+					TargetName.Text = Target.Name
+					HPBar.Size = UDim2.new(HP, 0, 1, 0)
+					HPBar.BackgroundColor3 = GetHealthColor(HP)
+					if Target.UserId then
+						TargetPhoto.Image = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. Target.UserId .. "&width=420&height=420&format=png"
+					end
+					TargetHUDDisplayFrame.Visible = true
+				else
+					TargetHUDDisplayFrame.Visible = false
+				end
+			end
+		end
+	end)
+end
+
+setupTargetHUD()
 
 local ModalButton = Instance.new("TextButton")
 ModalButton.BackgroundColor3 = Color3.new(0, 0, 0)
 ModalButton.BackgroundTransparency = 1
 ModalButton.BorderColor3 = Color3.new(0, 0, 0)
 ModalButton.BorderSizePixel = 0
-ModalButton.Size = UDim2.new()
+ModalButton.Size = UDim2.new(1, 0, 1, 0)
 ModalButton.Text = ""
 ModalButton.Visible = false
 ModalButton.Modal = true
-ModalButton.Parent = ScreenGui
+ModalButton.Parent = JelloScreenGui
 
 local BlurEffect = Instance.new("BlurEffect")
 BlurEffect.Enabled = false
@@ -110,83 +320,6 @@ UIS.InputBegan:Connect(function(Input)
 		end
 	end
 end)
-
-local function RepositionNotifications()
-	for i, Data in ipairs(ActiveNotifications) do
-		local y = -80 - ((i - 1) * 70)
-		Data.y = y
-		Data.frame:TweenPosition(UDim2.new(1, -10, 1, y), "Out", "Quad", 0.2, true)
-	end
-end
-
-function SendNotification(Title, Message, Duration)
-	Duration = Duration or 3
-	local y = -80 - (#ActiveNotifications * 70)
-
-	local Notification = Instance.new("Frame")
-	Notification.AnchorPoint = Vector2.new(1, 1)
-	Notification.BackgroundColor3 = Color3.new(0, 0, 0)
-	Notification.BackgroundTransparency = 0.5
-	Notification.BorderColor3 = Color3.new(0, 0, 0)
-	Notification.BorderSizePixel = 0
-	Notification.Position = UDim2.new(1, 500, 1, y)
-	Notification.Size = UDim2.new(0, 300, 0, 60)
-	Notification.Parent = NotificationsFolder
-
-	local TitleLabel = Instance.new("TextLabel")
-	TitleLabel.BackgroundColor3 = Color3.new(0, 0, 0)
-	TitleLabel.BackgroundTransparency = 1
-	TitleLabel.BorderColor3 = Color3.new(0, 0, 0)
-	TitleLabel.BorderSizePixel = 0
-	TitleLabel.Font = Enum.Font.Sarpanch
-	TitleLabel.Position = UDim2.new(0, 10, 0, 5)
-	TitleLabel.Size = UDim2.new(1, -20, 0, 20)
-	TitleLabel.Text = Title
-	TitleLabel.TextColor3 = Color3.new(1, 1, 1)
-	TitleLabel.TextSize = 20
-	TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
-	TitleLabel.Parent = Notification
-
-	local MessageLabel = Instance.new("TextLabel")
-	MessageLabel.BackgroundColor3 = Color3.new(0, 0, 0)
-	MessageLabel.BackgroundTransparency = 1
-	MessageLabel.BorderColor3 = Color3.new(0, 0, 0)
-	MessageLabel.BorderSizePixel = 0
-	MessageLabel.Font = Enum.Font.Sarpanch
-	MessageLabel.Position = UDim2.new(0, 10, 0, 25)
-	MessageLabel.Size = UDim2.new(1, -20, 0, 30)
-	MessageLabel.Text = Message
-	MessageLabel.TextColor3 = Color3.new(1, 1, 1)
-	MessageLabel.TextTransparency = 0.25
-	MessageLabel.TextSize = 20
-	MessageLabel.TextWrapped = true
-	MessageLabel.TextXAlignment = Enum.TextXAlignment.Left
-	MessageLabel.Parent = Notification
-
-	local Data = { frame = Notification, y = y }
-	table.insert(ActiveNotifications, Data)
-
-	Notification:TweenPosition(UDim2.new(1, -10, 1, y), "Out", "Quad", 0.3, true)
-
-	task.delay(Duration, function()
-		if Notification and Notification.Parent then
-			local TweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
-			local Tween = TweenService:Create(Notification, TweenInfo, { Position = UDim2.new(1, 500, 1, Data.y) })
-			Tween:Play()
-			Tween.Completed:Wait()
-			if Notification then
-				Notification:Destroy()
-				for i, v in ipairs(ActiveNotifications) do
-					if v == Data then
-						table.remove(ActiveNotifications, i)
-						break
-					end
-				end
-				RepositionNotifications()
-			end
-		end
-	end)
-end
 
 function Jello:AddTab(TabName)
 	local TabFrame = Instance.new("Frame")
@@ -315,7 +448,9 @@ function Jello:AddTab(TabName)
 		local function ToggleModule()
 			Enabled = not Enabled
 			Module.TextTransparency = Enabled and 0 or 0.5
-			if callback then callback(Enabled) end
+			if callback then
+				callback(Enabled)
+			end
 			SendNotification("Jello", (Enabled and "Enabled " or "Disabled ") .. ModuleName, 1)
 
 			if Enabled then
@@ -328,7 +463,6 @@ function Jello:AddTab(TabName)
 					end
 				end
 			end
-
 			RefreshActiveModules()
 		end
 
@@ -338,7 +472,9 @@ function Jello:AddTab(TabName)
 		end)
 
 		Bind.MouseButton1Click:Connect(function()
-			if Binding then return end
+			if Binding then
+				return
+			end
 			Binding = true
 			Bind.Text = "Press Key"
 			local BindConnection
@@ -347,7 +483,9 @@ function Jello:AddTab(TabName)
 					if CurrentBind == Input.KeyCode then
 						CurrentBind = nil
 						Bind.Text = "Bind Removed"
-						task.delay(1, function() Bind.Text = "Bind: None" end)
+						task.delay(1, function()
+							Bind.Text = "Bind: None"
+						end)
 						SkipNext = true
 					else
 						CurrentBind = Input.KeyCode
@@ -373,5 +511,24 @@ function Jello:AddTab(TabName)
 
 	return Tab
 end
+
+function Jello:ToggleTargetHUD(visible)
+	if TargetHUDDisplayFrame then
+		TargetHUDDisplayFrame.Visible = visible
+	end
+end
+
+function Jello:ToggleArrayList(visible)
+	if ArrayListFrame then
+		ArrayListFrame.Visible = visible
+	end
+end
+
+function Jello:ToggleNotifications(visible)
+	if NotificationsParentFolder then
+		NotificationsParentFolder.Visible = visible
+	end
+end
+
 
 return Jello
