@@ -1,7 +1,11 @@
+local ContentProvider = game:GetService("ContentProvider")
 local CoreGui = game:GetService("CoreGui")
-local UIS = game:GetService("UserInputService")
-local TweenService = game:GetService("TweenService")
 local TextService = game:GetService("TextService")
+local TweenService = game:GetService("TweenService")
+local UIS = game:GetService("UserInputService")
+
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
 
 local Jello = {}
 local AllTabs = {}
@@ -501,15 +505,12 @@ function Jello:ToggleTargetHUD(State)
 	end
 end
 
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-
 local MaxDistance = 15
 local TargetHUDEnabled = false
 local TargetHUDThread = nil
 
 local TargetHUDFolder = Instance.new("Folder")
-TargetHUDFolder.Name = "TargetHUDFolder"
+TargetHUDFolder.Name = "TargetHUD"
 TargetHUDFolder.Parent = ScreenGui
 
 local TargetHUD = Instance.new("Frame")
@@ -520,6 +521,7 @@ TargetHUD.BorderSizePixel = 0
 TargetHUD.Position = UDim2.new(0.435, 0, 0.75, 0)
 TargetHUD.Size = UDim2.new(0, 250, 0, 75)
 TargetHUD.Visible = false
+TargetHUD.ZIndex = 10
 TargetHUD.Parent = TargetHUDFolder
 
 local TargetPhoto = Instance.new("ImageLabel")
@@ -556,6 +558,22 @@ HPBar.Position = UDim2.new(0, 0, 0, 0)
 HPBar.Size = UDim2.new(0, 0, 1, 0)
 HPBar.Parent = HPBG
 
+local function PreloadProfileImages()
+	local assets = {}
+	for _, player in ipairs(Players:GetPlayers()) do
+		table.insert(assets, "https://www.roblox.com/headshot-thumbnail/image?userId=" .. player.UserId .. "&width=420&height=420&format=png")
+	end
+	table.insert(assets, "https://www.roblox.com/headshot-thumbnail/image?userId=1&width=420&height=420&format=png")
+	ContentProvider:PreloadAsync(assets)
+end
+
+Players.PlayerAdded:Connect(function(player)
+	local url = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. player.UserId .. "&width=420&height=420&format=png"
+	ContentProvider:PreloadAsync({url})
+end)
+
+PreloadProfileImages()
+
 local function GetHealthColor(HealthPercent)
 	local R = math.clamp(1 - HealthPercent, 0, 1)
 	local G = math.clamp(HealthPercent, 0, 1)
@@ -584,19 +602,18 @@ local function GetClosestPlayer()
 	return ClosestPlayer
 end
 
-function Jello:ToggleTargetHUD(State)
-	if State == nil then
+function Jello:ToggleTargetHUD(state)
+	if state == nil then
 		TargetHUDEnabled = not TargetHUDEnabled
 	else
-		TargetHUDEnabled = State
+		TargetHUDEnabled = state
 	end
 
 	if TargetHUDEnabled then
 		if not TargetHUDThread then
 			TargetHUDThread = task.spawn(function()
 				while TargetHUDEnabled do
-					task.wait()
-
+					task.wait(0.2)
 					local Target = GetClosestPlayer()
 					local shouldShow = false
 
@@ -614,17 +631,10 @@ function Jello:ToggleTargetHUD(State)
 						HPBar.BackgroundColor3 = Color3.new(0, 0, 0)
 						TargetPhoto.Image = "https://www.roblox.com/headshot-thumbnail/image?userId=1&width=420&height=420&format=png"
 						shouldShow = true
-					else
-						shouldShow = false
 					end
 
-					if TabsVisible or shouldShow then
-						TargetHUD.Visible = true
-					else
-						TargetHUD.Visible = false
-					end
+					TargetHUD.Visible = shouldShow
 				end
-
 				TargetHUD.Visible = false
 				TargetHUDThread = nil
 			end)
