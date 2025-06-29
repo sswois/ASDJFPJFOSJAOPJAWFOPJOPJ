@@ -31,6 +31,61 @@ TabsContainer.Size = UDim2.new(1, 0, 1, 0)
 TabsContainer.Visible = false
 TabsContainer.Parent = TabsFolder
 
+local ArrayListFolder = Instance.new("Folder")
+ArrayListFolder.Parent = ScreenGui
+
+local ArrayListDisplay = Instance.new("Frame")
+ArrayListDisplay.AnchorPoint = Vector2.new(1, 0)
+ArrayListDisplay.BackgroundColor3 = Color3.new(0, 0, 0)
+ArrayListDisplay.BackgroundTransparency = 1
+ArrayListDisplay.BorderColor3 = Color3.new(0, 0, 0)
+ArrayListDisplay.BorderSizePixel = 0
+ArrayListDisplay.Position = UDim2.new(1, -5, 0, -57.5)
+ArrayListDisplay.Size = UDim2.new(0, 250, 1, 1000)
+ArrayListDisplay.ZIndex = 10
+ArrayListDisplay.Parent = ArrayListFolder
+ArrayListDisplay.Visible = false
+
+local ArrayListLayout = Instance.new("UIListLayout")
+ArrayListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
+ArrayListLayout.Padding = UDim.new(0, 0)
+ArrayListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+ArrayListLayout.Parent = ArrayListDisplay
+
+local function GetTextWidth(text)
+	return TextService:GetTextSize(text, 20, Enum.Font.Sarpanch, Vector2.new(1000, 20)).X
+end
+
+local function RefreshActiveModules()
+	for _, v in pairs(ArrayListDisplay:GetChildren()) do
+		if v:IsA("TextLabel") then
+			v:Destroy()
+		end
+	end
+	table.sort(ActiveModules, function(a, b)
+		return GetTextWidth(a) > GetTextWidth(b)
+	end)
+
+	for _, ModuleName in ipairs(ActiveModules) do
+		local Label = Instance.new("TextLabel")
+		Label.BackgroundColor3 = Color3.new(0, 0, 0)
+		Label.BackgroundTransparency = 1
+		Label.BorderColor3 = Color3.new(0, 0, 0)
+		Label.BorderSizePixel = 0
+		Label.Font = Enum.Font.Sarpanch
+		Label.Size = UDim2.new(0, 0, 0, 20)
+		Label.Text = ModuleName
+		Label.TextColor3 = Color3.new(1, 1, 1)
+		Label.TextSize = 20
+		Label.TextStrokeTransparency = 0.5
+		Label.TextTransparency = 0
+		Label.TextWrapped = false
+		Label.TextXAlignment = Enum.TextXAlignment.Right
+		Label.AutomaticSize = Enum.AutomaticSize.X
+		Label.Parent = ArrayListDisplay
+	end
+end
+
 local NotificationsFolder = Instance.new("Folder")
 NotificationsFolder.Parent = ScreenGui
 
@@ -117,61 +172,6 @@ function SendNotification(Title, Message, Duration)
 			end
 		end
 	end)
-end
-
-local ArrayListFolder = Instance.new("Folder")
-ArrayListFolder.Parent = ScreenGui
-
-local ArrayListDisplay = Instance.new("Frame")
-ArrayListDisplay.AnchorPoint = Vector2.new(1, 0)
-ArrayListDisplay.BackgroundColor3 = Color3.new(0, 0, 0)
-ArrayListDisplay.BackgroundTransparency = 1
-ArrayListDisplay.BorderColor3 = Color3.new(0, 0, 0)
-ArrayListDisplay.BorderSizePixel = 0
-ArrayListDisplay.Position = UDim2.new(1, -5, 0, -57.5)
-ArrayListDisplay.Size = UDim2.new(0, 250, 1, 1000)
-ArrayListDisplay.ZIndex = 10
-ArrayListDisplay.Parent = ArrayListFolder
-ArrayListDisplay.Visible = false
-
-local ArrayListLayout = Instance.new("UIListLayout")
-ArrayListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
-ArrayListLayout.Padding = UDim.new(0, 0)
-ArrayListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-ArrayListLayout.Parent = ArrayListDisplay
-
-local function GetTextWidth(text)
-	return TextService:GetTextSize(text, 20, Enum.Font.Sarpanch, Vector2.new(1000, 20)).X
-end
-
-local function RefreshActiveModules()
-	for _, v in pairs(ArrayListDisplay:GetChildren()) do
-		if v:IsA("TextLabel") then
-			v:Destroy()
-		end
-	end
-	table.sort(ActiveModules, function(a, b)
-		return GetTextWidth(a) > GetTextWidth(b)
-	end)
-
-	for _, ModuleName in ipairs(ActiveModules) do
-		local Label = Instance.new("TextLabel")
-		Label.BackgroundColor3 = Color3.new(0, 0, 0)
-		Label.BackgroundTransparency = 1
-		Label.BorderColor3 = Color3.new(0, 0, 0)
-		Label.BorderSizePixel = 0
-		Label.Font = Enum.Font.Sarpanch
-		Label.Size = UDim2.new(0, 0, 0, 20)
-		Label.Text = ModuleName
-		Label.TextColor3 = Color3.new(1, 1, 1)
-		Label.TextSize = 20
-		Label.TextStrokeTransparency = 0.5
-		Label.TextTransparency = 0
-		Label.TextWrapped = false
-		Label.TextXAlignment = Enum.TextXAlignment.Right
-		Label.AutomaticSize = Enum.AutomaticSize.X
-		Label.Parent = ArrayListDisplay
-	end
 end
 
 local TargetHUDFolder = Instance.new("Folder")
