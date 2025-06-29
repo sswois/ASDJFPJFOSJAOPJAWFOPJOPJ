@@ -475,6 +475,14 @@ local function GetClosestPlayer()
 	return ClosestPlayer
 end
 
+function Jello:ToggleArrayList(State)
+	if State == nil then
+		ActiveModulesDisplay.Visible = not ActiveModulesDisplay.Visible
+	else
+		ActiveModulesDisplay.Visible = State
+	end
+end
+
 function Jello:ToggleTargetHUD(State)
 	if State == nil then
 		TargetHUDEnabled = not TargetHUDEnabled
@@ -514,6 +522,20 @@ function Jello:ToggleTargetHUD(State)
 		end
 	else
 		TargetHUDEnabled = false
+	end
+end
+
+function Jello:ToggleNotifications(State)
+	if State == nil then
+		NotificationsFolder.Enabled = not NotificationsFolder.Enabled
+	else
+		NotificationsFolder.Enabled = State
+	end
+
+	for _, child in ipairs(NotificationsFolder:GetChildren()) do
+		if child:IsA("GuiObject") then
+			child.Visible = NotificationsFolder.Enabled
+		end
 	end
 end
 
