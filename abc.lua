@@ -16,6 +16,43 @@ local TabsVisible = false
 
 if CoreGui:FindFirstChild("Jello") then return end
 
+local function MakeDraggable(UIElement, DragHandle)
+    local Dragging = false
+    local DragStart, StartPosition
+
+    DragHandle.InputBegan:Connect(function(Input)
+        if Input.UserInputType == Enum.UserInputType.MouseButton1 then
+            if DragHandle == TargetHUDHeader and not TabsVisible then
+                return
+            end
+
+            Dragging = true
+            DragStart = Input.Position
+            StartPosition = UIElement.Position
+
+            InputChangedConnection = UIS.InputChanged:Connect(function(InputChanged)
+                if InputChanged.UserInputType == Enum.UserInputType.MouseMovement then
+                    if Dragging then
+                        local Delta = InputChanged.Position - DragStart
+                        UIElement.Position = UDim2.new(
+                            StartPosition.X.Scale, StartPosition.X.Offset + Delta.X,
+                            StartPosition.Y.Scale, StartPosition.Y.Offset + Delta.Y
+                        )
+                    end
+                end
+            end)
+
+            InputEndedConnection = UIS.InputEnded:Connect(function(InputEnded)
+                if InputEnded.UserInputType == Enum.UserInputType.MouseButton1 then
+                    Dragging = false
+                    InputChangedConnection:Disconnect()
+                    InputEndedConnection:Disconnect()
+                end
+            end)
+        end
+    end)
+end
+
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "Jello"
 ScreenGui.ResetOnSpawn = false
@@ -417,43 +454,6 @@ UIS.InputBegan:Connect(function(Input)
 		ArrayListHeader.Visible = ArrayListContainer.Visible and TabsVisible
 	end
 end)
-
-local function MakeDraggable(UIElement, DragHandle)
-    local Dragging = false
-    local DragStart, StartPosition
-
-    DragHandle.InputBegan:Connect(function(Input)
-        if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-            if DragHandle == TargetHUDHeader and not TabsVisible then
-                return
-            end
-
-            Dragging = true
-            DragStart = Input.Position
-            StartPosition = UIElement.Position
-
-            InputChangedConnection = UIS.InputChanged:Connect(function(InputChanged)
-                if InputChanged.UserInputType == Enum.UserInputType.MouseMovement then
-                    if Dragging then
-                        local Delta = InputChanged.Position - DragStart
-                        UIElement.Position = UDim2.new(
-                            StartPosition.X.Scale, StartPosition.X.Offset + Delta.X,
-                            StartPosition.Y.Scale, StartPosition.Y.Offset + Delta.Y
-                        )
-                    end
-                end
-            end)
-
-            InputEndedConnection = UIS.InputEnded:Connect(function(InputEnded)
-                if InputEnded.UserInputType == Enum.UserInputType.MouseButton1 then
-                    Dragging = false
-                    InputChangedConnection:Disconnect()
-                    InputEndedConnection:Disconnect()
-                end
-            end)
-        end
-    end)
-end
 
 function Jello:AddTab(TabName)
 	local TabFrame = Instance.new("Frame")
