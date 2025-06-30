@@ -38,7 +38,6 @@ local ArrayListFolder = Instance.new("Folder")
 ArrayListFolder.Parent = ScreenGui
 
 local ArrayListContainer = Instance.new("Frame")
-ArrayListContainer.Name = "ArrayListContainer"
 ArrayListContainer.BackgroundColor3 = Color3.new(0, 0, 0)
 ArrayListContainer.BackgroundTransparency = 1
 ArrayListContainer.BorderSizePixel = 0
@@ -51,7 +50,6 @@ ArrayListContainer.Visible = false
 ArrayListContainer.Parent = ArrayListFolder
 
 local ArrayListHeader = Instance.new("Frame")
-ArrayListHeader.Name = "Header"
 ArrayListHeader.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 ArrayListHeader.BackgroundTransparency = 0.25
 ArrayListHeader.BorderSizePixel = 0
@@ -68,7 +66,7 @@ ArrayListHeaderText.Size = UDim2.new(1, 0, 1, 0)
 ArrayListHeaderText.Font = Enum.Font.Sarpanch
 ArrayListHeaderText.Text = "ArrayList"
 ArrayListHeaderText.TextColor3 = Color3.new(1, 1, 1)
-ArrayListHeaderText.TextSize = 18
+ArrayListHeaderText.TextSize = 20
 ArrayListHeaderText.TextXAlignment = Enum.TextXAlignment.Center
 ArrayListHeaderText.Parent = ArrayListHeader
 
@@ -217,7 +215,6 @@ local TargetHUDFolder = Instance.new("Folder")
 TargetHUDFolder.Parent = ScreenGui
 
 local TargetHUDContainer = Instance.new("Frame")
-TargetHUDContainer.Name = "TargetHUDContainer"
 TargetHUDContainer.BackgroundColor3 = Color3.new(0, 0, 0)
 TargetHUDContainer.BackgroundTransparency = 1
 TargetHUDContainer.BorderSizePixel = 0
@@ -228,7 +225,6 @@ TargetHUDContainer.Visible = false
 TargetHUDContainer.Parent = TargetHUDFolder
 
 local TargetHUDHeader = Instance.new("Frame")
-TargetHUDHeader.Name = "Header"
 TargetHUDHeader.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 TargetHUDHeader.BackgroundTransparency = 0.25
 TargetHUDHeader.BorderSizePixel = 0
@@ -245,7 +241,7 @@ TargetHUDHeaderText.Size = UDim2.new(1, 0, 1, 0)
 TargetHUDHeaderText.Font = Enum.Font.Sarpanch
 TargetHUDHeaderText.Text = "Target"
 TargetHUDHeaderText.TextColor3 = Color3.new(1, 1, 1)
-TargetHUDHeaderText.TextSize = 18
+TargetHUDHeaderText.TextSize = 20
 TargetHUDHeaderText.TextXAlignment = Enum.TextXAlignment.Center
 TargetHUDHeaderText.Parent = TargetHUDHeader
 
@@ -388,7 +384,7 @@ function Jello:ToggleTargetHUD(State)
 	else
 		TargetHUDEnabled = false
 		TargetHUDContainer.Visible = false
-		TargetHUDHeader.Visible = true 
+		TargetHUDHeader.Visible = true
 	end
 end
 
@@ -424,17 +420,15 @@ local function MakeDraggable(UIElement, DragHandle)
 
     DragHandle.InputBegan:Connect(function(Input)
         if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-            -- Check if it's TargetHUDHeader and tabs are closed
             if DragHandle == TargetHUDHeader and not TabsVisible then
-                return -- Do not start dragging if tabs are closed
+                return
             end
 
             Dragging = true
             DragStart = Input.Position
             StartPosition = UIElement.Position
 
-            local inputChangedConn
-            inputChangedConn = UIS.InputChanged:Connect(function(InputChanged)
+            InputChangedConnection = UIS.InputChanged:Connect(function(InputChanged)
                 if InputChanged.UserInputType == Enum.UserInputType.MouseMovement then
                     if Dragging then
                         local Delta = InputChanged.Position - DragStart
@@ -446,12 +440,11 @@ local function MakeDraggable(UIElement, DragHandle)
                 end
             end)
 
-            local inputEndedConn
-            inputEndedConn = UIS.InputEnded:Connect(function(InputEnded)
+            InputEndedConnection = UIS.InputEnded:Connect(function(InputEnded)
                 if InputEnded.UserInputType == Enum.UserInputType.MouseButton1 then
                     Dragging = false
-                    inputChangedConn:Disconnect()
-                    inputEndedConn:Disconnect()
+                    InputChangedConnection:Disconnect()
+                    InputEndedConnection:Disconnect()
                 end
             end)
         end
@@ -511,20 +504,11 @@ function Jello:AddTab(TabName)
 	ModulesListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 	ModulesListLayout.Parent = Modules
 
-    -- Toggle Modules visibility when header is clicked
     Header.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton2 then
             Modules.Visible = not Modules.Visible
         end
     end)
-    -- Also use InputBegan for MouseButton1 to prevent dragging interference
-    HeaderText.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            -- This is to ensure the draggable function works correctly,
-            -- by treating the TextLabel as part of the header's draggable area.
-        end
-    end)
-
 
     MakeDraggable(TabFrame, Header)
 
