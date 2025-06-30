@@ -308,13 +308,50 @@ local function GetClosestPlayer()
 	return ClosestPlayer
 end
 
+-- makeDraggable fonksiyonu tanımı (diğer fonksiyonlardan önce)
+local function makeDraggable(draggableFrame, dragHandle, onDragUpdate)
+    dragHandle = dragHandle or draggableFrame -- Eğer bir tutamaç belirtilmezse, çerçevenin kendisi kullanılır.
+
+    local dragging = false
+    local dragStart, startPosition
+
+    dragHandle.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = true
+            dragStart = input.Position
+            startPosition = draggableFrame.Position
+
+            local inputChangedConn
+            inputChangedConn = UIS.InputChanged:Connect(function(inputChanged)
+                if inputChanged.UserInputState == Enum.UserInputState.End and (inputChanged.UserInputType == Enum.UserInputType.MouseButton1 or inputChanged.UserInputType == Enum.UserInputType.Touch) then
+                    dragging = false
+                    inputChangedConn:Disconnect() -- Bağlantıyı kes
+                end
+            end)
+        end
+    end)
+
+    UIS.InputChanged:Connect(function(input)
+        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+            local delta = input.Position - dragStart
+            draggableFrame.Position = UDim2.new(
+                startPosition.X.Scale, startPosition.X.Offset + delta.X,
+                startPosition.Y.Scale, startPosition.Y.Offset + delta.Y
+            )
+            if onDragUpdate then
+                onDragUpdate(draggableFrame) -- Sürükleme sırasında tetiklenecek callback
+            end
+        end
+    end)
+end
+
 function Jello:ToggleArrayList(State)
 	if State == nil then
 		ArrayListDisplay.Visible = not ArrayListDisplay.Visible
 	else
 		ArrayListDisplay.Visible = State
 	end
-end
+end -- Buradaki fazladan süslü parantez kaldırıldı
 
 function Jello:ToggleNotifications(State)
     if State == nil then
@@ -347,7 +384,7 @@ function Jello:ToggleTargetHUD(State)
 						HPBar.BackgroundColor3 = GetHealthColor(HP)
 						TargetPhoto.Image = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. Target.UserId .. "&width=420&height=420&format=png"
 						ShouldShow = true
-					elseif TabsVisible then -- TabsVisible olduğunda TargetHUD'ı gösterme koşulu
+					elseif TabsVisible then
 						TargetName.Text = "Roblox"
 						HPBar.Size = UDim2.new(1, 0, 1, 0)
 						HPBar.BackgroundColor3 = Color3.new(0, 1, 0)
@@ -395,51 +432,6 @@ UIS.InputBegan:Connect(function(Input)
 	end
 end)
 
----
-## Yeni Sürükleme Fonksiyonu
-
-`makeDraggable` fonksiyonu, bir `draggableFrame` (sürüklenecek UI elemanı) ve isteğe bağlı olarak bir `dragHandle` (sürüklemeyi başlatacak eleman, yoksa `draggableFrame` kullanılır) alır.
-```lua
-local function makeDraggable(draggableFrame, dragHandle, onDragUpdate)
-    dragHandle = dragHandle or draggableFrame -- Eğer bir tutamaç belirtilmezse, çerçevenin kendisi kullanılır.
-
-    local dragging = false
-    local dragStart, startPosition
-
-    dragHandle.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            dragging = true
-            dragStart = input.Position
-            startPosition = draggableFrame.Position
-
-            local inputChangedConn
-            inputChangedConn = UIS.InputChanged:Connect(function(inputChanged)
-                if inputChanged.UserInputState == Enum.UserInputState.End and (inputChanged.UserInputType == Enum.UserInputType.MouseButton1 or inputChanged.UserInputType == Enum.UserInputType.Touch) then
-                    dragging = false
-                    inputChangedConn:Disconnect() -- Bağlantıyı kes
-                end
-            end)
-        end
-    end)
-
-    UIS.InputChanged:Connect(function(input)
-        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-            local delta = input.Position - dragStart
-            draggableFrame.Position = UDim2.new(
-                startPosition.X.Scale, startPosition.X.Offset + delta.X,
-                startPosition.Y.Scale, startPosition.Y.Offset + delta.Y
-            )
-            if onDragUpdate then
-                onDragUpdate(draggableFrame) -- Sürükleme sırasında tetiklenecek callback
-            end
-        end
-    end)
-end
-
----
-## `Jello:AddTab` Fonksiyonunda Kullanımı
-
-```lua
 function Jello:AddTab(TabName)
 	local TabFrame = Instance.new("Frame")
 	TabFrame.BackgroundColor3 = Color3.new(0, 0, 0)
