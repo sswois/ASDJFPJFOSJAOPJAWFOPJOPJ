@@ -50,21 +50,27 @@ ArrayListContainer.AutomaticSize = Enum.AutomaticSize.Y
 ArrayListContainer.Visible = false
 ArrayListContainer.Parent = ArrayListFolder
 
-local ArrayListHeader = Instance.new("TextButton")
+local ArrayListHeader = Instance.new("Frame")
 ArrayListHeader.Name = "Header"
 ArrayListHeader.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-ArrayListHeader.BackgroundTransparency = 0.5
+ArrayListHeader.BackgroundTransparency = 0.25
 ArrayListHeader.BorderSizePixel = 0
 ArrayListHeader.BorderColor3 = Color3.new(0, 0, 0)
 ArrayListHeader.Size = UDim2.new(1, 0, 0, 25)
 ArrayListHeader.Position = UDim2.new(0, 0, 0, 0)
-ArrayListHeader.Text = "ArrayList"
-ArrayListHeader.TextColor3 = Color3.new(1, 1, 1)
-ArrayListHeader.TextSize = 18
-ArrayListHeader.Font = Enum.Font.Sarpanch
-ArrayListHeader.TextXAlignment = Enum.TextXAlignment.Center
-ArrayListHeader.AutoButtonColor = false
 ArrayListHeader.Parent = ArrayListContainer
+
+local ArrayListHeaderText = Instance.new("TextLabel")
+ArrayListHeaderText.BackgroundTransparency = 1
+ArrayListHeaderText.BorderSizePixel = 0
+ArrayListHeaderText.BorderColor3 = Color3.new(0, 0, 0)
+ArrayListHeaderText.Size = UDim2.new(1, 0, 1, 0)
+ArrayListHeaderText.Font = Enum.Font.Sarpanch
+ArrayListHeaderText.Text = "ArrayList"
+ArrayListHeaderText.TextColor3 = Color3.new(1, 1, 1)
+ArrayListHeaderText.TextSize = 18
+ArrayListHeaderText.TextXAlignment = Enum.TextXAlignment.Center
+ArrayListHeaderText.Parent = ArrayListHeader
 
 local ArrayListDisplay = Instance.new("Frame")
 ArrayListDisplay.BackgroundColor3 = Color3.new(0, 0, 0)
@@ -221,25 +227,31 @@ TargetHUDContainer.Size = UDim2.new(0, 250, 0, 75 + 25)
 TargetHUDContainer.Visible = false
 TargetHUDContainer.Parent = TargetHUDFolder
 
-local TargetHUDHeader = Instance.new("TextButton")
+local TargetHUDHeader = Instance.new("Frame")
 TargetHUDHeader.Name = "Header"
 TargetHUDHeader.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-TargetHUDHeader.BackgroundTransparency = 0.5
+TargetHUDHeader.BackgroundTransparency = 0.25
 TargetHUDHeader.BorderSizePixel = 0
 TargetHUDHeader.BorderColor3 = Color3.new(0, 0, 0)
 TargetHUDHeader.Size = UDim2.new(1, 0, 0, 25)
 TargetHUDHeader.Position = UDim2.new(0, 0, 0, 0)
-TargetHUDHeader.Text = "Target"
-TargetHUDHeader.TextColor3 = Color3.new(1, 1, 1)
-TargetHUDHeader.TextSize = 18
-TargetHUDHeader.Font = Enum.Font.Sarpanch
-TargetHUDHeader.TextXAlignment = Enum.TextXAlignment.Center
-TargetHUDHeader.AutoButtonColor = false
 TargetHUDHeader.Parent = TargetHUDContainer
+
+local TargetHUDHeaderText = Instance.new("TextLabel")
+TargetHUDHeaderText.BackgroundTransparency = 1
+TargetHUDHeaderText.BorderSizePixel = 0
+TargetHUDHeaderText.BorderColor3 = Color3.new(0, 0, 0)
+TargetHUDHeaderText.Size = UDim2.new(1, 0, 1, 0)
+TargetHUDHeaderText.Font = Enum.Font.Sarpanch
+TargetHUDHeaderText.Text = "Target"
+TargetHUDHeaderText.TextColor3 = Color3.new(1, 1, 1)
+TargetHUDHeaderText.TextSize = 18
+TargetHUDHeaderText.TextXAlignment = Enum.TextXAlignment.Center
+TargetHUDHeaderText.Parent = TargetHUDHeader
 
 local TargetHUD = Instance.new("Frame")
 TargetHUD.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-TargetHUD.BackgroundTransparency = 0.25
+TargetHUD.BackgroundTransparency = 0.5
 TargetHUD.BorderSizePixel = 0
 TargetHUD.BorderColor3 = Color3.new(0, 0, 0)
 TargetHUD.Position = UDim2.new(0, 0, 0, 25)
@@ -366,17 +378,17 @@ function Jello:ToggleTargetHUD(State)
 					end
 
 					TargetHUDContainer.Visible = ShouldShow
-					TargetHUDHeader.Visible = true -- TargetHUD header is always visible now
+					TargetHUDHeader.Visible = true 
 				end
 				TargetHUDContainer.Visible = false
-				TargetHUDHeader.Visible = true -- Ensure header stays visible if this thread ends
+				TargetHUDHeader.Visible = true 
 				TargetHUDThread = nil
 			end)
 		end
 	else
 		TargetHUDEnabled = false
 		TargetHUDContainer.Visible = false
-		TargetHUDHeader.Visible = true -- Ensure header stays visible even if HUD is disabled
+		TargetHUDHeader.Visible = true 
 	end
 end
 
@@ -403,7 +415,6 @@ UIS.InputBegan:Connect(function(Input)
 		ModalButton.Visible = TabsVisible
 		TabsContainer.Visible = TabsVisible
 		ArrayListHeader.Visible = ArrayListContainer.Visible and TabsVisible
-		-- TargetHUDHeader visibility is now handled by TargetHUD itself, no longer directly by TabsVisible
 	end
 end)
 
@@ -413,6 +424,11 @@ local function MakeDraggable(UIElement, DragHandle)
 
     DragHandle.InputBegan:Connect(function(Input)
         if Input.UserInputType == Enum.UserInputType.MouseButton1 then
+            -- Check if it's TargetHUDHeader and tabs are closed
+            if DragHandle == TargetHUDHeader and not TabsVisible then
+                return -- Do not start dragging if tabs are closed
+            end
+
             Dragging = true
             DragStart = Input.Position
             StartPosition = UIElement.Position
@@ -456,19 +472,25 @@ function Jello:AddTab(TabName)
 	TabCount += 1
 	table.insert(AllTabs, TabFrame)
 
-	local Header = Instance.new("TextButton")
+	local Header = Instance.new("Frame")
 	Header.BackgroundColor3 = Color3.new(0, 0, 0)
 	Header.BackgroundTransparency = 0.25
 	Header.BorderColor3 = Color3.new(0, 0, 0)
 	Header.BorderSizePixel = 0
-	Header.Font = Enum.Font.Sarpanch
 	Header.Size = UDim2.new(0, 250, 0, 50)
-	Header.Text = TabName or "Tab"
-	Header.TextColor3 = Color3.new(1, 1, 1)
-	Header.TextSize = 25
-	Header.TextXAlignment = Enum.TextXAlignment.Left
-	Header.AutoButtonColor = false
 	Header.Parent = TabFrame
+
+	local HeaderText = Instance.new("TextLabel")
+	HeaderText.BackgroundTransparency = 1
+	HeaderText.BorderSizePixel = 0
+	HeaderText.BorderColor3 = Color3.new(0, 0, 0)
+	HeaderText.Size = UDim2.new(1, 0, 1, 0)
+	HeaderText.Font = Enum.Font.Sarpanch
+	HeaderText.Text = TabName or "Tab"
+	HeaderText.TextColor3 = Color3.new(1, 1, 1)
+	HeaderText.TextSize = 25
+	HeaderText.TextXAlignment = Enum.TextXAlignment.Left
+	HeaderText.Parent = Header
 
 	local HeaderPadding = Instance.new("UIPadding")
 	HeaderPadding.PaddingLeft = UDim.new(0, 25)
@@ -489,9 +511,20 @@ function Jello:AddTab(TabName)
 	ModulesListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 	ModulesListLayout.Parent = Modules
 
-	Header.MouseButton2Click:Connect(function()
-		Modules.Visible = not Modules.Visible
-	end)
+    -- Toggle Modules visibility when header is clicked
+    Header.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton2 then
+            Modules.Visible = not Modules.Visible
+        end
+    end)
+    -- Also use InputBegan for MouseButton1 to prevent dragging interference
+    HeaderText.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            -- This is to ensure the draggable function works correctly,
+            -- by treating the TextLabel as part of the header's draggable area.
+        end
+    end)
+
 
     MakeDraggable(TabFrame, Header)
 
@@ -634,7 +667,6 @@ function Jello:AddTab(TabName)
 end
 
 MakeDraggable(ArrayListContainer, ArrayListHeader)
-
 MakeDraggable(TargetHUDContainer, TargetHUDHeader)
 
 return Jello
