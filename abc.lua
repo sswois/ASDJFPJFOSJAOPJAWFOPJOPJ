@@ -56,9 +56,7 @@ ArrayListHeader.BackgroundTransparency = 0.5
 ArrayListHeader.Size = UDim2.new(1, 0, 0, 25) -- Adjust height as needed
 ArrayListHeader.Position = UDim2.new(0, 0, 0, -25) -- Position above the ArrayListDisplay content
 ArrayListHeader.Parent = ArrayListDisplay
-local ArrayListHeaderCorner = Instance.new("UICorner")
-ArrayListHeaderCorner.CornerRadius = UDim.new(0, 5) -- Match existing UI corners
-ArrayListHeaderCorner.Parent = ArrayListHeader
+ArrayListHeader.Visible = false -- Initially hidden
 
 local ArrayListHeaderText = Instance.new("TextLabel")
 ArrayListHeaderText.BackgroundTransparency = 1
@@ -83,7 +81,7 @@ end
 
 local function RefreshArrayList()
 	for _, v in pairs(ArrayListDisplay:GetChildren()) do
-		if v:IsA("TextLabel") then
+		if v:IsA("TextLabel") and v.Name ~= "Header" then -- Exclude the header from destruction
 			v:Destroy()
 		end
 	end
@@ -220,9 +218,7 @@ TargetHUDHeader.BackgroundTransparency = 0.5
 TargetHUDHeader.Size = UDim2.new(1, 0, 0, 25) -- Adjust height as needed
 TargetHUDHeader.Position = UDim2.new(0, 0, 0, -25) -- Position above the TargetHUD content
 TargetHUDHeader.Parent = TargetHUD
-local TargetHUDHeaderCorner = Instance.new("UICorner")
-TargetHUDHeaderCorner.CornerRadius = UDim.new(0, 5) -- Match existing UI corners
-TargetHUDHeaderCorner.Parent = TargetHUD
+TargetHUDHeader.Visible = false -- Initially hidden
 
 local TargetHUDHeaderText = Instance.new("TextLabel")
 TargetHUDHeaderText.BackgroundTransparency = 1
@@ -306,6 +302,7 @@ function Jello:ToggleArrayList(State)
 	else
 		ArrayListDisplay.Visible = State
 	end
+	ArrayListHeader.Visible = ArrayListDisplay.Visible and TabsVisible -- Only show header if display is visible AND tabs are visible
 end
 
 function Jello:ToggleNotifications(State)
@@ -348,13 +345,17 @@ function Jello:ToggleTargetHUD(State)
 					end
 
 					TargetHUD.Visible = ShouldShow
+					TargetHUDHeader.Visible = TargetHUD.Visible and TabsVisible -- Only show header if HUD is visible AND tabs are visible
 				end
 				TargetHUD.Visible = false
+				TargetHUDHeader.Visible = false
 				TargetHUDThread = nil
 			end)
 		end
 	else
 		TargetHUDEnabled = false
+		TargetHUD.Visible = false
+		TargetHUDHeader.Visible = false
 	end
 end
 
@@ -380,6 +381,9 @@ UIS.InputBegan:Connect(function(Input)
 		BlurEffect.Enabled = TabsVisible
 		ModalButton.Visible = TabsVisible
 		TabsContainer.Visible = TabsVisible
+		-- Update header visibility based on new TabsVisible state
+		ArrayListHeader.Visible = ArrayListDisplay.Visible and TabsVisible
+		TargetHUDHeader.Visible = TargetHUD.Visible and TabsVisible
 	end
 end)
 
@@ -583,10 +587,6 @@ local function MakeDraggable(UIElement, DragHandle)
             DragStart = Input.Position
             StartPosition = UIElement.Position
 
-            -- Update mouse icon while dragging
-            UIS.MouseIconEnabled = false
-            UIS.MouseIcon = "rbxassetid://625692694" -- Hand cursor
-
             local inputChangedConn
             inputChangedConn = UIS.InputChanged:Connect(function(InputChanged)
                 if InputChanged.UserInputType == Enum.UserInputType.MouseMovement then
@@ -604,8 +604,6 @@ local function MakeDraggable(UIElement, DragHandle)
             inputEndedConn = UIS.InputEnded:Connect(function(InputEnded)
                 if InputEnded.UserInputType == Enum.UserInputType.MouseButton1 then
                     Dragging = false
-                    UIS.MouseIconEnabled = true
-                    UIS.MouseIcon = "" -- Reset mouse icon
                     inputChangedConn:Disconnect()
                     inputEndedConn:Disconnect()
                 end
