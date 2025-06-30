@@ -42,11 +42,26 @@ ArrayListDisplay.BackgroundColor3 = Color3.new(0, 0, 0)
 ArrayListDisplay.BackgroundTransparency = 1
 ArrayListDisplay.BorderColor3 = Color3.new(0, 0, 0)
 ArrayListDisplay.BorderSizePixel = 0
-ArrayListDisplay.Position = UDim2.new(1, -5, 0, -57.5)
+ArrayListDisplay.Position = UDim2.new(1, -5, 0, 5) -- Konum güncellendi
 ArrayListDisplay.Size = UDim2.new(0, 250, 1, 1000)
 ArrayListDisplay.ZIndex = 10
 ArrayListDisplay.Parent = ArrayListFolder
 ArrayListDisplay.Visible = false
+
+-- ArrayList Header
+local ArrayListHeader = Instance.new("TextLabel")
+ArrayListHeader.BackgroundColor3 = Color3.new(0, 0, 0)
+ArrayListHeader.BackgroundTransparency = 0.5
+ArrayListHeader.BorderColor3 = Color3.new(0, 0, 0)
+ArrayListHeader.BorderSizePixel = 0
+ArrayListHeader.Font = Enum.Font.Sarpanch
+ArrayListHeader.Size = UDim2.new(1, 0, 0, 30) -- Daha küçük bir başlık boyutu
+ArrayListHeader.Text = "Active Modules"
+ArrayListHeader.TextColor3 = Color3.new(1, 1, 1)
+ArrayListHeader.TextSize = 20
+ArrayListHeader.TextXAlignment = Enum.TextXAlignment.Right
+ArrayListHeader.ZIndex = 11 -- Başlığın üstte görünmesi için
+ArrayListHeader.Parent = ArrayListDisplay
 
 local ArrayListLayout = Instance.new("UIListLayout")
 ArrayListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
@@ -54,13 +69,53 @@ ArrayListLayout.Padding = UDim.new(0, 0)
 ArrayListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 ArrayListLayout.Parent = ArrayListDisplay
 
+-- ArrayList Header sürükleme mantığı
+local ArrayListDragging = false
+local ArrayListDragStart, ArrayListStartPosition
+
+ArrayListHeader.InputBegan:Connect(function(Input)
+	if Input.UserInputType == Enum.UserInputType.MouseButton1 then
+		ArrayListDragging = true
+		ArrayListDragStart = Input.Position
+		ArrayListStartPosition = ArrayListDisplay.Position
+
+		Input.Changed:Connect(function()
+			if Input.UserInputState == Enum.UserInputState.End then
+				ArrayListDragging = false
+			end
+		end)
+	end
+end)
+
+UIS.InputChanged:Connect(function(Input)
+	if ArrayListDragging and Input.UserInputType == Enum.UserInputType.MouseMovement then
+		local Delta = Input.Position - ArrayListDragStart
+		ArrayListDisplay.Position = UDim2.new(
+			ArrayListStartPosition.X.Scale, ArrayListStartPosition.X.Offset + Delta.X,
+			ArrayListStartPosition.Y.Scale, ArrayListStartPosition.Y.Offset + Delta.Y
+		)
+	end
+end)
+
+local NotificationsFolder = Instance.new("Folder")
+NotificationsFolder.Parent = ScreenGui
+
+local NotificationsContainer = Instance.new("Frame")
+NotificationsContainer.BackgroundColor3 = Color3.new(0, 0, 0)
+NotificationsContainer.BackgroundTransparency = 1
+NotificationsContainer.BorderSizePixel = 0
+NotificationsContainer.Size = UDim2.new(1, 0, 1, 0)
+NotificationsContainer.Visible = false
+NotificationsContainer.Parent = NotificationsFolder
+
 local function GetTextWidth(text)
 	return TextService:GetTextSize(text, 25, Enum.Font.Sarpanch, Vector2.new(1000, 25)).X
 end
 
 local function RefreshArrayList()
 	for _, v in pairs(ArrayListDisplay:GetChildren()) do
-		if v:IsA("TextLabel") then
+		-- Başlık hariç diğer TextLabel'ları temizle
+		if v:IsA("TextLabel") and v ~= ArrayListHeader then
 			v:Destroy()
 		end
 	end
@@ -88,17 +143,6 @@ local function RefreshArrayList()
 		ActiveModule.Parent = ArrayListDisplay
 	end
 end
-
-local NotificationsFolder = Instance.new("Folder")
-NotificationsFolder.Parent = ScreenGui
-
-local NotificationsContainer = Instance.new("Frame")
-NotificationsContainer.BackgroundColor3 = Color3.new(0, 0, 0)
-NotificationsContainer.BackgroundTransparency = 1
-NotificationsContainer.BorderSizePixel = 0
-NotificationsContainer.Size = UDim2.new(1, 0, 1, 0)
-NotificationsContainer.Visible = false
-NotificationsContainer.Parent = NotificationsFolder
 
 local function RepositionNotifications()
 	for i, Data in ipairs(ActiveNotifications) do
@@ -188,6 +232,51 @@ TargetHUD.Position = UDim2.new(0.5, -125, 0.8, 0)
 TargetHUD.Size = UDim2.new(0, 250, 0, 75)
 TargetHUD.Visible = false
 TargetHUD.Parent = TargetHUDFolder
+
+-- TargetHUD Header
+local TargetHUDHeader = Instance.new("TextLabel")
+TargetHUDHeader.BackgroundColor3 = Color3.new(0, 0, 0)
+TargetHUDHeader.BackgroundTransparency = 0.5
+TargetHUDHeader.BorderColor3 = Color3.new(0, 0, 0)
+TargetHUDHeader.BorderSizePixel = 0
+TargetHUDHeader.Font = Enum.Font.Sarpanch
+TargetHUDHeader.Position = UDim2.new(0, 0, 0, -30) -- Panelin üstüne konumlandır
+TargetHUDHeader.Size = UDim2.new(1, 0, 0, 30)
+TargetHUDHeader.Text = "Target Info"
+TargetHUDHeader.TextColor3 = Color3.new(1, 1, 1)
+TargetHUDHeader.TextSize = 20
+TargetHUDHeader.TextXAlignment = Enum.TextXAlignment.Center
+TargetHUDHeader.ZIndex = 1 -- TargetHUD'dan daha yüksek ZIndex
+TargetHUDHeader.Parent = TargetHUD
+
+-- TargetHUD Header sürükleme mantığı
+local TargetHUDDragging = false
+local TargetHUDDragStart, TargetHUDStartPosition
+
+TargetHUDHeader.InputBegan:Connect(function(Input)
+	if Input.UserInputType == Enum.UserInputType.MouseButton1 then
+		TargetHUDDragging = true
+		TargetHUDDragStart = Input.Position
+		TargetHUDStartPosition = TargetHUD.Position
+
+		Input.Changed:Connect(function()
+			if Input.UserInputState == Enum.UserInputState.End then
+				TargetHUDDragging = false
+			end
+		end)
+	end
+end)
+
+UIS.InputChanged:Connect(function(Input)
+	if TargetHUDDragging and Input.UserInputType == Enum.UserInputType.MouseMovement then
+		local Delta = Input.Position - TargetHUDDragStart
+		TargetHUD.Position = UDim2.new(
+			TargetHUDStartPosition.X.Scale, TargetHUDStartPosition.X.Offset + Delta.X,
+			TargetHUDStartPosition.Y.Scale, TargetHUDStartPosition.Y.Offset + Delta.Y
+		)
+	end
+end)
+
 
 local TargetPhoto = Instance.new("ImageLabel")
 TargetPhoto.BackgroundTransparency = 1
