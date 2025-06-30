@@ -48,6 +48,19 @@ ArrayListDisplay.ZIndex = 10
 ArrayListDisplay.Parent = ArrayListFolder
 ArrayListDisplay.Visible = false
 
+local ArrayListHeader = Instance.new("TextLabel")
+ArrayListHeader.Name = "Header"
+ArrayListHeader.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+ArrayListHeader.BackgroundTransparency = 0.25
+ArrayListHeader.BorderSizePixel = 0
+ArrayListHeader.Size = UDim2.new(1, 0, 0, 20)
+ArrayListHeader.Font = Enum.Font.Sarpanch
+ArrayListHeader.Text = "Active Modules"
+ArrayListHeader.TextColor3 = Color3.new(1, 1, 1)
+ArrayListHeader.TextSize = 18
+ArrayListHeader.TextXAlignment = Enum.TextXAlignment.Center
+ArrayListHeader.Parent = ArrayListDisplay
+
 local ArrayListLayout = Instance.new("UIListLayout")
 ArrayListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
 ArrayListLayout.Padding = UDim.new(0, 0)
@@ -60,7 +73,7 @@ end
 
 local function RefreshArrayList()
 	for _, v in pairs(ArrayListDisplay:GetChildren()) do
-		if v:IsA("TextLabel") then
+		if v:IsA("TextLabel") and v.Name ~= "Header" then
 			v:Destroy()
 		end
 	end
@@ -188,6 +201,20 @@ TargetHUD.Position = UDim2.new(0.5, -125, 0.8, 0)
 TargetHUD.Size = UDim2.new(0, 250, 0, 75)
 TargetHUD.Visible = false
 TargetHUD.Parent = TargetHUDFolder
+
+local TargetHUDHeader = Instance.new("TextLabel")
+TargetHUDHeader.Name = "Header"
+TargetHUDHeader.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+TargetHUDHeader.BackgroundTransparency = 0.25
+TargetHUDHeader.BorderSizePixel = 0
+TargetHUDHeader.Size = UDim2.new(1, 0, 0, 20)
+TargetHUDHeader.Position = UDim2.new(0, 0, -1, 0) -- Position above the TargetHUD frame
+TargetHUDHeader.Font = Enum.Font.Sarpanch
+TargetHUDHeader.Text = "Target"
+TargetHUDHeader.TextColor3 = Color3.new(1, 1, 1)
+TargetHUDHeader.TextSize = 18
+TargetHUDHeader.TextXAlignment = Enum.TextXAlignment.Center
+TargetHUDHeader.Parent = TargetHUD
 
 local TargetPhoto = Instance.new("ImageLabel")
 TargetPhoto.BackgroundTransparency = 1
@@ -338,6 +365,42 @@ UIS.InputBegan:Connect(function(Input)
 	end
 end)
 
+-- Draggable function
+local function makeDraggable(frame, header)
+    local dragging
+    local dragInput
+    local dragStart
+    local startPosition
+
+    header.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = true
+            dragInput = input
+            dragStart = input.Position
+            startPosition = frame.Position
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.Ended then
+                    dragging = false
+                end
+            end)
+        end
+    end)
+
+    header.InputChanged:Connect(function(input)
+        if input == dragInput and dragging then
+            local delta = input.Position - dragStart
+            frame.Position = UDim2.new(startPosition.X.Scale, startPosition.X.Offset + delta.X,
+                                        startPosition.Y.Scale, startPosition.Y.Offset + delta.Y)
+        end
+    end)
+end
+
+-- Make ArrayListDisplay draggable by its header
+makeDraggable(ArrayListDisplay, ArrayListHeader)
+-- Make TargetHUD draggable by its header
+makeDraggable(TargetHUD, TargetHUDHeader)
+
+
 function Jello:AddTab(TabName)
 	local TabFrame = Instance.new("Frame")
 	TabFrame.BackgroundColor3 = Color3.new(0, 0, 0)
@@ -388,6 +451,9 @@ function Jello:AddTab(TabName)
 	Header.MouseButton2Click:Connect(function()
 		Modules.Visible = not Modules.Visible
 	end)
+
+    -- Make TabFrame draggable by its Header
+    makeDraggable(TabFrame, Header)
 
 	local Tab = {}
 
