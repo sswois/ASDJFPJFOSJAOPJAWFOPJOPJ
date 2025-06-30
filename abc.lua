@@ -12,6 +12,8 @@ local TabCount = 0
 local ActiveModules = {}
 local ActiveNotifications = {}
 
+local TabsVisible = false
+
 if CoreGui:FindFirstChild("Jello") then return end
 
 local ScreenGui = Instance.new("ScreenGui")
@@ -291,10 +293,10 @@ function Jello:ToggleTargetHUD(State)
 						HPBar.BackgroundColor3 = GetHealthColor(HP)
 						TargetPhoto.Image = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. Target.UserId .. "&width=420&height=420&format=png"
 						ShouldShow = true
-					elseif TabsVisible then -- Added condition: TargetHUD is visible if Tabs are visible
+					elseif TabsVisible then
 						TargetName.Text = "Roblox"
-						HPBar.Size = UDim2.new(1, 0, 1, 0) -- Set HPBar to 100%
-						HPBar.BackgroundColor3 = Color3.new(0, 1, 0) -- Set HPBar color to green
+						HPBar.Size = UDim2.new(1, 0, 1, 0)
+						HPBar.BackgroundColor3 = Color3.new(0, 1, 0)
 						TargetPhoto.Image = "https://www.roblox.com/headshot-thumbnail/image?userId=1&width=420&height=420&format=png"
 						ShouldShow = true
 					end
@@ -325,8 +327,6 @@ local BlurEffect = Instance.new("BlurEffect")
 BlurEffect.Enabled = false
 BlurEffect.Size = 25
 BlurEffect.Parent = game.Lighting
-
-local TabsVisible = false
 
 UIS.InputBegan:Connect(function(Input)
 	if Input.KeyCode == Enum.KeyCode.RightShift then
@@ -482,6 +482,7 @@ function Jello:AddTab(TabName)
 		end
 
 		Module.MouseButton1Click:Connect(ToggleModule)
+		
 		Module.MouseButton2Click:Connect(function()
 			ModuleOptions.Visible = not ModuleOptions.Visible
 		end)
@@ -496,7 +497,9 @@ function Jello:AddTab(TabName)
 					if CurrentBind == Input.KeyCode then
 						CurrentBind = nil
 						Bind.Text = "Bind Removed"
-						task.delay(1, function() Bind.Text = "Bind: None" end)
+						task.delay(1, function()
+							Bind.Text = "Bind: None"
+						end)
 						SkipNext = true
 					else
 						CurrentBind = Input.KeyCode
