@@ -37,12 +37,12 @@ local ArrayListFolder = Instance.new("Folder")
 ArrayListFolder.Parent = ScreenGui
 
 local ArrayListDisplay = Instance.new("Frame")
-ArrayListDisplay.AnchorPoint = Vector2.new(0, 0) -- AnchorPoint sol üst köşeye çekildi
+ArrayListDisplay.AnchorPoint = Vector2.new(1, 0)
 ArrayListDisplay.BackgroundColor3 = Color3.new(0, 0, 0)
 ArrayListDisplay.BackgroundTransparency = 1
 ArrayListDisplay.BorderColor3 = Color3.new(0, 0, 0)
 ArrayListDisplay.BorderSizePixel = 0
-ArrayListDisplay.Position = UDim2.new(0, 5, 0, 5) -- Başlangıç konumu sol üstte
+ArrayListDisplay.Position = UDim2.new(1, -5, 0, 5) -- Konum güncellendi
 ArrayListDisplay.Size = UDim2.new(0, 250, 1, 1000)
 ArrayListDisplay.ZIndex = 10
 ArrayListDisplay.Parent = ArrayListFolder
@@ -55,17 +55,16 @@ ArrayListHeader.BackgroundTransparency = 0.5
 ArrayListHeader.BorderColor3 = Color3.new(0, 0, 0)
 ArrayListHeader.BorderSizePixel = 0
 ArrayListHeader.Font = Enum.Font.Sarpanch
-ArrayListHeader.Size = UDim2.new(1, 0, 0, 30)
+ArrayListHeader.Size = UDim2.new(1, 0, 0, 30) -- Daha küçük bir başlık boyutu
 ArrayListHeader.Text = "Active Modules"
 ArrayListHeader.TextColor3 = Color3.new(1, 1, 1)
 ArrayListHeader.TextSize = 20
-ArrayListHeader.TextXAlignment = Enum.TextXAlignment.Left -- Sol hizalı
-ArrayListHeader.ZIndex = 11
+ArrayListHeader.TextXAlignment = Enum.TextXAlignment.Right
+ArrayListHeader.ZIndex = 11 -- Başlığın üstte görünmesi için
 ArrayListHeader.Parent = ArrayListDisplay
-ArrayListHeader.Visible = false -- Varsayılan olarak görünmez
 
 local ArrayListLayout = Instance.new("UIListLayout")
-ArrayListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left -- Sol hizalama
+ArrayListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
 ArrayListLayout.Padding = UDim.new(0, 0)
 ArrayListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 ArrayListLayout.Parent = ArrayListDisplay
@@ -95,26 +94,6 @@ UIS.InputChanged:Connect(function(Input)
 			ArrayListStartPosition.X.Scale, ArrayListStartPosition.X.Offset + Delta.X,
 			ArrayListStartPosition.Y.Scale, ArrayListStartPosition.Y.Offset + Delta.Y
 		)
-        -- ArrayList'in ekranın hangi tarafında olduğuna göre metin hizalamasını ayarla
-        if ArrayListDisplay.AbsolutePosition.X + ArrayListDisplay.AbsoluteSize.X / 2 < game.Workspace.CurrentCamera.ViewportSize.X / 2 then
-            -- Ekranın sol yarısında
-            ArrayListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
-            ArrayListHeader.TextXAlignment = Enum.TextXAlignment.Left
-            for _, v in pairs(ArrayListDisplay:GetChildren()) do
-                if v:IsA("TextLabel") and v ~= ArrayListHeader then
-                    v.TextXAlignment = Enum.TextXAlignment.Left
-                end
-            end
-        else
-            -- Ekranın sağ yarısında
-            ArrayListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
-            ArrayListHeader.TextXAlignment = Enum.TextXAlignment.Right
-            for _, v in pairs(ArrayListDisplay:GetChildren()) do
-                if v:IsA("TextLabel") and v ~= ArrayListHeader then
-                    v.TextXAlignment = Enum.TextXAlignment.Right
-                end
-            end
-        end
 	end
 end)
 
@@ -159,29 +138,10 @@ local function RefreshArrayList()
 		ActiveModule.TextStrokeTransparency = 0.5
 		ActiveModule.TextTransparency = 0
 		ActiveModule.TextWrapped = false
+		ActiveModule.TextXAlignment = Enum.TextXAlignment.Right
 		ActiveModule.AutomaticSize = Enum.AutomaticSize.X
-        -- Başlangıçta sol hizalı olacak
-		ActiveModule.TextXAlignment = Enum.TextXAlignment.Left 
 		ActiveModule.Parent = ArrayListDisplay
 	end
-    -- ArrayList yenilendiğinde de konumuna göre hizalamayı ayarla
-    if ArrayListDisplay.AbsolutePosition.X + ArrayListDisplay.AbsoluteSize.X / 2 < game.Workspace.CurrentCamera.ViewportSize.X / 2 then
-        ArrayListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
-        ArrayListHeader.TextXAlignment = Enum.TextXAlignment.Left
-        for _, v in pairs(ArrayListDisplay:GetChildren()) do
-            if v:IsA("TextLabel") and v ~= ArrayListHeader then
-                v.TextXAlignment = Enum.TextXAlignment.Left
-            end
-        end
-    else
-        ArrayListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
-        ArrayListHeader.TextXAlignment = Enum.TextXAlignment.Right
-        for _, v in pairs(ArrayListDisplay:GetChildren()) do
-            if v:IsA("TextLabel") and v ~= ArrayListHeader then
-                v.TextXAlignment = Enum.TextXAlignment.Right
-            end
-        end
-    end
 end
 
 local function RepositionNotifications()
@@ -286,9 +246,8 @@ TargetHUDHeader.Text = "Target Info"
 TargetHUDHeader.TextColor3 = Color3.new(1, 1, 1)
 TargetHUDHeader.TextSize = 20
 TargetHUDHeader.TextXAlignment = Enum.TextXAlignment.Center
-TargetHUDHeader.ZIndex = 1
+TargetHUDHeader.ZIndex = 1 -- TargetHUD'dan daha yüksek ZIndex
 TargetHUDHeader.Parent = TargetHUD
-TargetHUDHeader.Visible = false -- Varsayılan olarak görünmez
 
 -- TargetHUD Header sürükleme mantığı
 local TargetHUDDragging = false
@@ -317,6 +276,7 @@ UIS.InputChanged:Connect(function(Input)
 		)
 	end
 end)
+
 
 local TargetPhoto = Instance.new("ImageLabel")
 TargetPhoto.BackgroundTransparency = 1
@@ -390,7 +350,7 @@ function Jello:ToggleArrayList(State)
 	else
 		ArrayListDisplay.Visible = State
 	end
-}
+end
 
 function Jello:ToggleNotifications(State)
     if State == nil then
@@ -423,7 +383,7 @@ function Jello:ToggleTargetHUD(State)
 						HPBar.BackgroundColor3 = GetHealthColor(HP)
 						TargetPhoto.Image = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. Target.UserId .. "&width=420&height=420&format=png"
 						ShouldShow = true
-					elseif TabsVisible then -- TabsVisible olduğunda TargetHUD'ı gösterme koşulu
+					elseif TabsVisible then
 						TargetName.Text = "Roblox"
 						HPBar.Size = UDim2.new(1, 0, 1, 0)
 						HPBar.BackgroundColor3 = Color3.new(0, 1, 0)
@@ -464,10 +424,6 @@ UIS.InputBegan:Connect(function(Input)
 		BlurEffect.Enabled = TabsVisible
 		ModalButton.Visible = TabsVisible
 		TabsContainer.Visible = TabsVisible
-		
-		-- Başlıkların görünürlüğünü güncelle
-		ArrayListHeader.Visible = TabsVisible
-		TargetHUDHeader.Visible = TabsVisible
 	end
 end)
 
