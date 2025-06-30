@@ -102,6 +102,14 @@ local function RefreshArrayList()
 		return GetTextWidth(a) > GetTextWidth(b)
 	end)
 
+	local IsArrayListOnRight = (ArrayListContainer.AbsolutePosition.X + ArrayListContainer.AbsoluteSize.X / 2) > (ScreenGui.AbsoluteSize.X / 2)
+
+	if IsArrayListOnRight then
+		ArrayListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
+	else
+		ArrayListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
+	end
+
 	for _, ModuleName in ipairs(ActiveModules) do
 		local ActiveModule = Instance.new("TextLabel")
 		ActiveModule.BackgroundColor3 = Color3.new(0, 0, 0)
@@ -116,7 +124,11 @@ local function RefreshArrayList()
 		ActiveModule.TextStrokeTransparency = 0.5
 		ActiveModule.TextTransparency = 0
 		ActiveModule.TextWrapped = false
-		ActiveModule.TextXAlignment = Enum.TextXAlignment.Right
+		if IsArrayListOnRight then
+			ActiveModule.TextXAlignment = Enum.TextXAlignment.Right
+		else
+			ActiveModule.TextXAlignment = Enum.TextXAlignment.Left
+		end
 		ActiveModule.AutomaticSize = Enum.AutomaticSize.X
 		ActiveModule.Parent = ArrayListDisplay
 	end
