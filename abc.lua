@@ -208,7 +208,7 @@ TargetHUDHeader.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 TargetHUDHeader.BackgroundTransparency = 0.25
 TargetHUDHeader.BorderSizePixel = 0
 TargetHUDHeader.Size = UDim2.new(1, 0, 0, 20)
-TargetHUDHeader.Position = UDim2.new(0, 0, -1, 0) -- Position above the TargetHUD frame
+TargetHUDHeader.Position = UDim2.new(0, 0, -1, 0)
 TargetHUDHeader.Font = Enum.Font.Sarpanch
 TargetHUDHeader.Text = "Target"
 TargetHUDHeader.TextColor3 = Color3.new(1, 1, 1)
@@ -248,7 +248,7 @@ HPBar.BackgroundColor3 = Color3.new(0, 0, 0)
 HPBar.BorderSizePixel = 0
 HPBar.Position = UDim2.new(0, 0, 0, 0)
 HPBar.Size = UDim2.new(0, 0, 1, 0)
-HPBar.Parent = HPBG
+HPBar.Parent = HPBar
 
 local MaxDistance = 15
 local TargetHUDEnabled = false
@@ -345,7 +345,7 @@ ModalButton.BackgroundColor3 = Color3.new(0, 0, 0)
 ModalButton.BackgroundTransparency = 1
 ModalButton.BorderColor3 = Color3.new(0, 0, 0)
 ModalButton.BorderSizePixel = 0
-ModalButton.Size = UDim2.new()
+ModalButton.Size = UDim2.new(1, 0, 1, 0)
 ModalButton.Text = ""
 ModalButton.Visible = false
 ModalButton.Modal = true
@@ -365,40 +365,49 @@ UIS.InputBegan:Connect(function(Input)
 	end
 end)
 
---- Draggable Function
-local function makeDraggable(frame, header)
-    local dragging
-    local dragInput
-    local dragStart
-    local startPosition
+local function makeSmoothDraggable(frameToDrag, headerToClick)
+    local dragging = false
+    local dragInput = nil
+    local mouseStartPos = Vector2.new(0, 0)
+    local frameStartPos = UDim2.new(0, 0, 0, 0)
+    local tweenSpeed = 0.15
 
-    header.InputBegan:Connect(function(input)
+    local function applySmoothDrag(input)
+        local delta = input.Position - mouseStartPos
+        local goalPos = UDim2.new(
+            frameStartPos.X.Scale, frameStartPos.X.Offset + delta.X,
+            frameStartPos.Y.Scale, frameStartPos.Y.Offset + delta.Y
+        )
+
+        TweenService:Create(frameToDrag, TweenInfo.new(tweenSpeed, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
+            Position = goalPos
+        }):Play()
+    end
+
+    headerToClick.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
             dragging = true
             dragInput = input
-            dragStart = input.Position
-            startPosition = frame.Position
+            mouseStartPos = input.Position
+            frameStartPos = frameToDrag.Position
+
             input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then 
+                if input.UserInputState == Enum.UserInputState.End then
                     dragging = false
                 end
             end)
         end
     end)
 
-    header.InputChanged:Connect(function(input)
-        if input == dragInput and dragging then
-            local delta = input.Position - dragStart
-            frame.Position = UDim2.new(startPosition.X.Scale, startPosition.X.Offset + delta.X,
-                                        startPosition.Y.Scale, startPosition.Y.Offset + delta.Y)
+    UIS.InputChanged:Connect(function(input)
+        if dragging and input == dragInput and input.UserInputType == Enum.UserInputType.MouseMovement then
+            applySmoothDrag(input)
         end
     end)
 end
 
--- Make ArrayListDisplay draggable by its header
-makeDraggable(ArrayListDisplay, ArrayListHeader)
--- Make TargetHUD draggable by its header
-makeDraggable(TargetHUD, TargetHUDHeader)
+makeSmoothDraggable(ArrayListDisplay, ArrayListHeader)
+makeSmoothDraggable(TargetHUD, TargetHUDHeader)
 
 
 function Jello:AddTab(TabName)
@@ -442,6 +451,7 @@ function Jello:AddTab(TabName)
 	Modules.Size = UDim2.new(0, 250, 0, 0)
 	Modules.Visible = false
 	Modules.AutomaticSize = Enum.AutomaticSize.Y
+	Modules.ClipsDescendants = true
 	Modules.Parent = TabFrame
 
 	local ModulesListLayout = Instance.new("UIListLayout")
@@ -452,8 +462,7 @@ function Jello:AddTab(TabName)
 		Modules.Visible = not Modules.Visible
 	end)
 
-    -- Make TabFrame draggable by its Header
-    makeDraggable(TabFrame, Header)
+    makeSmoothDraggable(TabFrame, Header)
 
 	local Tab = {}
 
