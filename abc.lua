@@ -48,19 +48,6 @@ ArrayListDisplay.ZIndex = 10
 ArrayListDisplay.Parent = ArrayListFolder
 ArrayListDisplay.Visible = false
 
-local ArrayListHeader = Instance.new("TextLabel")
-ArrayListHeader.Name = "Header"
-ArrayListHeader.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-ArrayListHeader.BackgroundTransparency = 0.25
-ArrayListHeader.BorderSizePixel = 0
-ArrayListHeader.Size = UDim2.new(1, 0, 0, 20)
-ArrayListHeader.Font = Enum.Font.Sarpanch
-ArrayListHeader.Text = "Active Modules"
-ArrayListHeader.TextColor3 = Color3.new(1, 1, 1)
-ArrayListHeader.TextSize = 18
-ArrayListHeader.TextXAlignment = Enum.TextXAlignment.Center
-ArrayListHeader.Parent = ArrayListDisplay
-
 local ArrayListLayout = Instance.new("UIListLayout")
 ArrayListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
 ArrayListLayout.Padding = UDim.new(0, 0)
@@ -73,7 +60,7 @@ end
 
 local function RefreshArrayList()
 	for _, v in pairs(ArrayListDisplay:GetChildren()) do
-		if v:IsA("TextLabel") and v.Name ~= "Header" then
+		if v:IsA("TextLabel") then
 			v:Destroy()
 		end
 	end
@@ -201,20 +188,6 @@ TargetHUD.Position = UDim2.new(0.5, -125, 0.8, 0)
 TargetHUD.Size = UDim2.new(0, 250, 0, 75)
 TargetHUD.Visible = false
 TargetHUD.Parent = TargetHUDFolder
-
-local TargetHUDHeader = Instance.new("TextLabel")
-TargetHUDHeader.Name = "Header"
-TargetHUDHeader.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-TargetHUDHeader.BackgroundTransparency = 0.25
-TargetHUDHeader.BorderSizePixel = 0
-TargetHUDHeader.Size = UDim2.new(1, 0, 0, 20)
-TargetHUDHeader.Position = UDim2.new(0, 0, -1, 0)
-TargetHUDHeader.Font = Enum.Font.Sarpanch
-TargetHUDHeader.Text = "Target"
-TargetHUDHeader.TextColor3 = Color3.new(1, 1, 1)
-TargetHUDHeader.TextSize = 18
-TargetHUDHeader.TextXAlignment = Enum.TextXAlignment.Center
-TargetHUDHeader.Parent = TargetHUD
 
 local TargetPhoto = Instance.new("ImageLabel")
 TargetPhoto.BackgroundTransparency = 1
@@ -345,7 +318,7 @@ ModalButton.BackgroundColor3 = Color3.new(0, 0, 0)
 ModalButton.BackgroundTransparency = 1
 ModalButton.BorderColor3 = Color3.new(0, 0, 0)
 ModalButton.BorderSizePixel = 0
-ModalButton.Size = UDim2.new(1, 0, 1, 0)
+ModalButton.Size = UDim2.new()
 ModalButton.Text = ""
 ModalButton.Visible = false
 ModalButton.Modal = true
@@ -364,51 +337,6 @@ UIS.InputBegan:Connect(function(Input)
 		TabsContainer.Visible = TabsVisible
 	end
 end)
-
-local function makeSmoothDraggable(frameToDrag, headerToClick)
-    local dragging = false
-    local dragInput = nil
-    local mouseStartPos = Vector2.new(0, 0)
-    local frameStartPos = UDim2.new(0, 0, 0, 0)
-    local tweenSpeed = 0.15
-
-    local function applySmoothDrag(input)
-        local delta = input.Position - mouseStartPos
-        local goalPos = UDim2.new(
-            frameStartPos.X.Scale, frameStartPos.X.Offset + delta.X,
-            frameStartPos.Y.Scale, frameStartPos.Y.Offset + delta.Y
-        )
-
-        TweenService:Create(frameToDrag, TweenInfo.new(tweenSpeed, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
-            Position = goalPos
-        }):Play()
-    end
-
-    headerToClick.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            dragging = true
-            dragInput = input
-            mouseStartPos = input.Position
-            frameStartPos = frameToDrag.Position
-
-            input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then
-                    dragging = false
-                end
-            end)
-        end
-    end)
-
-    UIS.InputChanged:Connect(function(input)
-        if dragging and input == dragInput and input.UserInputType == Enum.UserInputType.MouseMovement then
-            applySmoothDrag(input)
-        end
-    end)
-end
-
-makeSmoothDraggable(ArrayListDisplay, ArrayListHeader)
-makeSmoothDraggable(TargetHUD, TargetHUDHeader)
-
 
 function Jello:AddTab(TabName)
 	local TabFrame = Instance.new("Frame")
@@ -451,18 +379,44 @@ function Jello:AddTab(TabName)
 	Modules.Size = UDim2.new(0, 250, 0, 0)
 	Modules.Visible = false
 	Modules.AutomaticSize = Enum.AutomaticSize.Y
-	Modules.ClipsDescendants = true
 	Modules.Parent = TabFrame
 
 	local ModulesListLayout = Instance.new("UIListLayout")
 	ModulesListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 	ModulesListLayout.Parent = Modules
 
+	-- Dragging variables for this specific tab
+	local Dragging = false
+	local DragStart, StartPosition
+
+	Header.InputBegan:Connect(function(Input)
+		if Input.UserInputType == Enum.UserInputType.MouseButton1 then
+			Dragging = true
+			DragStart = Input.Position
+			StartPosition = TabFrame.Position
+
+			-- Listen for Input.Changed on the same input object to detect when the drag ends
+			Input.Changed:Connect(function()
+				if Input.UserInputState == Enum.UserInputState.End then
+					Dragging = false
+				end
+			end)
+		end
+	end)
+
+	UIS.InputChanged:Connect(function(Input)
+		if Dragging and Input.UserInputType == Enum.UserInputType.MouseMovement then
+			local Delta = Input.Position - DragStart
+			TabFrame.Position = UDim2.new(
+				StartPosition.X.Scale, StartPosition.X.Offset + Delta.X,
+				StartPosition.Y.Scale, StartPosition.Y.Offset + Delta.Y
+			)
+		end
+	end)
+
 	Header.MouseButton2Click:Connect(function()
 		Modules.Visible = not Modules.Visible
 	end)
-
-    makeSmoothDraggable(TabFrame, Header)
 
 	local Tab = {}
 
