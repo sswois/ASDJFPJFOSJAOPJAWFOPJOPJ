@@ -76,10 +76,10 @@ local function RefreshArrayList()
 		ActiveModule.BorderColor3 = Color3.new(0, 0, 0)
 		ActiveModule.BorderSizePixel = 0
 		ActiveModule.Font = Enum.Font.Sarpanch
-		ActiveModule.Size = UDim2.new(0, 0, 0, 25)
+		ActiveModule.Size = UDim2.new(0, 0, 0, 20)
 		ActiveModule.Text = ModuleName
 		ActiveModule.TextColor3 = Color3.new(1, 1, 1)
-		ActiveModule.TextSize = 25
+		ActiveModule.TextSize = 20
 		ActiveModule.TextStrokeTransparency = 0.5
 		ActiveModule.TextTransparency = 0
 		ActiveModule.TextWrapped = false
