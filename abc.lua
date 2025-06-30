@@ -16,43 +16,6 @@ local TabsVisible = false
 
 if CoreGui:FindFirstChild("Jello") then return end
 
-local function MakeDraggable(UIElement, DragHandle)
-    local Dragging = false
-    local DragStart, StartPosition
-
-    DragHandle.InputBegan:Connect(function(Input)
-        if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-            if DragHandle == TargetHUDHeader and not TabsVisible then
-                return
-            end
-
-            Dragging = true
-            DragStart = Input.Position
-            StartPosition = UIElement.Position
-
-            InputChangedConnection = UIS.InputChanged:Connect(function(InputChanged)
-                if InputChanged.UserInputType == Enum.UserInputType.MouseMovement then
-                    if Dragging then
-                        local Delta = InputChanged.Position - DragStart
-                        UIElement.Position = UDim2.new(
-                            StartPosition.X.Scale, StartPosition.X.Offset + Delta.X,
-                            StartPosition.Y.Scale, StartPosition.Y.Offset + Delta.Y
-                        )
-                    end
-                end
-            end)
-
-            InputEndedConnection = UIS.InputEnded:Connect(function(InputEnded)
-                if InputEnded.UserInputType == Enum.UserInputType.MouseButton1 then
-                    Dragging = false
-                    InputChangedConnection:Disconnect()
-                    InputEndedConnection:Disconnect()
-                end
-            end)
-        end
-    end)
-end
-
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "Jello"
 ScreenGui.ResetOnSpawn = false
@@ -94,8 +57,6 @@ ArrayListHeader.BorderColor3 = Color3.new(0, 0, 0)
 ArrayListHeader.Size = UDim2.new(1, 0, 0, 25)
 ArrayListHeader.Position = UDim2.new(0, 0, 0, 0)
 ArrayListHeader.Parent = ArrayListContainer
-
-MakeDraggable(ArrayListContainer, ArrayListHeader)
 
 local ArrayListHeaderText = Instance.new("TextLabel")
 ArrayListHeaderText.BackgroundTransparency = 1
@@ -272,8 +233,6 @@ TargetHUDHeader.Size = UDim2.new(1, 0, 0, 25)
 TargetHUDHeader.Position = UDim2.new(0, 0, 0, 0)
 TargetHUDHeader.Parent = TargetHUDContainer
 
-MakeDraggable(TargetHUDContainer, TargetHUDHeader)
-
 local TargetHUDHeaderText = Instance.new("TextLabel")
 TargetHUDHeaderText.BackgroundTransparency = 1
 TargetHUDHeaderText.BorderSizePixel = 0
@@ -333,6 +292,46 @@ HPBar.BorderColor3 = Color3.new(0, 0, 0)
 HPBar.Position = UDim2.new(0, 0, 0, 0)
 HPBar.Size = UDim2.new(0, 0, 1, 0)
 HPBar.Parent = HPBG
+
+local function MakeDraggable(UIElement, DragHandle)
+    local Dragging = false
+    local DragStart, StartPosition
+
+    DragHandle.InputBegan:Connect(function(Input)
+        if Input.UserInputType == Enum.UserInputType.MouseButton1 then
+            if DragHandle == TargetHUDHeader and not TabsVisible then
+                return
+            end
+
+            Dragging = true
+            DragStart = Input.Position
+            StartPosition = UIElement.Position
+
+            InputChangedConnection = UIS.InputChanged:Connect(function(InputChanged)
+                if InputChanged.UserInputType == Enum.UserInputType.MouseMovement then
+                    if Dragging then
+                        local Delta = InputChanged.Position - DragStart
+                        UIElement.Position = UDim2.new(
+                            StartPosition.X.Scale, StartPosition.X.Offset + Delta.X,
+                            StartPosition.Y.Scale, StartPosition.Y.Offset + Delta.Y
+                        )
+                    end
+                end
+            end)
+
+            InputEndedConnection = UIS.InputEnded:Connect(function(InputEnded)
+                if InputEnded.UserInputType == Enum.UserInputType.MouseButton1 then
+                    Dragging = false
+                    InputChangedConnection:Disconnect()
+                    InputEndedConnection:Disconnect()
+                end
+            end)
+        end
+    end)
+end
+
+MakeDraggable(TargetHUDContainer, TargetHUDHeader)
+MakeDraggable(ArrayListContainer, ArrayListHeader)
 
 local MaxDistance = 15
 local TargetHUDEnabled = false
