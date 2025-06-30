@@ -66,7 +66,7 @@ ArrayListHeaderText.BorderSizePixel = 0
 ArrayListHeaderText.BorderColor3 = Color3.new(0, 0, 0)
 ArrayListHeaderText.Size = UDim2.new(1, 0, 1, 0)
 ArrayListHeaderText.Font = Enum.Font.Sarpanch
-ArrayListHeaderText.Text = "ArrayList"
+ArrayListHeaderText.Text = "Active Modules"
 ArrayListHeaderText.TextColor3 = Color3.new(1, 1, 1)
 ArrayListHeaderText.TextSize = 18
 ArrayListHeaderText.TextXAlignment = Enum.TextXAlignment.Center
@@ -243,7 +243,7 @@ TargetHUDHeaderText.BorderSizePixel = 0
 TargetHUDHeaderText.BorderColor3 = Color3.new(0, 0, 0)
 TargetHUDHeaderText.Size = UDim2.new(1, 0, 1, 0)
 TargetHUDHeaderText.Font = Enum.Font.Sarpanch
-TargetHUDHeaderText.Text = "Target"
+TargetHUDHeaderText.Text = "Target Info"
 TargetHUDHeaderText.TextColor3 = Color3.new(1, 1, 1)
 TargetHUDHeaderText.TextSize = 18
 TargetHUDHeaderText.TextXAlignment = Enum.TextXAlignment.Center
@@ -419,6 +419,41 @@ UIS.InputBegan:Connect(function(Input)
 	end
 end)
 
+local function MakeDraggable(UIElement, DragHandle)
+    local Dragging = false
+    local DragStart, StartPosition
+
+    DragHandle.InputBegan:Connect(function(Input)
+        if Input.UserInputType == Enum.UserInputType.MouseButton1 then
+            Dragging = true
+            DragStart = Input.Position
+            StartPosition = UIElement.Position
+
+            local inputChangedConn
+            inputChangedConn = UIS.InputChanged:Connect(function(InputChanged)
+                if InputChanged.UserInputType == Enum.UserInputType.MouseMovement then
+                    if Dragging then
+                        local Delta = InputChanged.Position - DragStart
+                        UIElement.Position = UDim2.new(
+                            StartPosition.X.Scale, StartPosition.X.Offset + Delta.X,
+                            StartPosition.Y.Scale, StartPosition.Y.Offset + Delta.Y
+                        )
+                    end
+                end
+            end)
+
+            local inputEndedConn
+            inputEndedConn = UIS.InputEnded:Connect(function(InputEnded)
+                if InputEnded.UserInputType == Enum.UserInputType.MouseButton1 then
+                    Dragging = false
+                    inputChangedConn:Disconnect()
+                    inputEndedConn:Disconnect()
+                end
+            end)
+        end
+    end)
+end
+
 function Jello:AddTab(TabName)
 	local TabFrame = Instance.new("Frame")
 	TabFrame.BackgroundColor3 = Color3.new(0, 0, 0)
@@ -469,6 +504,8 @@ function Jello:AddTab(TabName)
 	Header.MouseButton2Click:Connect(function()
 		Modules.Visible = not Modules.Visible
 	end)
+
+    MakeDraggable(TabFrame, Header) -- Her yeni tab'ı kendi başlığıyla sürükle
 
 	local Tab = {}
 
@@ -606,41 +643,6 @@ function Jello:AddTab(TabName)
 	end
 
 	return Tab
-end
-
-local function MakeDraggable(UIElement, DragHandle)
-    local Dragging = false
-    local DragStart, StartPosition
-
-    DragHandle.InputBegan:Connect(function(Input)
-        if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-            Dragging = true
-            DragStart = Input.Position
-            StartPosition = UIElement.Position
-
-            local inputChangedConn
-            inputChangedConn = UIS.InputChanged:Connect(function(InputChanged)
-                if InputChanged.UserInputType == Enum.UserInputType.MouseMovement then
-                    if Dragging then
-                        local Delta = InputChanged.Position - DragStart
-                        UIElement.Position = UDim2.new(
-                            StartPosition.X.Scale, StartPosition.X.Offset + Delta.X,
-                            StartPosition.Y.Scale, StartPosition.Y.Offset + Delta.Y
-                        )
-                    end
-                end
-            end)
-
-            local inputEndedConn
-            inputEndedConn = UIS.InputEnded:Connect(function(InputEnded)
-                if InputEnded.UserInputType == Enum.UserInputType.MouseButton1 then
-                    Dragging = false
-                    inputChangedConn:Disconnect()
-                    inputEndedConn:Disconnect()
-                end
-            end)
-        end
-    end)
 end
 
 MakeDraggable(ArrayListContainer, ArrayListHeader)
