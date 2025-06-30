@@ -365,7 +365,7 @@ UIS.InputBegan:Connect(function(Input)
 	end
 end)
 
--- Draggable function
+--- Draggable Function
 local function makeDraggable(frame, header)
     local dragging
     local dragInput
@@ -379,7 +379,7 @@ local function makeDraggable(frame, header)
             dragStart = input.Position
             startPosition = frame.Position
             input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.Ended then
+                if input.UserInputState == Enum.UserInputState.End then 
                     dragging = false
                 end
             end)
