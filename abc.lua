@@ -37,12 +37,12 @@ local ArrayListFolder = Instance.new("Folder")
 ArrayListFolder.Parent = ScreenGui
 
 local ArrayListDisplay = Instance.new("Frame")
-ArrayListDisplay.AnchorPoint = Vector2.new(1, 0)
+ArrayListDisplay.AnchorPoint = Vector2.new(0, 0)
 ArrayListDisplay.BackgroundColor3 = Color3.new(0, 0, 0)
 ArrayListDisplay.BackgroundTransparency = 1
 ArrayListDisplay.BorderColor3 = Color3.new(0, 0, 0)
 ArrayListDisplay.BorderSizePixel = 0
-ArrayListDisplay.Position = UDim2.new(1, -5, 0, 5) -- Konum güncellendi
+ArrayListDisplay.Position = UDim2.new(0, 5, 0, 5) -- Başlangıç konumu sol üstte
 ArrayListDisplay.Size = UDim2.new(0, 250, 1, 1000)
 ArrayListDisplay.ZIndex = 10
 ArrayListDisplay.Parent = ArrayListFolder
@@ -55,47 +55,20 @@ ArrayListHeader.BackgroundTransparency = 0.5
 ArrayListHeader.BorderColor3 = Color3.new(0, 0, 0)
 ArrayListHeader.BorderSizePixel = 0
 ArrayListHeader.Font = Enum.Font.Sarpanch
-ArrayListHeader.Size = UDim2.new(1, 0, 0, 30) -- Daha küçük bir başlık boyutu
+ArrayListHeader.Size = UDim2.new(1, 0, 0, 30)
 ArrayListHeader.Text = "Active Modules"
 ArrayListHeader.TextColor3 = Color3.new(1, 1, 1)
 ArrayListHeader.TextSize = 20
-ArrayListHeader.TextXAlignment = Enum.TextXAlignment.Right
-ArrayListHeader.ZIndex = 11 -- Başlığın üstte görünmesi için
+ArrayListHeader.TextXAlignment = Enum.TextXAlignment.Left -- Sol hizalı
+ArrayListHeader.ZIndex = 11
 ArrayListHeader.Parent = ArrayListDisplay
+ArrayListHeader.Visible = false -- Varsayılan olarak görünmez
 
 local ArrayListLayout = Instance.new("UIListLayout")
-ArrayListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
+ArrayListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left -- Sol hizalama
 ArrayListLayout.Padding = UDim.new(0, 0)
 ArrayListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 ArrayListLayout.Parent = ArrayListDisplay
-
--- ArrayList Header sürükleme mantığı
-local ArrayListDragging = false
-local ArrayListDragStart, ArrayListStartPosition
-
-ArrayListHeader.InputBegan:Connect(function(Input)
-	if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-		ArrayListDragging = true
-		ArrayListDragStart = Input.Position
-		ArrayListStartPosition = ArrayListDisplay.Position
-
-		Input.Changed:Connect(function()
-			if Input.UserInputState == Enum.UserInputState.End then
-				ArrayListDragging = false
-			end
-		end)
-	end
-end)
-
-UIS.InputChanged:Connect(function(Input)
-	if ArrayListDragging and Input.UserInputType == Enum.UserInputType.MouseMovement then
-		local Delta = Input.Position - ArrayListDragStart
-		ArrayListDisplay.Position = UDim2.new(
-			ArrayListStartPosition.X.Scale, ArrayListStartPosition.X.Offset + Delta.X,
-			ArrayListStartPosition.Y.Scale, ArrayListStartPosition.Y.Offset + Delta.Y
-		)
-	end
-end)
 
 local NotificationsFolder = Instance.new("Folder")
 NotificationsFolder.Parent = ScreenGui
@@ -138,10 +111,29 @@ local function RefreshArrayList()
 		ActiveModule.TextStrokeTransparency = 0.5
 		ActiveModule.TextTransparency = 0
 		ActiveModule.TextWrapped = false
-		ActiveModule.TextXAlignment = Enum.TextXAlignment.Right
 		ActiveModule.AutomaticSize = Enum.AutomaticSize.X
+        -- Başlangıçta sol hizalı olacak
+		ActiveModule.TextXAlignment = Enum.TextXAlignment.Left 
 		ActiveModule.Parent = ArrayListDisplay
 	end
+    -- ArrayList yenilendiğinde de konumuna göre hizalamayı ayarla
+    if ArrayListDisplay.AbsolutePosition.X + ArrayListDisplay.AbsoluteSize.X / 2 < game.Workspace.CurrentCamera.ViewportSize.X / 2 then
+        ArrayListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
+        ArrayListHeader.TextXAlignment = Enum.TextXAlignment.Left
+        for _, v in pairs(ArrayListDisplay:GetChildren()) do
+            if v:IsA("TextLabel") and v ~= ArrayListHeader then
+                v.TextXAlignment = Enum.TextXAlignment.Left
+            end
+        end
+    else
+        ArrayListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
+        ArrayListHeader.TextXAlignment = Enum.TextXAlignment.Right
+        for _, v in pairs(ArrayListDisplay:GetChildren()) do
+            if v:IsA("TextLabel") and v ~= ArrayListHeader then
+                v.TextXAlignment = Enum.TextXAlignment.Right
+            end
+        end
+    end
 end
 
 local function RepositionNotifications()
@@ -246,37 +238,9 @@ TargetHUDHeader.Text = "Target Info"
 TargetHUDHeader.TextColor3 = Color3.new(1, 1, 1)
 TargetHUDHeader.TextSize = 20
 TargetHUDHeader.TextXAlignment = Enum.TextXAlignment.Center
-TargetHUDHeader.ZIndex = 1 -- TargetHUD'dan daha yüksek ZIndex
+TargetHUDHeader.ZIndex = 1
 TargetHUDHeader.Parent = TargetHUD
-
--- TargetHUD Header sürükleme mantığı
-local TargetHUDDragging = false
-local TargetHUDDragStart, TargetHUDStartPosition
-
-TargetHUDHeader.InputBegan:Connect(function(Input)
-	if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-		TargetHUDDragging = true
-		TargetHUDDragStart = Input.Position
-		TargetHUDStartPosition = TargetHUD.Position
-
-		Input.Changed:Connect(function()
-			if Input.UserInputState == Enum.UserInputState.End then
-				TargetHUDDragging = false
-			end
-		end)
-	end
-end)
-
-UIS.InputChanged:Connect(function(Input)
-	if TargetHUDDragging and Input.UserInputType == Enum.UserInputType.MouseMovement then
-		local Delta = Input.Position - TargetHUDDragStart
-		TargetHUD.Position = UDim2.new(
-			TargetHUDStartPosition.X.Scale, TargetHUDStartPosition.X.Offset + Delta.X,
-			TargetHUDStartPosition.Y.Scale, TargetHUDStartPosition.Y.Offset + Delta.Y
-		)
-	end
-end)
-
+TargetHUDHeader.Visible = false -- Varsayılan olarak görünmez
 
 local TargetPhoto = Instance.new("ImageLabel")
 TargetPhoto.BackgroundTransparency = 1
@@ -383,7 +347,7 @@ function Jello:ToggleTargetHUD(State)
 						HPBar.BackgroundColor3 = GetHealthColor(HP)
 						TargetPhoto.Image = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. Target.UserId .. "&width=420&height=420&format=png"
 						ShouldShow = true
-					elseif TabsVisible then
+					elseif TabsVisible then -- TabsVisible olduğunda TargetHUD'ı gösterme koşulu
 						TargetName.Text = "Roblox"
 						HPBar.Size = UDim2.new(1, 0, 1, 0)
 						HPBar.BackgroundColor3 = Color3.new(0, 1, 0)
@@ -424,9 +388,58 @@ UIS.InputBegan:Connect(function(Input)
 		BlurEffect.Enabled = TabsVisible
 		ModalButton.Visible = TabsVisible
 		TabsContainer.Visible = TabsVisible
+		
+		-- Başlıkların görünürlüğünü güncelle
+		ArrayListHeader.Visible = TabsVisible
+		TargetHUDHeader.Visible = TabsVisible
 	end
 end)
 
+---
+## Yeni Sürükleme Fonksiyonu
+
+`makeDraggable` fonksiyonu, bir `draggableFrame` (sürüklenecek UI elemanı) ve isteğe bağlı olarak bir `dragHandle` (sürüklemeyi başlatacak eleman, yoksa `draggableFrame` kullanılır) alır.
+```lua
+local function makeDraggable(draggableFrame, dragHandle, onDragUpdate)
+    dragHandle = dragHandle or draggableFrame -- Eğer bir tutamaç belirtilmezse, çerçevenin kendisi kullanılır.
+
+    local dragging = false
+    local dragStart, startPosition
+
+    dragHandle.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = true
+            dragStart = input.Position
+            startPosition = draggableFrame.Position
+
+            local inputChangedConn
+            inputChangedConn = UIS.InputChanged:Connect(function(inputChanged)
+                if inputChanged.UserInputState == Enum.UserInputState.End and (inputChanged.UserInputType == Enum.UserInputType.MouseButton1 or inputChanged.UserInputType == Enum.UserInputType.Touch) then
+                    dragging = false
+                    inputChangedConn:Disconnect() -- Bağlantıyı kes
+                end
+            end)
+        end
+    end)
+
+    UIS.InputChanged:Connect(function(input)
+        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+            local delta = input.Position - dragStart
+            draggableFrame.Position = UDim2.new(
+                startPosition.X.Scale, startPosition.X.Offset + delta.X,
+                startPosition.Y.Scale, startPosition.Y.Offset + delta.Y
+            )
+            if onDragUpdate then
+                onDragUpdate(draggableFrame) -- Sürükleme sırasında tetiklenecek callback
+            end
+        end
+    end)
+end
+
+---
+## `Jello:AddTab` Fonksiyonunda Kullanımı
+
+```lua
 function Jello:AddTab(TabName)
 	local TabFrame = Instance.new("Frame")
 	TabFrame.BackgroundColor3 = Color3.new(0, 0, 0)
@@ -459,6 +472,9 @@ function Jello:AddTab(TabName)
 	HeaderPadding.PaddingLeft = UDim.new(0, 25)
 	HeaderPadding.Parent = Header
 
+    -- Her sekme için sürükleme özelliğini ekle
+    makeDraggable(TabFrame, Header)
+
 	local Modules = Instance.new("Frame")
 	Modules.BackgroundColor3 = Color3.new(0, 0, 0)
 	Modules.BackgroundTransparency = 1
@@ -473,35 +489,6 @@ function Jello:AddTab(TabName)
 	local ModulesListLayout = Instance.new("UIListLayout")
 	ModulesListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 	ModulesListLayout.Parent = Modules
-
-	-- Dragging variables for this specific tab
-	local Dragging = false
-	local DragStart, StartPosition
-
-	Header.InputBegan:Connect(function(Input)
-		if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-			Dragging = true
-			DragStart = Input.Position
-			StartPosition = TabFrame.Position
-
-			-- Listen for Input.Changed on the same input object to detect when the drag ends
-			Input.Changed:Connect(function()
-				if Input.UserInputState == Enum.UserInputState.End then
-					Dragging = false
-				end
-			end)
-		end
-	end)
-
-	UIS.InputChanged:Connect(function(Input)
-		if Dragging and Input.UserInputType == Enum.UserInputType.MouseMovement then
-			local Delta = Input.Position - DragStart
-			TabFrame.Position = UDim2.new(
-				StartPosition.X.Scale, StartPosition.X.Offset + Delta.X,
-				StartPosition.Y.Scale, StartPosition.Y.Offset + Delta.Y
-			)
-		end
-	end)
 
 	Header.MouseButton2Click:Connect(function()
 		Modules.Visible = not Modules.Visible
@@ -644,5 +631,31 @@ function Jello:AddTab(TabName)
 
 	return Tab
 end
+
+-- ArrayList Header sürükleme mantığı
+makeDraggable(ArrayListDisplay, ArrayListHeader, function(frame)
+    -- onDragUpdate callback'i: Sürükleme sırasında hizalamayı günceller
+    if frame.AbsolutePosition.X + frame.AbsoluteSize.X / 2 < game.Workspace.CurrentCamera.ViewportSize.X / 2 then
+        ArrayListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
+        ArrayListHeader.TextXAlignment = Enum.TextXAlignment.Left
+        for _, v in pairs(ArrayListDisplay:GetChildren()) do
+            if v:IsA("TextLabel") and v ~= ArrayListHeader then
+                v.TextXAlignment = Enum.TextXAlignment.Left
+            end
+        end
+    else
+        ArrayListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
+        ArrayListHeader.TextXAlignment = Enum.TextXAlignment.Right
+        for _, v in pairs(ArrayListDisplay:GetChildren()) do
+            if v:IsA("TextLabel") and v ~= ArrayListHeader then
+                v.TextXAlignment = Enum.TextXAlignment.Right
+            end
+        end
+    end
+end)
+
+
+-- TargetHUD Header sürükleme mantığı
+makeDraggable(TargetHUD, TargetHUDHeader)
 
 return Jello
