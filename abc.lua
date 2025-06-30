@@ -33,30 +33,29 @@ TabsContainer.Size = UDim2.new(1, 0, 1, 0)
 TabsContainer.Visible = false
 TabsContainer.Parent = TabsFolder
 
+--- ArrayList Container and Elements ---
 local ArrayListFolder = Instance.new("Folder")
 ArrayListFolder.Parent = ScreenGui
 
-local ArrayListDisplay = Instance.new("Frame")
-ArrayListDisplay.AnchorPoint = Vector2.new(1, 0)
-ArrayListDisplay.BackgroundColor3 = Color3.new(0, 0, 0)
-ArrayListDisplay.BackgroundTransparency = 1
-ArrayListDisplay.BorderColor3 = Color3.new(0, 0, 0)
-ArrayListDisplay.BorderSizePixel = 0
-ArrayListDisplay.Position = UDim2.new(1, -5, 0, -57.5)
-ArrayListDisplay.Size = UDim2.new(0, 250, 1, 1000)
-ArrayListDisplay.ZIndex = 10
-ArrayListDisplay.Parent = ArrayListFolder
-ArrayListDisplay.Visible = false
+local ArrayListContainer = Instance.new("Frame")
+ArrayListContainer.Name = "ArrayListContainer"
+ArrayListContainer.BackgroundColor3 = Color3.new(0, 0, 0)
+ArrayListContainer.BackgroundTransparency = 1
+ArrayListContainer.BorderSizePixel = 0
+ArrayListContainer.AnchorPoint = Vector2.new(1, 0)
+ArrayListContainer.Position = UDim2.new(1, -5, 0, -57.5) -- This will be the main draggable position
+ArrayListContainer.Size = UDim2.new(0, 250, 0, 0) -- Automatic size in Y will be handled by contents
+ArrayListContainer.AutomaticSize = Enum.AutomaticSize.Y
+ArrayListContainer.Visible = false
+ArrayListContainer.Parent = ArrayListFolder
 
--- Draggable Header for ArrayListDisplay
 local ArrayListHeader = Instance.new("Frame")
 ArrayListHeader.Name = "Header"
 ArrayListHeader.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 ArrayListHeader.BackgroundTransparency = 0.5
-ArrayListHeader.Size = UDim2.new(1, 0, 0, 25) -- Adjust height as needed
-ArrayListHeader.Position = UDim2.new(0, 0, 0, -25) -- Position above the ArrayListDisplay content
-ArrayListHeader.Parent = ArrayListDisplay
-ArrayListHeader.Visible = false -- Initially hidden
+ArrayListHeader.Size = UDim2.new(1, 0, 0, 25)
+ArrayListHeader.Position = UDim2.new(0, 0, 0, 0) -- Relative to ArrayListContainer
+ArrayListHeader.Parent = ArrayListContainer
 
 local ArrayListHeaderText = Instance.new("TextLabel")
 ArrayListHeaderText.BackgroundTransparency = 1
@@ -68,6 +67,16 @@ ArrayListHeaderText.TextSize = 18
 ArrayListHeaderText.TextXAlignment = Enum.TextXAlignment.Center
 ArrayListHeaderText.Parent = ArrayListHeader
 
+local ArrayListDisplay = Instance.new("Frame")
+ArrayListDisplay.BackgroundColor3 = Color3.new(0, 0, 0)
+ArrayListDisplay.BackgroundTransparency = 1
+ArrayListDisplay.BorderColor3 = Color3.new(0, 0, 0)
+ArrayListDisplay.BorderSizePixel = 0
+ArrayListDisplay.Position = UDim2.new(0, 0, 0, 25) -- Positioned below the header
+ArrayListDisplay.Size = UDim2.new(0, 250, 0, 0)
+ArrayListDisplay.AutomaticSize = Enum.AutomaticSize.Y
+ArrayListDisplay.ZIndex = 10
+ArrayListDisplay.Parent = ArrayListContainer
 
 local ArrayListLayout = Instance.new("UIListLayout")
 ArrayListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
@@ -80,8 +89,9 @@ local function GetTextWidth(text)
 end
 
 local function RefreshArrayList()
+	-- Destroy all existing text labels, except the header frame itself
 	for _, v in pairs(ArrayListDisplay:GetChildren()) do
-		if v:IsA("TextLabel") and v.Name ~= "Header" then -- Exclude the header from destruction
+		if v:IsA("TextLabel") then
 			v:Destroy()
 		end
 	end
@@ -198,27 +208,27 @@ function SendNotification(Title, Message, Duration)
 	end)
 end
 
+--- TargetHUD Container and Elements ---
 local TargetHUDFolder = Instance.new("Folder")
 TargetHUDFolder.Parent = ScreenGui
 
-local TargetHUD = Instance.new("Frame")
-TargetHUD.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-TargetHUD.BackgroundTransparency = 0.25
-TargetHUD.BorderSizePixel = 0
-TargetHUD.Position = UDim2.new(0.5, -125, 0.8, 0)
-TargetHUD.Size = UDim2.new(0, 250, 0, 75)
-TargetHUD.Visible = false
-TargetHUD.Parent = TargetHUDFolder
+local TargetHUDContainer = Instance.new("Frame")
+TargetHUDContainer.Name = "TargetHUDContainer"
+TargetHUDContainer.BackgroundColor3 = Color3.new(0, 0, 0)
+TargetHUDContainer.BackgroundTransparency = 1
+TargetHUDContainer.BorderSizePixel = 0
+TargetHUDContainer.Position = UDim2.new(0.5, -125, 0.8, 0) -- This will be the main draggable position
+TargetHUDContainer.Size = UDim2.new(0, 250, 0, 75 + 25) -- HUD height + Header height
+TargetHUDContainer.Visible = false
+TargetHUDContainer.Parent = TargetHUDFolder
 
--- Draggable Header for TargetHUD
 local TargetHUDHeader = Instance.new("Frame")
 TargetHUDHeader.Name = "Header"
 TargetHUDHeader.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 TargetHUDHeader.BackgroundTransparency = 0.5
-TargetHUDHeader.Size = UDim2.new(1, 0, 0, 25) -- Adjust height as needed
-TargetHUDHeader.Position = UDim2.new(0, 0, 0, -25) -- Position above the TargetHUD content
-TargetHUDHeader.Parent = TargetHUD
-TargetHUDHeader.Visible = false -- Initially hidden
+TargetHUDHeader.Size = UDim2.new(1, 0, 0, 25)
+TargetHUDHeader.Position = UDim2.new(0, 0, 0, 0) -- Relative to TargetHUDContainer
+TargetHUDHeader.Parent = TargetHUDContainer
 
 local TargetHUDHeaderText = Instance.new("TextLabel")
 TargetHUDHeaderText.BackgroundTransparency = 1
@@ -229,6 +239,14 @@ TargetHUDHeaderText.TextColor3 = Color3.new(1, 1, 1)
 TargetHUDHeaderText.TextSize = 18
 TargetHUDHeaderText.TextXAlignment = Enum.TextXAlignment.Center
 TargetHUDHeaderText.Parent = TargetHUDHeader
+
+local TargetHUD = Instance.new("Frame")
+TargetHUD.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+TargetHUD.BackgroundTransparency = 0.25
+TargetHUD.BorderSizePixel = 0
+TargetHUD.Position = UDim2.new(0, 0, 0, 25) -- Positioned below the header
+TargetHUD.Size = UDim2.new(0, 250, 0, 75)
+TargetHUD.Parent = TargetHUDContainer
 
 local TargetPhoto = Instance.new("ImageLabel")
 TargetPhoto.BackgroundTransparency = 1
@@ -298,11 +316,11 @@ end
 
 function Jello:ToggleArrayList(State)
 	if State == nil then
-		ArrayListDisplay.Visible = not ArrayListDisplay.Visible
+		ArrayListContainer.Visible = not ArrayListContainer.Visible
 	else
-		ArrayListDisplay.Visible = State
+		ArrayListContainer.Visible = State
 	end
-	ArrayListHeader.Visible = ArrayListDisplay.Visible and TabsVisible -- Only show header if display is visible AND tabs are visible
+	ArrayListHeader.Visible = ArrayListContainer.Visible and TabsVisible
 end
 
 function Jello:ToggleNotifications(State)
@@ -344,17 +362,17 @@ function Jello:ToggleTargetHUD(State)
 						ShouldShow = true
 					end
 
-					TargetHUD.Visible = ShouldShow
-					TargetHUDHeader.Visible = TargetHUD.Visible and TabsVisible -- Only show header if HUD is visible AND tabs are visible
+					TargetHUDContainer.Visible = ShouldShow
+					TargetHUDHeader.Visible = TargetHUDContainer.Visible and TabsVisible
 				end
-				TargetHUD.Visible = false
+				TargetHUDContainer.Visible = false
 				TargetHUDHeader.Visible = false
 				TargetHUDThread = nil
 			end)
 		end
 	else
 		TargetHUDEnabled = false
-		TargetHUD.Visible = false
+		TargetHUDContainer.Visible = false
 		TargetHUDHeader.Visible = false
 	end
 end
@@ -382,8 +400,8 @@ UIS.InputBegan:Connect(function(Input)
 		ModalButton.Visible = TabsVisible
 		TabsContainer.Visible = TabsVisible
 		-- Update header visibility based on new TabsVisible state
-		ArrayListHeader.Visible = ArrayListDisplay.Visible and TabsVisible
-		TargetHUDHeader.Visible = TargetHUD.Visible and TabsVisible
+		ArrayListHeader.Visible = ArrayListContainer.Visible and TabsVisible
+		TargetHUDHeader.Visible = TargetHUDContainer.Visible and TabsVisible
 	end
 end)
 
@@ -612,10 +630,10 @@ local function MakeDraggable(UIElement, DragHandle)
     end)
 end
 
--- Make ArrayListDisplay draggable by its header
-MakeDraggable(ArrayListDisplay, ArrayListHeader)
+-- Make ArrayListContainer draggable by its header
+MakeDraggable(ArrayListContainer, ArrayListHeader)
 
--- Make TargetHUD draggable by its header
-MakeDraggable(TargetHUD, TargetHUDHeader)
+-- Make TargetHUDContainer draggable by its header
+MakeDraggable(TargetHUDContainer, TargetHUDHeader)
 
 return Jello
