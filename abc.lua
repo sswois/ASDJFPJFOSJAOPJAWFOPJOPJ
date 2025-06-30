@@ -58,6 +58,8 @@ ArrayListHeader.Size = UDim2.new(1, 0, 0, 25)
 ArrayListHeader.Position = UDim2.new(0, 0, 0, 0)
 ArrayListHeader.Parent = ArrayListContainer
 
+MakeDraggable(ArrayListContainer, ArrayListHeader)
+
 local ArrayListHeaderText = Instance.new("TextLabel")
 ArrayListHeaderText.BackgroundTransparency = 1
 ArrayListHeaderText.BorderSizePixel = 0
@@ -232,6 +234,8 @@ TargetHUDHeader.BorderColor3 = Color3.new(0, 0, 0)
 TargetHUDHeader.Size = UDim2.new(1, 0, 0, 25)
 TargetHUDHeader.Position = UDim2.new(0, 0, 0, 0)
 TargetHUDHeader.Parent = TargetHUDContainer
+
+MakeDraggable(TargetHUDContainer, TargetHUDHeader)
 
 local TargetHUDHeaderText = Instance.new("TextLabel")
 TargetHUDHeaderText.BackgroundTransparency = 1
@@ -465,25 +469,21 @@ function Jello:AddTab(TabName)
 	TabCount += 1
 	table.insert(AllTabs, TabFrame)
 
-	local Header = Instance.new("Frame")
+	local Header = Instance.new("TextButton")
 	Header.BackgroundColor3 = Color3.new(0, 0, 0)
 	Header.BackgroundTransparency = 0.25
 	Header.BorderColor3 = Color3.new(0, 0, 0)
 	Header.BorderSizePixel = 0
+	Header.Font = Enum.Font.Sarpanch
 	Header.Size = UDim2.new(0, 250, 0, 50)
+	Header.Text = TabName or "Tab"
+	Header.TextColor3 = Color3.new(1, 1, 1)
+	Header.TextSize = 25
+	Header.TextXAlignment = Enum.TextXAlignment.Left
+	Header.AutoButtonColor = false
 	Header.Parent = TabFrame
 
-	local HeaderText = Instance.new("TextLabel")
-	HeaderText.BackgroundTransparency = 1
-	HeaderText.BorderSizePixel = 0
-	HeaderText.BorderColor3 = Color3.new(0, 0, 0)
-	HeaderText.Size = UDim2.new(1, 0, 1, 0)
-	HeaderText.Font = Enum.Font.Sarpanch
-	HeaderText.Text = TabName or "Tab"
-	HeaderText.TextColor3 = Color3.new(1, 1, 1)
-	HeaderText.TextSize = 25
-	HeaderText.TextXAlignment = Enum.TextXAlignment.Left
-	HeaderText.Parent = Header
+	MakeDraggable(TabFrame, Header)
 
 	local HeaderPadding = Instance.new("UIPadding")
 	HeaderPadding.PaddingLeft = UDim.new(0, 25)
@@ -504,13 +504,9 @@ function Jello:AddTab(TabName)
 	ModulesListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 	ModulesListLayout.Parent = Modules
 
-    Header.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton2 then
-            Modules.Visible = not Modules.Visible
-        end
-    end)
-
-    MakeDraggable(TabFrame, Header)
+	Header.MouseButton2Click:Connect(function()
+		Modules.Visible = not Modules.Visible
+	end)
 
 	local Tab = {}
 
@@ -649,8 +645,5 @@ function Jello:AddTab(TabName)
 
 	return Tab
 end
-
-MakeDraggable(ArrayListContainer, ArrayListHeader)
-MakeDraggable(TargetHUDContainer, TargetHUDHeader)
 
 return Jello
