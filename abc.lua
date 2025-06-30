@@ -42,26 +42,34 @@ ArrayListDisplay.BackgroundColor3 = Color3.new(0, 0, 0)
 ArrayListDisplay.BackgroundTransparency = 1
 ArrayListDisplay.BorderColor3 = Color3.new(0, 0, 0)
 ArrayListDisplay.BorderSizePixel = 0
-ArrayListDisplay.Position = UDim2.new(1, -5, 0, 5) -- Konum güncellendi
+ArrayListDisplay.Position = UDim2.new(1, -5, 0, -57.5)
 ArrayListDisplay.Size = UDim2.new(0, 250, 1, 1000)
 ArrayListDisplay.ZIndex = 10
 ArrayListDisplay.Parent = ArrayListFolder
 ArrayListDisplay.Visible = false
 
--- ArrayList Header
-local ArrayListHeader = Instance.new("TextLabel")
-ArrayListHeader.BackgroundColor3 = Color3.new(0, 0, 0)
+-- Draggable Header for ArrayListDisplay
+local ArrayListHeader = Instance.new("Frame")
+ArrayListHeader.Name = "Header"
+ArrayListHeader.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 ArrayListHeader.BackgroundTransparency = 0.5
-ArrayListHeader.BorderColor3 = Color3.new(0, 0, 0)
-ArrayListHeader.BorderSizePixel = 0
-ArrayListHeader.Font = Enum.Font.Sarpanch
-ArrayListHeader.Size = UDim2.new(1, 0, 0, 30) -- Daha küçük bir başlık boyutu
-ArrayListHeader.Text = "Active Modules"
-ArrayListHeader.TextColor3 = Color3.new(1, 1, 1)
-ArrayListHeader.TextSize = 20
-ArrayListHeader.TextXAlignment = Enum.TextXAlignment.Right
-ArrayListHeader.ZIndex = 11 -- Başlığın üstte görünmesi için
+ArrayListHeader.Size = UDim2.new(1, 0, 0, 25) -- Adjust height as needed
+ArrayListHeader.Position = UDim2.new(0, 0, 0, -25) -- Position above the ArrayListDisplay content
 ArrayListHeader.Parent = ArrayListDisplay
+local ArrayListHeaderCorner = Instance.new("UICorner")
+ArrayListHeaderCorner.CornerRadius = UDim.new(0, 5) -- Match existing UI corners
+ArrayListHeaderCorner.Parent = ArrayListHeader
+
+local ArrayListHeaderText = Instance.new("TextLabel")
+ArrayListHeaderText.BackgroundTransparency = 1
+ArrayListHeaderText.Size = UDim2.new(1, 0, 1, 0)
+ArrayListHeaderText.Font = Enum.Font.Sarpanch
+ArrayListHeaderText.Text = "Active Modules"
+ArrayListHeaderText.TextColor3 = Color3.new(1, 1, 1)
+ArrayListHeaderText.TextSize = 18
+ArrayListHeaderText.TextXAlignment = Enum.TextXAlignment.Center
+ArrayListHeaderText.Parent = ArrayListHeader
+
 
 local ArrayListLayout = Instance.new("UIListLayout")
 ArrayListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
@@ -69,53 +77,13 @@ ArrayListLayout.Padding = UDim.new(0, 0)
 ArrayListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 ArrayListLayout.Parent = ArrayListDisplay
 
--- ArrayList Header sürükleme mantığı
-local ArrayListDragging = false
-local ArrayListDragStart, ArrayListStartPosition
-
-ArrayListHeader.InputBegan:Connect(function(Input)
-	if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-		ArrayListDragging = true
-		ArrayListDragStart = Input.Position
-		ArrayListStartPosition = ArrayListDisplay.Position
-
-		Input.Changed:Connect(function()
-			if Input.UserInputState == Enum.UserInputState.End then
-				ArrayListDragging = false
-			end
-		end)
-	end
-end)
-
-UIS.InputChanged:Connect(function(Input)
-	if ArrayListDragging and Input.UserInputType == Enum.UserInputType.MouseMovement then
-		local Delta = Input.Position - ArrayListDragStart
-		ArrayListDisplay.Position = UDim2.new(
-			ArrayListStartPosition.X.Scale, ArrayListStartPosition.X.Offset + Delta.X,
-			ArrayListStartPosition.Y.Scale, ArrayListStartPosition.Y.Offset + Delta.Y
-		)
-	end
-end)
-
-local NotificationsFolder = Instance.new("Folder")
-NotificationsFolder.Parent = ScreenGui
-
-local NotificationsContainer = Instance.new("Frame")
-NotificationsContainer.BackgroundColor3 = Color3.new(0, 0, 0)
-NotificationsContainer.BackgroundTransparency = 1
-NotificationsContainer.BorderSizePixel = 0
-NotificationsContainer.Size = UDim2.new(1, 0, 1, 0)
-NotificationsContainer.Visible = false
-NotificationsContainer.Parent = NotificationsFolder
-
 local function GetTextWidth(text)
 	return TextService:GetTextSize(text, 25, Enum.Font.Sarpanch, Vector2.new(1000, 25)).X
 end
 
 local function RefreshArrayList()
 	for _, v in pairs(ArrayListDisplay:GetChildren()) do
-		-- Başlık hariç diğer TextLabel'ları temizle
-		if v:IsA("TextLabel") and v ~= ArrayListHeader then
+		if v:IsA("TextLabel") then
 			v:Destroy()
 		end
 	end
@@ -143,6 +111,17 @@ local function RefreshArrayList()
 		ActiveModule.Parent = ArrayListDisplay
 	end
 end
+
+local NotificationsFolder = Instance.new("Folder")
+NotificationsFolder.Parent = ScreenGui
+
+local NotificationsContainer = Instance.new("Frame")
+NotificationsContainer.BackgroundColor3 = Color3.new(0, 0, 0)
+NotificationsContainer.BackgroundTransparency = 1
+NotificationsContainer.BorderSizePixel = 0
+NotificationsContainer.Size = UDim2.new(1, 0, 1, 0)
+NotificationsContainer.Visible = false
+NotificationsContainer.Parent = NotificationsFolder
 
 local function RepositionNotifications()
 	for i, Data in ipairs(ActiveNotifications) do
@@ -233,50 +212,27 @@ TargetHUD.Size = UDim2.new(0, 250, 0, 75)
 TargetHUD.Visible = false
 TargetHUD.Parent = TargetHUDFolder
 
--- TargetHUD Header
-local TargetHUDHeader = Instance.new("TextLabel")
-TargetHUDHeader.BackgroundColor3 = Color3.new(0, 0, 0)
+-- Draggable Header for TargetHUD
+local TargetHUDHeader = Instance.new("Frame")
+TargetHUDHeader.Name = "Header"
+TargetHUDHeader.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 TargetHUDHeader.BackgroundTransparency = 0.5
-TargetHUDHeader.BorderColor3 = Color3.new(0, 0, 0)
-TargetHUDHeader.BorderSizePixel = 0
-TargetHUDHeader.Font = Enum.Font.Sarpanch
-TargetHUDHeader.Position = UDim2.new(0, 0, 0, -30) -- Panelin üstüne konumlandır
-TargetHUDHeader.Size = UDim2.new(1, 0, 0, 30)
-TargetHUDHeader.Text = "Target Info"
-TargetHUDHeader.TextColor3 = Color3.new(1, 1, 1)
-TargetHUDHeader.TextSize = 20
-TargetHUDHeader.TextXAlignment = Enum.TextXAlignment.Center
-TargetHUDHeader.ZIndex = 1 -- TargetHUD'dan daha yüksek ZIndex
+TargetHUDHeader.Size = UDim2.new(1, 0, 0, 25) -- Adjust height as needed
+TargetHUDHeader.Position = UDim2.new(0, 0, 0, -25) -- Position above the TargetHUD content
 TargetHUDHeader.Parent = TargetHUD
+local TargetHUDHeaderCorner = Instance.new("UICorner")
+TargetHUDHeaderCorner.CornerRadius = UDim.new(0, 5) -- Match existing UI corners
+TargetHUDHeaderCorner.Parent = TargetHUD
 
--- TargetHUD Header sürükleme mantığı
-local TargetHUDDragging = false
-local TargetHUDDragStart, TargetHUDStartPosition
-
-TargetHUDHeader.InputBegan:Connect(function(Input)
-	if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-		TargetHUDDragging = true
-		TargetHUDDragStart = Input.Position
-		TargetHUDStartPosition = TargetHUD.Position
-
-		Input.Changed:Connect(function()
-			if Input.UserInputState == Enum.UserInputState.End then
-				TargetHUDDragging = false
-			end
-		end)
-	end
-end)
-
-UIS.InputChanged:Connect(function(Input)
-	if TargetHUDDragging and Input.UserInputType == Enum.UserInputType.MouseMovement then
-		local Delta = Input.Position - TargetHUDDragStart
-		TargetHUD.Position = UDim2.new(
-			TargetHUDStartPosition.X.Scale, TargetHUDStartPosition.X.Offset + Delta.X,
-			TargetHUDStartPosition.Y.Scale, TargetHUDStartPosition.Y.Offset + Delta.Y
-		)
-	end
-end)
-
+local TargetHUDHeaderText = Instance.new("TextLabel")
+TargetHUDHeaderText.BackgroundTransparency = 1
+TargetHUDHeaderText.Size = UDim2.new(1, 0, 1, 0)
+TargetHUDHeaderText.Font = Enum.Font.Sarpanch
+TargetHUDHeaderText.Text = "Target Info"
+TargetHUDHeaderText.TextColor3 = Color3.new(1, 1, 1)
+TargetHUDHeaderText.TextSize = 18
+TargetHUDHeaderText.TextXAlignment = Enum.TextXAlignment.Center
+TargetHUDHeaderText.Parent = TargetHUDHeader
 
 local TargetPhoto = Instance.new("ImageLabel")
 TargetPhoto.BackgroundTransparency = 1
@@ -383,7 +339,7 @@ function Jello:ToggleTargetHUD(State)
 						HPBar.BackgroundColor3 = GetHealthColor(HP)
 						TargetPhoto.Image = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. Target.UserId .. "&width=420&height=420&format=png"
 						ShouldShow = true
-					elseif TabsVisible then
+					elseif TabsVisible then -- If tabs are open, show generic info
 						TargetName.Text = "Roblox"
 						HPBar.Size = UDim2.new(1, 0, 1, 0)
 						HPBar.BackgroundColor3 = Color3.new(0, 1, 0)
@@ -473,35 +429,6 @@ function Jello:AddTab(TabName)
 	local ModulesListLayout = Instance.new("UIListLayout")
 	ModulesListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 	ModulesListLayout.Parent = Modules
-
-	-- Dragging variables for this specific tab
-	local Dragging = false
-	local DragStart, StartPosition
-
-	Header.InputBegan:Connect(function(Input)
-		if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-			Dragging = true
-			DragStart = Input.Position
-			StartPosition = TabFrame.Position
-
-			-- Listen for Input.Changed on the same input object to detect when the drag ends
-			Input.Changed:Connect(function()
-				if Input.UserInputState == Enum.UserInputState.End then
-					Dragging = false
-				end
-			end)
-		end
-	end)
-
-	UIS.InputChanged:Connect(function(Input)
-		if Dragging and Input.UserInputType == Enum.UserInputType.MouseMovement then
-			local Delta = Input.Position - DragStart
-			TabFrame.Position = UDim2.new(
-				StartPosition.X.Scale, StartPosition.X.Offset + Delta.X,
-				StartPosition.Y.Scale, StartPosition.Y.Offset + Delta.Y
-			)
-		end
-	end)
 
 	Header.MouseButton2Click:Connect(function()
 		Modules.Visible = not Modules.Visible
@@ -644,5 +571,53 @@ function Jello:AddTab(TabName)
 
 	return Tab
 end
+
+--- Draggable UI Logic ---
+local function MakeDraggable(UIElement, DragHandle)
+    local Dragging = false
+    local DragStart, StartPosition
+
+    DragHandle.InputBegan:Connect(function(Input)
+        if Input.UserInputType == Enum.UserInputType.MouseButton1 then
+            Dragging = true
+            DragStart = Input.Position
+            StartPosition = UIElement.Position
+
+            -- Update mouse icon while dragging
+            UIS.MouseIconEnabled = false
+            UIS.MouseIcon = "rbxassetid://625692694" -- Hand cursor
+
+            local inputChangedConn
+            inputChangedConn = UIS.InputChanged:Connect(function(InputChanged)
+                if InputChanged.UserInputType == Enum.UserInputType.MouseMovement then
+                    if Dragging then
+                        local Delta = InputChanged.Position - DragStart
+                        UIElement.Position = UDim2.new(
+                            StartPosition.X.Scale, StartPosition.X.Offset + Delta.X,
+                            StartPosition.Y.Scale, StartPosition.Y.Offset + Delta.Y
+                        )
+                    end
+                end
+            end)
+
+            local inputEndedConn
+            inputEndedConn = UIS.InputEnded:Connect(function(InputEnded)
+                if InputEnded.UserInputType == Enum.UserInputType.MouseButton1 then
+                    Dragging = false
+                    UIS.MouseIconEnabled = true
+                    UIS.MouseIcon = "" -- Reset mouse icon
+                    inputChangedConn:Disconnect()
+                    inputEndedConn:Disconnect()
+                end
+            end)
+        end
+    end)
+end
+
+-- Make ArrayListDisplay draggable by its header
+MakeDraggable(ArrayListDisplay, ArrayListHeader)
+
+-- Make TargetHUD draggable by its header
+MakeDraggable(TargetHUD, TargetHUDHeader)
 
 return Jello
