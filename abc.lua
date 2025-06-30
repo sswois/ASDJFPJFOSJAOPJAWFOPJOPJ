@@ -248,7 +248,7 @@ HPBar.BackgroundColor3 = Color3.new(0, 0, 0)
 HPBar.BorderSizePixel = 0
 HPBar.Position = UDim2.new(0, 0, 0, 0)
 HPBar.Size = UDim2.new(0, 0, 1, 0)
-HPBar.Parent = HPBar
+HPBar.Parent = HPBG
 
 local MaxDistance = 15
 local TargetHUDEnabled = false
