@@ -291,10 +291,10 @@ function Jello:ToggleTargetHUD(State)
 						HPBar.BackgroundColor3 = GetHealthColor(HP)
 						TargetPhoto.Image = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. Target.UserId .. "&width=420&height=420&format=png"
 						ShouldShow = true
-					elseif TabsVisible then
+					elseif TabsVisible then -- Added condition: TargetHUD is visible if Tabs are visible
 						TargetName.Text = "Roblox"
-						HPBar.Size = UDim2.new(0, 0, 1, 0)
-						HPBar.BackgroundColor3 = Color3.new(0, 0, 0)
+						HPBar.Size = UDim2.new(1, 0, 1, 0) -- Set HPBar to 100%
+						HPBar.BackgroundColor3 = Color3.new(0, 1, 0) -- Set HPBar color to green
 						TargetPhoto.Image = "https://www.roblox.com/headshot-thumbnail/image?userId=1&width=420&height=420&format=png"
 						ShouldShow = true
 					end
