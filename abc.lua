@@ -319,7 +319,7 @@ local function MakeDraggable(UIElement, DragHandle)
             DragStart = Input.Position
             StartPosition = UIElement.Position
 
-            InputChangedConnection = UIS.InputChanged:Connect(function(InputChanged)
+            local InputChangedConnection = UIS.InputChanged:Connect(function(InputChanged)
                 if InputChanged.UserInputType == Enum.UserInputType.MouseMovement then
                     if Dragging then
                         local Delta = InputChanged.Position - DragStart
@@ -327,11 +327,14 @@ local function MakeDraggable(UIElement, DragHandle)
                             StartPosition.X.Scale, StartPosition.X.Offset + Delta.X,
                             StartPosition.Y.Scale, StartPosition.Y.Offset + Delta.Y
                         )
+                        if UIElement == ArrayListContainer then
+                            RefreshArrayList()
+                        end
                     end
                 end
             end)
 
-            InputEndedConnection = UIS.InputEnded:Connect(function(InputEnded)
+            local InputEndedConnection = UIS.InputEnded:Connect(function(InputEnded)
                 if InputEnded.UserInputType == Enum.UserInputType.MouseButton1 then
                     Dragging = false
                     InputChangedConnection:Disconnect()
