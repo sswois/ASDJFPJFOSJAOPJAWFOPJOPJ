@@ -90,72 +90,83 @@ ArrayListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 ArrayListLayout.Parent = ArrayListDisplay
 
 local function RefreshArrayList()
-	local activeModuleNames = {}
-	for _, moduleName in ipairs(ActiveModules) do
-		activeModuleNames[moduleName] = true -- Use a dictionary for faster lookups
-	end
+    local activeModuleNames = {}
+    -- Aktif modüllerin isimlerini hızlı erişim için bir dictionary'ye atıyoruz
+    for _, moduleName in ipairs(ActiveModules) do
+        activeModuleNames[moduleName] = true
+    end
 
-	local currentLabels = {}
-	-- Collect existing labels and mark them for potential reuse
-	for _, child in ipairs(ArrayListDisplay:GetChildren()) do
-		if child:IsA("TextLabel") then
-			if activeModuleNames[child.Text] then
-				-- This label corresponds to an active module, keep it
-				table.insert(currentLabels, child)
-				activeModuleNames[child.Text] = nil -- Mark as used
-			else
-				-- This label's module is no longer active, destroy it
-				child:Destroy()
-			end
-		end
-	end
+    local labelsToKeep = {} -- Korunacak veya yeniden kullanılacak TextLabel'lar
+    local labelsToDestroy = {} -- Yok edilecek TextLabel'lar
 
-	-- Create new labels for modules that don't have an existing label
-	for moduleName, _ in pairs(activeModuleNames) do -- Iterate through remaining activeModuleNames
-		local ActiveModule = Instance.new("TextLabel")
-		ActiveModule.BackgroundColor3 = Color3.new(0, 0, 0)
-		ActiveModule.BackgroundTransparency = 1
-		ActiveModule.BorderColor3 = Color3.new(0, 0, 0)
-		ActiveModule.BorderSizePixel = 0
-		ActiveModule.Font = Enum.Font.Sarpanch
-		ActiveModule.Size = UDim2.new(0, 0, 0, 20)
-		ActiveModule.Text = moduleName -- Use the moduleName from the remaining set
-		ActiveModule.TextColor3 = Color3.new(1, 1, 1)
-		ActiveModule.TextSize = 20
-		ActiveModule.TextStrokeTransparency = 0.5
-		ActiveModule.TextTransparency = 0
-		ActiveModule.TextWrapped = false
-		ActiveModule.AutomaticSize = Enum.AutomaticSize.X
-		ActiveModule.Parent = ArrayListDisplay
-		table.insert(currentLabels, ActiveModule)
-	end
+    -- Mevcut TextLabel'ları tarıyoruz
+    for _, child in ipairs(ArrayListDisplay:GetChildren()) do
+        if child:IsA("TextLabel") then
+            if activeModuleNames[child.Text] then
+                -- Eğer bu TextLabel aktif bir modüle aitse, korumak için işaretle
+                table.insert(labelsToKeep, child)
+                activeModuleNames[child.Text] = nil -- Dictionary'den kaldır, çünkü bu modül için bir etiketi zaten var
+            else
+                -- Eğer bu TextLabel artık aktif olmayan bir modüle aitse, yok etmek için işaretle
+                table.insert(labelsToDestroy, child)
+            end
+        end
+    end
 
-	-- Determine alignment based on ArrayListContainer position
-	local IsArrayListOnRight = (ArrayListContainer.AbsolutePosition.X + ArrayListContainer.AbsoluteSize.X / 2) > (ScreenGui.AbsoluteSize.X / 2)
-	if IsArrayListOnRight then
-		ArrayListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
-	else
-		ArrayListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
-	end
+    -- İhtiyaç fazlası olan etiketleri yok et (anında)
+    for _, label in ipairs(labelsToDestroy) do
+        label:Destroy()
+    end
 
-	-- Wait a frame for AutomaticSize to calculate the actual sizes for new/reused labels
-	task.wait()
+    -- Yeni aktif modüller için eksik etiketleri oluştur
+    for moduleName, _ in pairs(activeModuleNames) do -- activeModuleNames içinde kalanlar, henüz etiketi olmayan aktif modüllerdir
+        local ActiveModule = Instance.new("TextLabel")
+        ActiveModule.BackgroundColor3 = Color3.new(0, 0, 0)
+        ActiveModule.BackgroundTransparency = 1
+        ActiveModule.BorderColor3 = Color3.new(0, 0, 0)
+        ActiveModule.BorderSizePixel = 0
+        ActiveModule.Font = Enum.Font.Sarpanch
+        ActiveModule.Size = UDim2.new(0, 0, 0, 20)
+        ActiveModule.Text = moduleName
+        ActiveModule.TextColor3 = Color3.new(1, 1, 1)
+        ActiveModule.TextSize = 20
+        ActiveModule.TextStrokeTransparency = 0.5
+        ActiveModule.TextTransparency = 0
+        ActiveModule.TextWrapped = false
+        ActiveModule.AutomaticSize = Enum.AutomaticSize.X
+        ActiveModule.Parent = ArrayListDisplay
+        table.insert(labelsToKeep, ActiveModule) -- Yeni oluşturulanları da listeye ekle
+    end
 
-	-- Sort all currently visible labels based on their AbsoluteSize.X
-	table.sort(currentLabels, function(a, b)
-		return a.AbsoluteSize.X > b.AbsoluteSize.X
-	end)
+    -- Etiketlerin AutomaticSize tarafından boyutlandırılması için kısa bir bekleme
+    task.wait()
 
-	-- Update the LayoutOrder of the sorted labels to arrange them visually
-	for i, v in ipairs(currentLabels) do
-		v.LayoutOrder = i
-		-- Also update text alignment if the overall ArrayList alignment changed
-		if IsArrayListOnRight then
-			v.TextXAlignment = Enum.TextXAlignment.Right
-		else
-			v.TextXAlignment = Enum.TextXAlignment.Left
-		end
-	end
+    -- ArrayList'in sağda mı solda mı olduğunu belirle
+    local IsArrayListOnRight = (ArrayListContainer.AbsolutePosition.X + ArrayListContainer.AbsoluteSize.X / 2) > (ScreenGui.AbsoluteSize.X / 2)
+
+    -- Hizalamayı ayarla
+    if IsArrayListOnRight then
+        ArrayListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
+    else
+        ArrayListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
+    end
+
+    -- Tüm mevcut etiketleri (korunan ve yeni oluşturulan) genişliklerine göre sırala
+    table.sort(labelsToKeep, function(a, b)
+        return a.AbsoluteSize.X > b.AbsoluteSize.X
+    end)
+
+    -- Sıralanmış etiketlerin LayoutOrder'ını güncelle
+    -- UIListLayout bu sırayı kullanarak elemanları anında yerleştirir.
+    for i, label in ipairs(labelsToKeep) do
+        label.LayoutOrder = i
+        -- Metin hizalamasını da güncelle (eğer ArrayList pozisyonu değişmişse diye)
+        if IsArrayListOnRight then
+            label.TextXAlignment = Enum.TextXAlignment.Right
+        else
+            label.TextXAlignment = Enum.TextXAlignment.Left
+        end
+    end
 end
 
 local NotificationsFolder = Instance.new("Folder")
