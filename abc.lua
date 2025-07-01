@@ -70,6 +70,7 @@ ArrayListHeaderText.Text = "ArrayList"
 ArrayListHeaderText.TextColor3 = Color3.new(1, 1, 1)
 ArrayListHeaderText.TextSize = 20
 ArrayListHeaderText.TextXAlignment = Enum.TextXAlignment.Center
+ArrayListHeaderText.TextStrokeTransparency = 0.5 -- Applied here
 ArrayListHeaderText.Parent = ArrayListHeader
 
 local ArrayListDisplay = Instance.new("Frame")
@@ -182,6 +183,7 @@ function SendNotification(Title, Message, Duration)
 	TitleLabel.TextColor3 = Color3.new(1, 1, 1)
 	TitleLabel.TextSize = 20
 	TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+	TitleLabel.TextStrokeTransparency = 0.5 -- Applied here
 	TitleLabel.Parent = Notification
 
 	local MessageLabel = Instance.new("TextLabel")
@@ -198,6 +200,7 @@ function SendNotification(Title, Message, Duration)
 	MessageLabel.TextSize = 20
 	MessageLabel.TextWrapped = true
 	MessageLabel.TextXAlignment = Enum.TextXAlignment.Left
+	MessageLabel.TextStrokeTransparency = 0.5 -- Applied here
 	MessageLabel.Parent = Notification
 
 	local Data = { frame = Notification, y = y }
@@ -257,6 +260,7 @@ TargetHUDHeaderText.Text = "Target"
 TargetHUDHeaderText.TextColor3 = Color3.new(1, 1, 1)
 TargetHUDHeaderText.TextSize = 20
 TargetHUDHeaderText.TextXAlignment = Enum.TextXAlignment.Center
+TargetHUDHeaderText.TextStrokeTransparency = 0.5 -- Applied here
 TargetHUDHeaderText.Parent = TargetHUDHeader
 
 local TargetHUD = Instance.new("Frame")
@@ -288,6 +292,7 @@ TargetName.Text = "Roblox"
 TargetName.TextColor3 = Color3.new(1, 1, 1)
 TargetName.TextSize = 20
 TargetName.TextXAlignment = Enum.TextXAlignment.Left
+TargetName.TextStrokeTransparency = 0.5 -- Applied here
 TargetName.Parent = TargetHUD
 
 local HPBG = Instance.new("Frame")
@@ -456,15 +461,15 @@ ModalButton.Visible = false
 ModalButton.Modal = true
 ModalButton.Parent = ScreenGui
 
-local BlurEffect = Instance.new("BlurEffect")
-BlurEffect.Enabled = false
-BlurEffect.Size = 25
-BlurEffect.Parent = game.Lighting
+-- local BlurEffect = Instance.new("BlurEffect")
+-- BlurEffect.Enabled = false
+-- BlurEffect.Size = 25
+-- BlurEffect.Parent = game.Lighting
 
 UIS.InputBegan:Connect(function(Input)
 	if Input.KeyCode == Enum.KeyCode.RightShift then
 		GUIVisible = not GUIVisible
-		BlurEffect.Enabled = GUIVisible
+		-- BlurEffect.Enabled = GUIVisible
 		ModalButton.Visible = GUIVisible
 		TabsContainer.Visible = GUIVisible
 		ArrayListHeader.Visible = ArrayListContainer.Visible and GUIVisible
@@ -497,6 +502,7 @@ function Jello:AddTab(TabName)
 	Header.TextSize = 25
 	Header.TextXAlignment = Enum.TextXAlignment.Left
 	Header.AutoButtonColor = false
+	Header.TextStrokeTransparency = 0.5 -- Applied here
 	Header.Parent = TabFrame
 
 	MakeDraggable(TabFrame, Header)
@@ -553,6 +559,7 @@ function Jello:AddTab(TabName)
 		Module.TextTransparency = 0.5
 		Module.TextXAlignment = Enum.TextXAlignment.Left
 		Module.AutoButtonColor = false
+		Module.TextStrokeTransparency = 0.5 -- Applied here
 		Module.Parent = ModuleContainer
 
 		local ModulePadding = Instance.new("UIPadding")
@@ -586,6 +593,7 @@ function Jello:AddTab(TabName)
 		Bind.TextColor3 = Color3.new(1, 1, 1)
 		Bind.TextSize = 15
 		Bind.TextXAlignment = Enum.TextXAlignment.Left
+		Bind.TextStrokeTransparency = 0.5 -- Applied here
 		Bind.Parent = ModuleOptions
 
 		local BindPadding = Instance.new("UIPadding")
