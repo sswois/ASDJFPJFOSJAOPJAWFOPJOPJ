@@ -419,7 +419,7 @@ function Jello:ToggleNotifications(State)
                         table.remove(ActiveNotifications, i)
                     end
                 end
-                task.wait(0.1)
+                task.wait()
             end
             NotificationsContainer.Visible = false
         end)
