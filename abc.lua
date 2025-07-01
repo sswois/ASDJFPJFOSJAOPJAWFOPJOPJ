@@ -89,20 +89,21 @@ ArrayListLayout.Padding = UDim.new(0, 0)
 ArrayListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 ArrayListLayout.Parent = ArrayListDisplay
 
-local function GetTextWidth(text)
-	return TextService:GetTextSize(text, 25, Enum.Font.Sarpanch, Vector2.new(1000, 25)).X
-end
-
 local function RefreshArrayList()
+	local TempModules = {}
+
 	for _, v in pairs(ArrayListDisplay:GetChildren()) do
 		if v:IsA("TextLabel") then
+			table.insert(TempModules, v.Text)
 			v:Destroy()
 		end
 	end
 
-	table.sort(ActiveModules, function(a, b)
-		return GetTextWidth(a) > GetTextWidth(b)
-	end)
+	table.clear(ActiveModules)
+
+	for _, moduleName in ipairs(TempModules) do
+		table.insert(ActiveModules, moduleName)
+	end
 
 	local IsArrayListOnRight = (ArrayListContainer.AbsolutePosition.X + ArrayListContainer.AbsoluteSize.X / 2) > (ScreenGui.AbsoluteSize.X / 2)
 
@@ -112,6 +113,7 @@ local function RefreshArrayList()
 		ArrayListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
 	end
 
+	local createdLabels = {}
 	for _, ModuleName in ipairs(ActiveModules) do
 		local ActiveModule = Instance.new("TextLabel")
 		ActiveModule.BackgroundColor3 = Color3.new(0, 0, 0)
@@ -133,6 +135,17 @@ local function RefreshArrayList()
 		end
 		ActiveModule.AutomaticSize = Enum.AutomaticSize.X
 		ActiveModule.Parent = ArrayListDisplay
+		table.insert(createdLabels, ActiveModule)
+	end
+	
+	task.wait()
+
+	table.sort(createdLabels, function(a, b)
+		return a.AbsoluteSize.X > b.AbsoluteSize.X
+	end)
+	
+	for i, v in ipairs(createdLabels) do
+		v.LayoutOrder = i
 	end
 end
 
