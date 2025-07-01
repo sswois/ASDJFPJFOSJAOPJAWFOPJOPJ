@@ -52,7 +52,7 @@ ArrayListContainer.Visible = false
 ArrayListContainer.Parent = ArrayListFolder
 
 local ArrayListHeader = Instance.new("Frame")
-ArrayListHeader.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+ArrayListHeader.BackgroundColor3 = Color3.new(0, 0, 0)
 ArrayListHeader.BackgroundTransparency = 0.25
 ArrayListHeader.BorderSizePixel = 0
 ArrayListHeader.BorderColor3 = Color3.new(0, 0, 0)
@@ -239,7 +239,7 @@ TargetHUDContainer.Visible = false
 TargetHUDContainer.Parent = TargetHUDFolder
 
 local TargetHUDHeader = Instance.new("Frame")
-TargetHUDHeader.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+TargetHUDHeader.BackgroundColor3 = Color3.new(0, 0, 0)
 TargetHUDHeader.BackgroundTransparency = 0.25
 TargetHUDHeader.BorderSizePixel = 0
 TargetHUDHeader.BorderColor3 = Color3.new(0, 0, 0)
@@ -260,7 +260,7 @@ TargetHUDHeaderText.TextXAlignment = Enum.TextXAlignment.Center
 TargetHUDHeaderText.Parent = TargetHUDHeader
 
 local TargetHUD = Instance.new("Frame")
-TargetHUD.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+TargetHUD.BackgroundColor3 = Color3.new(0, 0, 0)
 TargetHUD.BackgroundTransparency = 0.5
 TargetHUD.BorderSizePixel = 0
 TargetHUD.BorderColor3 = Color3.new(0, 0, 0)
@@ -600,7 +600,10 @@ function Jello:AddTab(TabName)
 		local function ToggleModule()
 			Enabled = not Enabled
 			Module.TextTransparency = Enabled and 0 or 0.5
-			if callback then callback(Enabled) end
+			if callback then
+				callback(Enabled)
+			end
+			
 			SendNotification("Jello", (Enabled and "Enabled " or "Disabled ") .. ModuleName, 1)
 
 			if Enabled then
