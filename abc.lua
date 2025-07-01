@@ -146,7 +146,7 @@ NotificationsContainer.BackgroundTransparency = 1
 NotificationsContainer.BorderSizePixel = 0
 NotificationsContainer.BorderColor3 = Color3.new(0, 0, 0)
 NotificationsContainer.Size = UDim2.new(1, 0, 1, 0)
-NotificationsContainer.Visible = NotificationsEnabled
+NotificationsContainer.Visible = false
 NotificationsContainer.Parent = NotificationsFolder
 
 local function RepositionNotifications()
@@ -158,7 +158,9 @@ local function RepositionNotifications()
 end
 
 function SendNotification(Title, Message, Duration)
-	if not NotificationsEnabled then return end
+	if not NotificationsEnabled then
+        return
+    end
 
 	Duration = Duration or 3
 	local y = -80 - (#ActiveNotifications * 70)
@@ -395,33 +397,35 @@ function Jello:ToggleArrayList(State)
 end
 
 function Jello:ToggleNotifications(State)
-    local newState = State
-    if newState == nil then
-        newState = not NotificationsEnabled
+    local NewState = State
+    if NewState == nil then
+        NewState = not NotificationsEnabled
     end
 
-    if NotificationsEnabled == newState then return end
+    if NotificationsEnabled == NewState then
+        return
+    end
 
-    NotificationsEnabled = newState
+    NotificationsEnabled = NewState
 
     if NotificationsEnabled then
         NotificationsContainer.Visible = true
     else
         if #ActiveNotifications > 0 then
-            local completedCount = 0
-            local requiredCompletions = #ActiveNotifications
+            local CompletedCount = 0
+            local RequiredCompletions = #ActiveNotifications
 
-            for _, data in ipairs(ActiveNotifications) do
-                local notificationFrame = data.frame
-                if notificationFrame then
-                    notificationFrame.Destroying:Once(function()
-                        completedCount = completedCount + 1
-                        if completedCount >= requiredCompletions then
+            for _, Data in ipairs(ActiveNotifications) do
+                local NotificationFrame = Data.frame
+                if NotificationFrame then
+                    NotificationFrame.Destroying:Once(function()
+                        CompletedCount = CompletedCount + 1
+                        if CompletedCount >= RequiredCompletions then
                             NotificationsContainer.Visible = false
                         end
                     end)
                 else
-                    completedCount = completedCount + 1
+                    CompletedCount = CompletedCount + 1
                 end
             end
         else
@@ -462,10 +466,10 @@ function Jello:ToggleTargetHUD(State)
 					end
 
 					TargetHUDContainer.Visible = ShouldShow
-					TargetHUDHeader.Visible = true
+					TargetHUDHeader.Visible = true 
 				end
 				TargetHUDContainer.Visible = false
-				TargetHUDHeader.Visible = true
+				TargetHUDHeader.Visible = true 
 				TargetHUDThread = nil
 			end)
 		end
@@ -569,7 +573,6 @@ function Jello:AddTab(TabName)
 
 		local ModuleContainerListLayout = Instance.new("UIListLayout")
 		ModuleContainerListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-		ModuleContainerListLayout.Padding = UDim.new(0, 5)
 		ModuleContainerListLayout.Parent = ModuleContainer
 
 		local Module = Instance.new("TextButton")
@@ -635,7 +638,7 @@ function Jello:AddTab(TabName)
 			if callback then
 				callback(Enabled)
 			end
-
+			
 			SendNotification("Jello", (Enabled and "Enabled " or "Disabled ") .. ModuleName, 1)
 
 			if Enabled then
@@ -653,7 +656,7 @@ function Jello:AddTab(TabName)
 		end
 
 		Module.MouseButton1Click:Connect(ToggleModule)
-
+		
 		Module.MouseButton2Click:Connect(function()
 			ModuleOptions.Visible = not ModuleOptions.Visible
 		end)
