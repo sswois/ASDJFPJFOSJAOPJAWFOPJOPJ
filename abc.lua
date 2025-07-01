@@ -401,15 +401,18 @@ function Jello:ToggleNotifications(State)
     if NewState == nil then
         NewState = not NotificationsEnabled
     end
-
-    if NotificationsEnabled == NewState then
+    
+    if NotificationsEnabled == NewState or IsTogglingNotifications then
         return
     end
+
+    local IsTogglingNotifications = true
 
     NotificationsEnabled = NewState
 
     if NotificationsEnabled then
         NotificationsContainer.Visible = true
+        IsTogglingNotifications = false
     else
         task.spawn(function()
             while #ActiveNotifications > 0 do
@@ -422,6 +425,7 @@ function Jello:ToggleNotifications(State)
                 task.wait()
             end
             NotificationsContainer.Visible = false
+            IsTogglingNotifications = false
         end)
     end
 end
