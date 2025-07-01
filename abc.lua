@@ -17,7 +17,6 @@ local ActiveModules = {}
 local ActiveNotifications = {}
 
 local GUIVisible = false
-local NotificationsEnabled = false
 
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "Jello"
@@ -158,10 +157,6 @@ local function RepositionNotifications()
 end
 
 function SendNotification(Title, Message, Duration)
-    if not NotificationsEnabled then
-        return
-    end
-
 	Duration = Duration or 3
 	local y = -80 - (#ActiveNotifications * 70)
 
@@ -398,27 +393,9 @@ end
 
 function Jello:ToggleNotifications(State)
     if State == nil then
-        NotificationsEnabled = not NotificationsEnabled
+        NotificationsContainer.Visible = not NotificationsContainer.Visible
     else
-        NotificationsEnabled = State
-    end
-
-    NotificationsContainer.Visible = NotificationsEnabled
-
-    if not NotificationsEnabled then
-        for i = #ActiveNotifications, 1, -1 do
-            local Data = ActiveNotifications[i]
-            local NotificationFrame = Data.frame
-            if NotificationFrame and NotificationFrame.Parent then
-                local TweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
-                local Tween = TweenService:Create(NotificationFrame, TweenInfo, { Position = UDim2.new(1, 500, 1, Data.y) })
-                Tween:Play()
-                Tween.Completed:Wait()
-                NotificationFrame:Destroy()
-            end
-            table.remove(ActiveNotifications, i)
-        end
-        ActiveNotifications = {}
+        NotificationsContainer.Visible = State
     end
 end
 
@@ -454,10 +431,10 @@ function Jello:ToggleTargetHUD(State)
 					end
 
 					TargetHUDContainer.Visible = ShouldShow
-					TargetHUDHeader.Visible = true
+					TargetHUDHeader.Visible = true 
 				end
 				TargetHUDContainer.Visible = false
-				TargetHUDHeader.Visible = true
+				TargetHUDHeader.Visible = true 
 				TargetHUDThread = nil
 			end)
 		end
@@ -626,10 +603,8 @@ function Jello:AddTab(TabName)
 			if callback then
 				callback(Enabled)
 			end
-
-			if NotificationsEnabled then
-				SendNotification("Jello", (Enabled and "Enabled " or "Disabled ") .. ModuleName, 1)
-			end
+			
+			SendNotification("Jello", (Enabled and "Enabled " or "Disabled ") .. ModuleName, 1)
 
 			if Enabled then
 				table.insert(ActiveModules, ModuleName)
@@ -646,7 +621,7 @@ function Jello:AddTab(TabName)
 		end
 
 		Module.MouseButton1Click:Connect(ToggleModule)
-
+		
 		Module.MouseButton2Click:Connect(function()
 			ModuleOptions.Visible = not ModuleOptions.Visible
 		end)
