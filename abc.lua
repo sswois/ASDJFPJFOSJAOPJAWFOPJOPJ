@@ -17,6 +17,7 @@ local ActiveModules = {}
 local ActiveNotifications = {}
 
 local GUIVisible = false
+local NotificationsEnabled = false 
 
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "Jello"
@@ -145,7 +146,7 @@ NotificationsContainer.BackgroundTransparency = 1
 NotificationsContainer.BorderSizePixel = 0
 NotificationsContainer.BorderColor3 = Color3.new(0, 0, 0)
 NotificationsContainer.Size = UDim2.new(1, 0, 1, 0)
-NotificationsContainer.Visible = false
+NotificationsContainer.Visible = NotificationsEnabled 
 NotificationsContainer.Parent = NotificationsFolder
 
 local function RepositionNotifications()
@@ -157,6 +158,8 @@ local function RepositionNotifications()
 end
 
 function SendNotification(Title, Message, Duration)
+	if not NotificationsEnabled then return end 
+
 	Duration = Duration or 3
 	local y = -80 - (#ActiveNotifications * 70)
 
@@ -393,10 +396,11 @@ end
 
 function Jello:ToggleNotifications(State)
     if State == nil then
-        NotificationsContainer.Visible = not NotificationsContainer.Visible
+        NotificationsEnabled = not NotificationsEnabled
     else
-        NotificationsContainer.Visible = State
+        NotificationsEnabled = State
     end
+    NotificationsContainer.Visible = NotificationsEnabled 
 end
 
 function Jello:ToggleTargetHUD(State)
