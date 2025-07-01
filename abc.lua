@@ -411,26 +411,18 @@ function Jello:ToggleNotifications(State)
     if NotificationsEnabled then
         NotificationsContainer.Visible = true
     else
-        if #ActiveNotifications > 0 then
-            local CompletedCount = 0
-            local RequiredCompletions = #ActiveNotifications
-
-            for _, Data in ipairs(ActiveNotifications) do
-                local NotificationFrame = Data.frame
-                if NotificationFrame then
-                    NotificationFrame.Destroying:Once(function()
-                        CompletedCount = CompletedCount + 1
-                        if CompletedCount >= RequiredCompletions then
-                            NotificationsContainer.Visible = false
-                        end
-                    end)
-                else
-                    CompletedCount = CompletedCount + 1
+        task.spawn(function()
+            while #ActiveNotifications > 0 do
+                for i = #ActiveNotifications, 1, -1 do
+                    local Data = ActiveNotifications[i]
+                    if not Data.frame or not Data.frame.Parent then
+                        table.remove(ActiveNotifications, i)
+                    end
                 end
+                task.wait(0.1)
             end
-        else
             NotificationsContainer.Visible = false
-        end
+        end)
     end
 end
 
