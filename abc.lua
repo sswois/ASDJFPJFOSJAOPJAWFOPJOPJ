@@ -4,7 +4,7 @@ local TweenService = game:GetService("TweenService")
 local TextService = game:GetService("TextService")
 
 local Players = game:GetService("Players")
-local LocalPlayer = Players:GetPlayerByUserId(game.CreatorId)
+local LocalPlayer = Players.LocalPlayer
 
 if CoreGui:FindFirstChild("Jello") then
 	return
@@ -408,12 +408,13 @@ function Jello:ToggleNotifications(State)
     if not NotificationsEnabled then
         for i = #ActiveNotifications, 1, -1 do
             local Data = ActiveNotifications[i]
-            local TweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
-            local Tween = TweenService:Create(Data.frame, TweenInfo, { Position = UDim2.new(1, 500, 1, Data.y) })
-            Tween:Play()
-            Tween.Completed:Wait()
-            if Data.frame then
-                Data.frame:Destroy()
+            local NotificationFrame = Data.frame
+            if NotificationFrame and NotificationFrame.Parent then
+                local TweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+                local Tween = TweenService:Create(NotificationFrame, TweenInfo, { Position = UDim2.new(1, 500, 1, Data.y) })
+                Tween:Play()
+                Tween.Completed:Wait()
+                NotificationFrame:Destroy()
             end
             table.remove(ActiveNotifications, i)
         end
