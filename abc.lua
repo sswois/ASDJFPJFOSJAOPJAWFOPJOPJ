@@ -6,15 +6,17 @@ local TextService = game:GetService("TextService")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
+if CoreGui:FindFirstChild("Jello") then
+	return
+end
+
 local Jello = {}
 local AllTabs = {}
 local TabCount = 0
 local ActiveModules = {}
 local ActiveNotifications = {}
 
-local TabsVisible = false
-
-if CoreGui:FindFirstChild("Jello") then return end
+local GUIVisible = false
 
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "Jello"
@@ -311,7 +313,7 @@ local function MakeDraggable(UIElement, DragHandle)
 
     DragHandle.InputBegan:Connect(function(Input)
         if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-            if DragHandle == TargetHUDHeader and not TabsVisible then
+            if DragHandle == TargetHUDHeader and not GUIVisible then
                 return
             end
 
@@ -386,7 +388,7 @@ function Jello:ToggleArrayList(State)
 	else
 		ArrayListContainer.Visible = State
 	end
-	ArrayListHeader.Visible = ArrayListContainer.Visible and TabsVisible
+	ArrayListHeader.Visible = ArrayListContainer.Visible and GUIVisible
 end
 
 function Jello:ToggleNotifications(State)
@@ -420,7 +422,7 @@ function Jello:ToggleTargetHUD(State)
 						HPBar.BackgroundColor3 = GetHealthColor(HP)
 						TargetPhoto.Image = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. Target.UserId .. "&width=420&height=420&format=png"
 						ShouldShow = true
-					elseif TabsVisible then
+					elseif GUIVisible then
 						TargetName.Text = "Roblox"
 						HPBar.Size = UDim2.new(1, 0, 1, 0)
 						HPBar.BackgroundColor3 = Color3.new(0, 1, 0)
@@ -461,11 +463,11 @@ BlurEffect.Parent = game.Lighting
 
 UIS.InputBegan:Connect(function(Input)
 	if Input.KeyCode == Enum.KeyCode.RightShift then
-		TabsVisible = not TabsVisible
-		BlurEffect.Enabled = TabsVisible
-		ModalButton.Visible = TabsVisible
-		TabsContainer.Visible = TabsVisible
-		ArrayListHeader.Visible = ArrayListContainer.Visible and TabsVisible
+		GUIVisible = not GUIVisible
+		BlurEffect.Enabled = GUIVisible
+		ModalButton.Visible = GUIVisible
+		TabsContainer.Visible = GUIVisible
+		ArrayListHeader.Visible = ArrayListContainer.Visible and GUIVisible
 	end
 end)
 
