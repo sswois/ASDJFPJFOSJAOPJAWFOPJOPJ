@@ -89,84 +89,51 @@ ArrayListLayout.Padding = UDim.new(0, 0)
 ArrayListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 ArrayListLayout.Parent = ArrayListDisplay
 
+local function GetTextWidth(text)
+	return TextService:GetTextSize(text, 25, Enum.Font.Sarpanch, Vector2.new(1000, 25)).X
+end
+
 local function RefreshArrayList()
-    local activeModuleNames = {}
-    -- Aktif modüllerin isimlerini hızlı erişim için bir dictionary'ye atıyoruz
-    for _, moduleName in ipairs(ActiveModules) do
-        activeModuleNames[moduleName] = true
-    end
+	for _, v in pairs(ArrayListDisplay:GetChildren()) do
+		if v:IsA("TextLabel") then
+			v:Destroy()
+		end
+	end
 
-    local labelsToKeep = {} -- Korunacak veya yeniden kullanılacak TextLabel'lar
-    local labelsToDestroy = {} -- Yok edilecek TextLabel'lar
+	table.sort(ActiveModules, function(a, b)
+		return GetTextWidth(a) > GetTextWidth(b)
+	end)
 
-    -- Mevcut TextLabel'ları tarıyoruz
-    for _, child in ipairs(ArrayListDisplay:GetChildren()) do
-        if child:IsA("TextLabel") then
-            if activeModuleNames[child.Text] then
-                -- Eğer bu TextLabel aktif bir modüle aitse, korumak için işaretle
-                table.insert(labelsToKeep, child)
-                activeModuleNames[child.Text] = nil -- Dictionary'den kaldır, çünkü bu modül için bir etiketi zaten var
-            else
-                -- Eğer bu TextLabel artık aktif olmayan bir modüle aitse, yok etmek için işaretle
-                table.insert(labelsToDestroy, child)
-            end
-        end
-    end
+	local IsArrayListOnRight = (ArrayListContainer.AbsolutePosition.X + ArrayListContainer.AbsoluteSize.X / 2) > (ScreenGui.AbsoluteSize.X / 2)
 
-    -- İhtiyaç fazlası olan etiketleri yok et (anında)
-    for _, label in ipairs(labelsToDestroy) do
-        label:Destroy()
-    end
+	if IsArrayListOnRight then
+		ArrayListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
+	else
+		ArrayListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
+	end
 
-    -- Yeni aktif modüller için eksik etiketleri oluştur
-    for moduleName, _ in pairs(activeModuleNames) do -- activeModuleNames içinde kalanlar, henüz etiketi olmayan aktif modüllerdir
-        local ActiveModule = Instance.new("TextLabel")
-        ActiveModule.BackgroundColor3 = Color3.new(0, 0, 0)
-        ActiveModule.BackgroundTransparency = 1
-        ActiveModule.BorderColor3 = Color3.new(0, 0, 0)
-        ActiveModule.BorderSizePixel = 0
-        ActiveModule.Font = Enum.Font.Sarpanch
-        ActiveModule.Size = UDim2.new(0, 0, 0, 20)
-        ActiveModule.Text = moduleName
-        ActiveModule.TextColor3 = Color3.new(1, 1, 1)
-        ActiveModule.TextSize = 20
-        ActiveModule.TextStrokeTransparency = 0.5
-        ActiveModule.TextTransparency = 0
-        ActiveModule.TextWrapped = false
-        ActiveModule.AutomaticSize = Enum.AutomaticSize.X
-        ActiveModule.Parent = ArrayListDisplay
-        table.insert(labelsToKeep, ActiveModule) -- Yeni oluşturulanları da listeye ekle
-    end
-
-    -- Etiketlerin AutomaticSize tarafından boyutlandırılması için kısa bir bekleme
-    task.wait()
-
-    -- ArrayList'in sağda mı solda mı olduğunu belirle
-    local IsArrayListOnRight = (ArrayListContainer.AbsolutePosition.X + ArrayListContainer.AbsoluteSize.X / 2) > (ScreenGui.AbsoluteSize.X / 2)
-
-    -- Hizalamayı ayarla
-    if IsArrayListOnRight then
-        ArrayListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
-    else
-        ArrayListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
-    end
-
-    -- Tüm mevcut etiketleri (korunan ve yeni oluşturulan) genişliklerine göre sırala
-    table.sort(labelsToKeep, function(a, b)
-        return a.AbsoluteSize.X > b.AbsoluteSize.X
-    end)
-
-    -- Sıralanmış etiketlerin LayoutOrder'ını güncelle
-    -- UIListLayout bu sırayı kullanarak elemanları anında yerleştirir.
-    for i, label in ipairs(labelsToKeep) do
-        label.LayoutOrder = i
-        -- Metin hizalamasını da güncelle (eğer ArrayList pozisyonu değişmişse diye)
-        if IsArrayListOnRight then
-            label.TextXAlignment = Enum.TextXAlignment.Right
-        else
-            label.TextXAlignment = Enum.TextXAlignment.Left
-        end
-    end
+	for _, ModuleName in ipairs(ActiveModules) do
+		local ActiveModule = Instance.new("TextLabel")
+		ActiveModule.BackgroundColor3 = Color3.new(0, 0, 0)
+		ActiveModule.BackgroundTransparency = 1
+		ActiveModule.BorderColor3 = Color3.new(0, 0, 0)
+		ActiveModule.BorderSizePixel = 0
+		ActiveModule.Font = Enum.Font.Sarpanch
+		ActiveModule.Size = UDim2.new(0, 0, 0, 20)
+		ActiveModule.Text = ModuleName
+		ActiveModule.TextColor3 = Color3.new(1, 1, 1)
+		ActiveModule.TextSize = 20
+		ActiveModule.TextStrokeTransparency = 0.5
+		ActiveModule.TextTransparency = 0
+		ActiveModule.TextWrapped = false
+		if IsArrayListOnRight then
+			ActiveModule.TextXAlignment = Enum.TextXAlignment.Right
+		else
+			ActiveModule.TextXAlignment = Enum.TextXAlignment.Left
+		end
+		ActiveModule.AutomaticSize = Enum.AutomaticSize.X
+		ActiveModule.Parent = ArrayListDisplay
+	end
 end
 
 local NotificationsFolder = Instance.new("Folder")
