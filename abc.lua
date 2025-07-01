@@ -90,20 +90,11 @@ ArrayListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 ArrayListLayout.Parent = ArrayListDisplay
 
 local function RefreshArrayList()
-	local tempModules = {}
-
-	-- Destroy existing labels and store their names temporarily
+	-- Clear all existing TextLabels in the ArrayListDisplay
 	for _, v in pairs(ArrayListDisplay:GetChildren()) do
 		if v:IsA("TextLabel") then
-			table.insert(tempModules, v.Text)
 			v:Destroy()
 		end
-	end
-
-	-- Clear ActiveModules and repopulate to ensure correct order based on tempModules
-	table.clear(ActiveModules)
-	for _, moduleName in ipairs(tempModules) do
-		table.insert(ActiveModules, moduleName)
 	end
 
 	local IsArrayListOnRight = (ArrayListContainer.AbsolutePosition.X + ArrayListContainer.AbsoluteSize.X / 2) > (ScreenGui.AbsoluteSize.X / 2)
@@ -115,6 +106,7 @@ local function RefreshArrayList()
 	end
 
 	local createdLabels = {}
+	-- Create new TextLabels for each active module
 	for _, ModuleName in ipairs(ActiveModules) do
 		local ActiveModule = Instance.new("TextLabel")
 		ActiveModule.BackgroundColor3 = Color3.new(0, 0, 0)
@@ -142,11 +134,12 @@ local function RefreshArrayList()
 	-- Wait a frame for AutomaticSize to calculate the actual sizes
 	task.wait()
 
+	-- Sort the created labels based on their AbsoluteSize.X
 	table.sort(createdLabels, function(a, b)
 		return a.AbsoluteSize.X > b.AbsoluteSize.X
 	end)
 
-	-- Re-parent the sorted labels to update their layout order
+	-- Update the LayoutOrder of the sorted labels
 	for i, v in ipairs(createdLabels) do
 		v.LayoutOrder = i
 	end
