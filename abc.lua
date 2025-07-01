@@ -315,10 +315,15 @@ HPBar.Parent = HPBG
 local function MakeDraggable(UIElement, DragHandle)
     local Dragging = false
     local DragStart, StartPosition
+    local InputChangedConnection = nil
+    local InputEndedConnection = nil
 
     DragHandle.InputBegan:Connect(function(Input)
         if Input.UserInputType == Enum.UserInputType.MouseButton1 then
             if DragHandle == TargetHUDHeader and not GUIVisible then
+                return
+            end
+            if DragHandle == ArrayListHeader and not GUIVisible then
                 return
             end
 
@@ -326,7 +331,14 @@ local function MakeDraggable(UIElement, DragHandle)
             DragStart = Input.Position
             StartPosition = UIElement.Position
 
-            local InputChangedConnection = UIS.InputChanged:Connect(function(InputChanged)
+            if InputChangedConnection then
+                InputChangedConnection:Disconnect()
+            end
+            if InputEndedConnection then
+                InputEndedConnection:Disconnect()
+            end
+
+            InputChangedConnection = UIS.InputChanged:Connect(function(InputChanged)
                 if InputChanged.UserInputType == Enum.UserInputType.MouseMovement then
                     if Dragging then
                         local Delta = InputChanged.Position - DragStart
@@ -341,11 +353,17 @@ local function MakeDraggable(UIElement, DragHandle)
                 end
             end)
 
-            local InputEndedConnection = UIS.InputEnded:Connect(function(InputEnded)
+            InputEndedConnection = UIS.InputEnded:Connect(function(InputEnded)
                 if InputEnded.UserInputType == Enum.UserInputType.MouseButton1 then
                     Dragging = false
-                    InputChangedConnection:Disconnect()
-                    InputEndedConnection:Disconnect()
+                    if InputChangedConnection then
+                        InputChangedConnection:Disconnect()
+                        InputChangedConnection = nil
+                    end
+                    if InputEndedConnection then
+                        InputEndedConnection:Disconnect()
+                        InputEndedConnection = nil
+                    end
                 end
             end)
         end
