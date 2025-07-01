@@ -90,24 +90,28 @@ ArrayListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 ArrayListLayout.Parent = ArrayListDisplay
 
 local function RefreshArrayList()
-	-- Clear all existing TextLabels in the ArrayListDisplay
-	for _, v in pairs(ArrayListDisplay:GetChildren()) do
-		if v:IsA("TextLabel") then
-			v:Destroy()
+	local activeModuleNames = {}
+	for _, moduleName in ipairs(ActiveModules) do
+		activeModuleNames[moduleName] = true -- Use a dictionary for faster lookups
+	end
+
+	local currentLabels = {}
+	-- Collect existing labels and mark them for potential reuse
+	for _, child in ipairs(ArrayListDisplay:GetChildren()) do
+		if child:IsA("TextLabel") then
+			if activeModuleNames[child.Text] then
+				-- This label corresponds to an active module, keep it
+				table.insert(currentLabels, child)
+				activeModuleNames[child.Text] = nil -- Mark as used
+			else
+				-- This label's module is no longer active, destroy it
+				child:Destroy()
+			end
 		end
 	end
 
-	local IsArrayListOnRight = (ArrayListContainer.AbsolutePosition.X + ArrayListContainer.AbsoluteSize.X / 2) > (ScreenGui.AbsoluteSize.X / 2)
-
-	if IsArrayListOnRight then
-		ArrayListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
-	else
-		ArrayListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
-	end
-
-	local createdLabels = {}
-	-- Create new TextLabels for each active module
-	for _, ModuleName in ipairs(ActiveModules) do
+	-- Create new labels for modules that don't have an existing label
+	for moduleName, _ in pairs(activeModuleNames) do -- Iterate through remaining activeModuleNames
 		local ActiveModule = Instance.new("TextLabel")
 		ActiveModule.BackgroundColor3 = Color3.new(0, 0, 0)
 		ActiveModule.BackgroundTransparency = 1
@@ -115,33 +119,42 @@ local function RefreshArrayList()
 		ActiveModule.BorderSizePixel = 0
 		ActiveModule.Font = Enum.Font.Sarpanch
 		ActiveModule.Size = UDim2.new(0, 0, 0, 20)
-		ActiveModule.Text = ModuleName
+		ActiveModule.Text = moduleName -- Use the moduleName from the remaining set
 		ActiveModule.TextColor3 = Color3.new(1, 1, 1)
 		ActiveModule.TextSize = 20
 		ActiveModule.TextStrokeTransparency = 0.5
 		ActiveModule.TextTransparency = 0
 		ActiveModule.TextWrapped = false
-		if IsArrayListOnRight then
-			ActiveModule.TextXAlignment = Enum.TextXAlignment.Right
-		else
-			ActiveModule.TextXAlignment = Enum.TextXAlignment.Left
-		end
 		ActiveModule.AutomaticSize = Enum.AutomaticSize.X
 		ActiveModule.Parent = ArrayListDisplay
-		table.insert(createdLabels, ActiveModule)
+		table.insert(currentLabels, ActiveModule)
 	end
 
-	-- Wait a frame for AutomaticSize to calculate the actual sizes
+	-- Determine alignment based on ArrayListContainer position
+	local IsArrayListOnRight = (ArrayListContainer.AbsolutePosition.X + ArrayListContainer.AbsoluteSize.X / 2) > (ScreenGui.AbsoluteSize.X / 2)
+	if IsArrayListOnRight then
+		ArrayListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
+	else
+		ArrayListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
+	end
+
+	-- Wait a frame for AutomaticSize to calculate the actual sizes for new/reused labels
 	task.wait()
 
-	-- Sort the created labels based on their AbsoluteSize.X
-	table.sort(createdLabels, function(a, b)
+	-- Sort all currently visible labels based on their AbsoluteSize.X
+	table.sort(currentLabels, function(a, b)
 		return a.AbsoluteSize.X > b.AbsoluteSize.X
 	end)
 
-	-- Update the LayoutOrder of the sorted labels
-	for i, v in ipairs(createdLabels) do
+	-- Update the LayoutOrder of the sorted labels to arrange them visually
+	for i, v in ipairs(currentLabels) do
 		v.LayoutOrder = i
+		-- Also update text alignment if the overall ArrayList alignment changed
+		if IsArrayListOnRight then
+			v.TextXAlignment = Enum.TextXAlignment.Right
+		else
+			v.TextXAlignment = Enum.TextXAlignment.Left
+		end
 	end
 end
 
