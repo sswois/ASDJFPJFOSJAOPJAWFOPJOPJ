@@ -50,7 +50,7 @@ ArrayListContainer.Visible = false
 ArrayListContainer.Parent = ArrayListFolder
 
 local ArrayListHeader = Instance.new("Frame")
-ArrayListHeader.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+ArrayListHeader.BackgroundColor3 = Color3.new(0, 0, 0)
 ArrayListHeader.BackgroundTransparency = 0.25
 ArrayListHeader.BorderSizePixel = 0
 ArrayListHeader.BorderColor3 = Color3.new(0, 0, 0)
@@ -194,6 +194,7 @@ function SendNotification(Title, Message, Duration)
 	MessageLabel.TextColor3 = Color3.new(1, 1, 1)
 	MessageLabel.TextTransparency = 0.25
 	MessageLabel.TextSize = 20
+	MessageLabel.TextStrokeTransparency = 0.5
 	MessageLabel.TextWrapped = true
 	MessageLabel.TextXAlignment = Enum.TextXAlignment.Left
 	MessageLabel.Parent = Notification
@@ -237,7 +238,7 @@ TargetHUDContainer.Visible = false
 TargetHUDContainer.Parent = TargetHUDFolder
 
 local TargetHUDHeader = Instance.new("Frame")
-TargetHUDHeader.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+TargetHUDHeader.BackgroundColor3 = Color3.new(0, 0, 0)
 TargetHUDHeader.BackgroundTransparency = 0.25
 TargetHUDHeader.BorderSizePixel = 0
 TargetHUDHeader.BorderColor3 = Color3.new(0, 0, 0)
@@ -258,7 +259,7 @@ TargetHUDHeaderText.TextXAlignment = Enum.TextXAlignment.Center
 TargetHUDHeaderText.Parent = TargetHUDHeader
 
 local TargetHUD = Instance.new("Frame")
-TargetHUD.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+TargetHUD.BackgroundColor3 = Color3.new(0, 0, 0)
 TargetHUD.BackgroundTransparency = 0.5
 TargetHUD.BorderSizePixel = 0
 TargetHUD.BorderColor3 = Color3.new(0, 0, 0)
@@ -467,7 +468,7 @@ UIS.InputBegan:Connect(function(Input)
 		TabsContainer.Visible = TabsVisible
 		ArrayListHeader.Visible = ArrayListContainer.Visible and TabsVisible
 	end
-end)
+})
 
 function Jello:AddTab(TabName)
 	local TabFrame = Instance.new("Frame")
@@ -549,6 +550,7 @@ function Jello:AddTab(TabName)
 		Module.TextColor3 = Color3.new(1, 1, 1)
 		Module.TextSize = 20
 		Module.TextTransparency = 0.5
+		Module.TextStrokeTransparency = 0.5
 		Module.TextXAlignment = Enum.TextXAlignment.Left
 		Module.AutoButtonColor = false
 		Module.Parent = ModuleContainer
@@ -583,6 +585,7 @@ function Jello:AddTab(TabName)
 		Bind.Text = "Bind: None"
 		Bind.TextColor3 = Color3.new(1, 1, 1)
 		Bind.TextSize = 15
+		Bind.TextStrokeTransparency = 0.5
 		Bind.TextXAlignment = Enum.TextXAlignment.Left
 		Bind.Parent = ModuleOptions
 
