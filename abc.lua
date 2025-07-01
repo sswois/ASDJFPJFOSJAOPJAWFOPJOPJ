@@ -89,8 +89,9 @@ ArrayListLayout.Padding = UDim.new(0, 0)
 ArrayListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 ArrayListLayout.Parent = ArrayListDisplay
 
-local function GetTextWidth(text)
-	return TextService:GetTextSize(text, 25, Enum.Font.Sarpanch, Vector2.new(1000, 25)).X
+local function GetTextWidth(Text)
+    local TextSize = TextService:GetTextSize(Text, 20, Enum.Font.Sarpanch, Vector2.new(math.huge, 20))
+    return math.floor(TextSize.X + 0.5)
 end
 
 local function RefreshArrayList()
@@ -100,8 +101,13 @@ local function RefreshArrayList()
 		end
 	end
 
-	table.sort(ActiveModules, function(a, b)
-		return GetTextWidth(a) > GetTextWidth(b)
+	table.sort(ActiveModules, function(A, B)
+		local WidthA = GetTextWidth(a)
+		local WidthB = GetTextWidth(b)
+		if WidthA == WidthB then
+			return A < B
+		end
+		return WidthA > WidthB
 	end)
 
 	local IsArrayListOnRight = (ArrayListContainer.AbsolutePosition.X + ArrayListContainer.AbsoluteSize.X / 2) > (ScreenGui.AbsoluteSize.X / 2)
