@@ -315,15 +315,10 @@ HPBar.Parent = HPBG
 local function MakeDraggable(UIElement, DragHandle)
     local Dragging = false
     local DragStart, StartPosition
-    local InputChangedConnection = nil
-    local InputEndedConnection = nil
 
     DragHandle.InputBegan:Connect(function(Input)
         if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-            if DragHandle == TargetHUDHeader and not GUIVisible then
-                return
-            end
-            if DragHandle == ArrayListHeader and not GUIVisible then
+            if (DragHandle == TargetHUDHeader or DragHandle == ArrayListHeader) and not GUIVisible then
                 return
             end
 
@@ -331,39 +326,24 @@ local function MakeDraggable(UIElement, DragHandle)
             DragStart = Input.Position
             StartPosition = UIElement.Position
 
-            if InputChangedConnection then
-                InputChangedConnection:Disconnect()
-            end
-            if InputEndedConnection then
-                InputEndedConnection:Disconnect()
-            end
-
-            InputChangedConnection = UIS.InputChanged:Connect(function(InputChanged)
-                if InputChanged.UserInputType == Enum.UserInputType.MouseMovement then
-                    if Dragging then
-                        local Delta = InputChanged.Position - DragStart
-                        UIElement.Position = UDim2.new(
-                            StartPosition.X.Scale, StartPosition.X.Offset + Delta.X,
-                            StartPosition.Y.Scale, StartPosition.Y.Offset + Delta.Y
-                        )
-                        if UIElement == ArrayListContainer then
-                            RefreshArrayList()
-                        end
+            local InputChangedConnection = UIS.InputChanged:Connect(function(InputChanged)
+                if Dragging and InputChanged.UserInputType == Enum.UserInputType.MouseMovement then
+                    local Delta = InputChanged.Position - DragStart
+                    UIElement.Position = UDim2.new(
+                        StartPosition.X.Scale, StartPosition.X.Offset + Delta.X,
+                        StartPosition.Y.Scale, StartPosition.Y.Offset + Delta.Y
+                    )
+                    if UIElement == ArrayListContainer then
+                        RefreshArrayList()
                     end
                 end
             end)
 
-            InputEndedConnection = UIS.InputEnded:Connect(function(InputEnded)
+            local InputEndedConnection = UIS.InputEnded:Connect(function(InputEnded)
                 if InputEnded.UserInputType == Enum.UserInputType.MouseButton1 then
                     Dragging = false
-                    if InputChangedConnection then
-                        InputChangedConnection:Disconnect()
-                        InputChangedConnection = nil
-                    end
-                    if InputEndedConnection then
-                        InputEndedConnection:Disconnect()
-                        InputEndedConnection = nil
-                    end
+                    InputChangedConnection:Disconnect()
+                    InputEndedConnection:Disconnect()
                 end
             end)
         end
