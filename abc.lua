@@ -4,7 +4,7 @@ local TweenService = game:GetService("TweenService")
 local TextService = game:GetService("TextService")
 
 local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
+local LocalPlayer = Players:GetPlayerByUserId(game.CreatorId)
 
 if CoreGui:FindFirstChild("Jello") then
 	return
@@ -17,6 +17,7 @@ local ActiveModules = {}
 local ActiveNotifications = {}
 
 local GUIVisible = false
+local NotificationsEnabled = false
 
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "Jello"
@@ -157,6 +158,10 @@ local function RepositionNotifications()
 end
 
 function SendNotification(Title, Message, Duration)
+    if not NotificationsEnabled then
+        return
+    end
+
 	Duration = Duration or 3
 	local y = -80 - (#ActiveNotifications * 70)
 
@@ -393,9 +398,26 @@ end
 
 function Jello:ToggleNotifications(State)
     if State == nil then
-        NotificationsContainer.Visible = not NotificationsContainer.Visible
+        NotificationsEnabled = not NotificationsEnabled
     else
-        NotificationsContainer.Visible = State
+        NotificationsEnabled = State
+    end
+
+    NotificationsContainer.Visible = NotificationsEnabled
+
+    if not NotificationsEnabled then
+        for i = #ActiveNotifications, 1, -1 do
+            local Data = ActiveNotifications[i]
+            local TweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+            local Tween = TweenService:Create(Data.frame, TweenInfo, { Position = UDim2.new(1, 500, 1, Data.y) })
+            Tween:Play()
+            Tween.Completed:Wait()
+            if Data.frame then
+                Data.frame:Destroy()
+            end
+            table.remove(ActiveNotifications, i)
+        end
+        ActiveNotifications = {}
     end
 end
 
@@ -431,10 +453,10 @@ function Jello:ToggleTargetHUD(State)
 					end
 
 					TargetHUDContainer.Visible = ShouldShow
-					TargetHUDHeader.Visible = true 
+					TargetHUDHeader.Visible = true
 				end
 				TargetHUDContainer.Visible = false
-				TargetHUDHeader.Visible = true 
+				TargetHUDHeader.Visible = true
 				TargetHUDThread = nil
 			end)
 		end
@@ -603,8 +625,10 @@ function Jello:AddTab(TabName)
 			if callback then
 				callback(Enabled)
 			end
-			
-			SendNotification("Jello", (Enabled and "Enabled " or "Disabled ") .. ModuleName, 1)
+
+			if NotificationsEnabled then
+				SendNotification("Jello", (Enabled and "Enabled " or "Disabled ") .. ModuleName, 1)
+			end
 
 			if Enabled then
 				table.insert(ActiveModules, ModuleName)
@@ -621,7 +645,7 @@ function Jello:AddTab(TabName)
 		end
 
 		Module.MouseButton1Click:Connect(ToggleModule)
-		
+
 		Module.MouseButton2Click:Connect(function()
 			ModuleOptions.Visible = not ModuleOptions.Visible
 		end)
