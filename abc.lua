@@ -90,8 +90,19 @@ ArrayListLayout.Padding = UDim.new(0, 0)
 ArrayListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 ArrayListLayout.Parent = ArrayListDisplay
 
+-- ScreenGui'nin içinde, fakat görünmez ve kullanıcının etkileşemeyeceği bir ölçüm alanı oluşturalım
+local MeasurementFrame = Instance.new("Frame")
+MeasurementFrame.Name = "JelloMeasurementFrame"
+MeasurementFrame.Size = UDim2.new(0, 1, 0, 1) -- Çok küçük bir boyut
+MeasurementFrame.BackgroundTransparency = 1
+MeasurementFrame.Visible = false -- Kullanıcının görmemesi için
+MeasurementFrame.Parent = ScreenGui -- Ekranın bir parçası olarak parent et
+
+-- Orijinal fonksiyonlar ve değişkenler...
+-- ...
+
 local function RefreshArrayList()
-    -- Clear existing TextLabels
+    -- Mevcut TextLabel'ları temizle
     for _, v in pairs(ArrayListDisplay:GetChildren()) do
         if v:IsA("TextLabel") then
             v:Destroy()
@@ -106,10 +117,50 @@ local function RefreshArrayList()
         ArrayListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
     end
 
-    local currentModuleLabels = {} -- To store the TextLabel instances
+    local modulesToMeasure = {} -- Her modül için {name, textLabel} çiftleri tutacağız
 
-    -- Create all TextLabel instances first
+    -- Her bir modül adı için bir TextLabel oluştur, gizli ölçüm alanına ekle
     for _, ModuleName in ipairs(ActiveModules) do
+        local ActiveModule = Instance.new("TextLabel")
+        ActiveModule.BackgroundColor3 = Color3.new(0, 0, 0)
+        ActiveModule.BackgroundTransparency = 1
+        ActiveModule.BorderColor3 = Color3.new(0, 0, 0)
+        ActiveModule.BorderSizePixel = 0
+        ActiveModule.Font = Enum.Font.Sarpanch
+        ActiveModule.Size = UDim2.new(0, 0, 0, 20)
+        ActiveModule.Text = ModuleName
+        ActiveModule.TextColor3 = Color3.new(1, 1, 1)
+        ActiveModule.TextSize = 20
+        ActiveModule.TextStrokeTransparency = 0.5
+        ActiveModule.TextTransparency = 0
+        ActiveModule.TextWrapped = false
+        -- Alignment burada önemli değil çünkü sadece boyutunu ölçüyoruz
+        ActiveModule.AutomaticSize = Enum.AutomaticSize.X
+        ActiveModule.Parent = MeasurementFrame -- **Gizli ölçüm alanına parent et**
+
+        table.insert(modulesToMeasure, {
+            name = ModuleName,
+            label = ActiveModule
+        })
+    end
+
+    -- **Çok Önemli:** UI layout'ının güncellenmesi için bir sonraki frame'i bekle.
+    -- Bu, AbsoluteSize.X'in doğru hesaplanması için gereklidir.
+    task.wait() 
+
+    -- Şimdi modülleri, ölçtüğümüz AbsoluteSize.X değerlerine göre sırala
+    table.sort(modulesToMeasure, function(a, b)
+        return a.label.AbsoluteSize.X > b.label.AbsoluteSize.X -- En uzundan en kısaya sırala
+    end)
+
+    -- Ölçüm amaçlı oluşturulan TextLabel'ları sil
+    for _, data in ipairs(modulesToMeasure) do
+        data.label:Destroy()
+    end
+
+    -- Sıralanmış listeye göre, gerçek ArrayListDisplay içine TextLabel'ları oluştur ve ekle
+    for _, data in ipairs(modulesToMeasure) do
+        local ModuleName = data.name -- Sıralanmış isimleri kullan
         local ActiveModule = Instance.new("TextLabel")
         ActiveModule.BackgroundColor3 = Color3.new(0, 0, 0)
         ActiveModule.BackgroundTransparency = 1
@@ -129,19 +180,7 @@ local function RefreshArrayList()
             ActiveModule.TextXAlignment = Enum.TextXAlignment.Left
         end
         ActiveModule.AutomaticSize = Enum.AutomaticSize.X
-        -- Temporarily parent to ensure AbsoluteSize is calculated
         ActiveModule.Parent = ArrayListDisplay
-        table.insert(currentModuleLabels, ActiveModule)
-    end
-
-    -- Sort the created TextLabel instances by AbsoluteSize.X
-    table.sort(currentModuleLabels, function(a, b)
-        return a.AbsoluteSize.X > b.AbsoluteSize.X
-    end)
-
-    -- Re-parent them in the sorted order to update the UIListLayout
-    for i, moduleLabel in ipairs(currentModuleLabels) do
-        moduleLabel.LayoutOrder = i -- This makes UIListLayout sort them
     end
 end
 
