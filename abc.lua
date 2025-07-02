@@ -90,20 +90,12 @@ ArrayListLayout.Padding = UDim.new(0, 0)
 ArrayListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 ArrayListLayout.Parent = ArrayListDisplay
 
-local function GetTextWidth(text)
-	return TextService:GetTextSize(text, 25, Enum.Font.Sarpanch, Vector2.new(1000, 25)).X
-end
-
 local function RefreshArrayList()
 	for _, v in pairs(ArrayListDisplay:GetChildren()) do
 		if v:IsA("TextLabel") then
 			v:Destroy()
 		end
 	end
-
-	table.sort(ActiveModules, function(a, b)
-		return GetTextWidth(a) > GetTextWidth(b)
-	end)
 
 	local IsArrayListOnRight = (ArrayListContainer.AbsolutePosition.X + ArrayListContainer.AbsoluteSize.X / 2) > (ScreenGui.AbsoluteSize.X / 2)
 
@@ -113,27 +105,37 @@ local function RefreshArrayList()
 		ArrayListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
 	end
 
+	local LabelList = {}
+
 	for _, ModuleName in ipairs(ActiveModules) do
-		local ActiveModule = Instance.new("TextLabel")
-		ActiveModule.BackgroundColor3 = Color3.new(0, 0, 0)
-		ActiveModule.BackgroundTransparency = 1
-		ActiveModule.BorderColor3 = Color3.new(0, 0, 0)
-		ActiveModule.BorderSizePixel = 0
-		ActiveModule.Font = Enum.Font.Sarpanch
-		ActiveModule.Size = UDim2.new(0, 0, 0, 20)
-		ActiveModule.Text = ModuleName
-		ActiveModule.TextColor3 = Color3.new(1, 1, 1)
-		ActiveModule.TextSize = 20
-		ActiveModule.TextStrokeTransparency = 0.5
-		ActiveModule.TextTransparency = 0
-		ActiveModule.TextWrapped = false
-		if IsArrayListOnRight then
-			ActiveModule.TextXAlignment = Enum.TextXAlignment.Right
-		else
-			ActiveModule.TextXAlignment = Enum.TextXAlignment.Left
-		end
-		ActiveModule.AutomaticSize = Enum.AutomaticSize.X
-		ActiveModule.Parent = ArrayListDisplay
+		local Label = Instance.new("TextLabel")
+		Label.BackgroundColor3 = Color3.new(0, 0, 0)
+		Label.BackgroundTransparency = 1
+		Label.BorderColor3 = Color3.new(0, 0, 0)
+		Label.BorderSizePixel = 0
+		Label.Font = Enum.Font.Sarpanch
+		Label.Size = UDim2.new(0, 0, 0, 20)
+		Label.Text = ModuleName
+		Label.TextColor3 = Color3.new(1, 1, 1)
+		Label.TextSize = 20
+		Label.TextStrokeTransparency = 0.5
+		Label.TextTransparency = 0
+		Label.TextWrapped = false
+		Label.AutomaticSize = Enum.AutomaticSize.X
+		Label.TextXAlignment = IsArrayListOnRight and Enum.TextXAlignment.Right or Enum.TextXAlignment.Left
+		Label.Parent = ArrayListDisplay
+		table.insert(LabelList, Label)
+	end
+
+	task.wait()
+
+	table.sort(LabelList, function(a, b)
+		return a.AbsoluteSize.X > b.AbsoluteSize.X
+	end)
+
+	for _, Label in ipairs(LabelList) do
+		Label.Parent = nil
+		Label.Parent = ArrayListDisplay
 	end
 end
 
