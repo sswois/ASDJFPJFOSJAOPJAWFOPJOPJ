@@ -634,6 +634,7 @@ function Jello:AddTab(TabName)
 		Bind.TextSize = 20
 		Bind.TextXAlignment = Enum.TextXAlignment.Left
 		Bind.Parent = ModuleOptions
+		Bind.LayoutOrder = 9999
 
 		local BindPadding = Instance.new("UIPadding")
 		BindPadding.PaddingLeft = UDim.new(0, 25)
