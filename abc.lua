@@ -18,7 +18,6 @@ local ActiveNotifications = {}
 
 local GUIVisible = false
 local NotificationsEnabled = false
-local IsTogglingNotifications = false -- Flag to prevent re-entry during toggle
 
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "Jello"
@@ -91,8 +90,8 @@ ArrayListLayout.Padding = UDim.new(0, 0)
 ArrayListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 ArrayListLayout.Parent = ArrayListDisplay
 
-local function GetTextWidth(text, textSize, font)
-	return TextService:GetTextSize(text, textSize, font, Vector2.new(1000, textSize)).X
+local function GetTextWidth(text)
+	return TextService:GetTextSize(text, 25, Enum.Font.Sarpanch, Vector2.new(1000, 25)).X
 end
 
 local function RefreshArrayList()
@@ -102,9 +101,8 @@ local function RefreshArrayList()
 		end
 	end
 
-	-- Sort by text width in descending order
 	table.sort(ActiveModules, function(a, b)
-		return GetTextWidth(a, 20, Enum.Font.Sarpanch) > GetTextWidth(b, 20, Enum.Font.Sarpanch)
+		return GetTextWidth(a) > GetTextWidth(b)
 	end)
 
 	local IsArrayListOnRight = (ArrayListContainer.AbsolutePosition.X + ArrayListContainer.AbsoluteSize.X / 2) > (ScreenGui.AbsoluteSize.X / 2)
@@ -115,14 +113,6 @@ local function RefreshArrayList()
 		ArrayListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
 	end
 
-	local maxTextWidth = 0
-	if #ActiveModules > 0 then
-		maxTextWidth = GetTextWidth(ActiveModules[1], 20, Enum.Font.Sarpanch) -- Get width of the longest module name
-	end
-
-	-- Adjust ArrayListContainer width based on the longest text + padding
-	ArrayListContainer.Size = UDim2.new(0, math.max(250, maxTextWidth + 30), 0, ArrayListContainer.Size.Y.Offset) -- 30 for padding
-
 	for _, ModuleName in ipairs(ActiveModules) do
 		local ActiveModule = Instance.new("TextLabel")
 		ActiveModule.BackgroundColor3 = Color3.new(0, 0, 0)
@@ -130,7 +120,7 @@ local function RefreshArrayList()
 		ActiveModule.BorderColor3 = Color3.new(0, 0, 0)
 		ActiveModule.BorderSizePixel = 0
 		ActiveModule.Font = Enum.Font.Sarpanch
-		ActiveModule.Size = UDim2.new(1, 0, 0, 20) -- Set to fixed size as requested
+		ActiveModule.Size = UDim2.new(0, 0, 0, 20)
 		ActiveModule.Text = ModuleName
 		ActiveModule.TextColor3 = Color3.new(1, 1, 1)
 		ActiveModule.TextSize = 20
@@ -142,7 +132,7 @@ local function RefreshArrayList()
 		else
 			ActiveModule.TextXAlignment = Enum.TextXAlignment.Left
 		end
-		-- ActiveModule.AutomaticSize = Enum.AutomaticSize.X -- No longer needed due to fixed size
+		ActiveModule.AutomaticSize = Enum.AutomaticSize.X
 		ActiveModule.Parent = ArrayListDisplay
 	end
 end
@@ -325,8 +315,6 @@ HPBar.Parent = HPBG
 local function MakeDraggable(UIElement, DragHandle)
     local Dragging = false
     local DragStart, StartPosition
-	local InputChangedConnection
-	local InputEndedConnection
 
     DragHandle.InputBegan:Connect(function(Input)
         if Input.UserInputType == Enum.UserInputType.MouseButton1 then
@@ -354,8 +342,8 @@ local function MakeDraggable(UIElement, DragHandle)
             InputEndedConnection = UIS.InputEnded:Connect(function(InputEnded)
                 if InputEnded.UserInputType == Enum.UserInputType.MouseButton1 then
                     Dragging = false
-                    if InputChangedConnection then InputChangedConnection:Disconnect() end
-                    if InputEndedConnection then InputEndedConnection:Disconnect() end
+                    InputChangedConnection:Disconnect()
+                    InputEndedConnection:Disconnect()
                 end
             end)
         end
@@ -380,17 +368,14 @@ local function IsAlive(Player)
 end
 
 local function IsEnemy(Player)
-	return Player and Player ~= LocalPlayer and (Player.Neutral or (LocalPlayer.Team and Player.Team ~= LocalPlayer.Team))
+	return Player and Player ~= LocalPlayer and (Player.Neutral or Player.Team ~= LocalPlayer.Team)
 end
 
 local function GetClosestPlayer()
 	local ClosestPlayer, ClosestDistance = nil, MaxDistance
-	if not LocalPlayer or not LocalPlayer.Character or not LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then return nil end
-
-	local localPlayerRootPart = LocalPlayer.Character.HumanoidRootPart
 	for _, Player in ipairs(Players:GetPlayers()) do
 		if IsAlive(LocalPlayer) and IsAlive(Player) and IsEnemy(Player) then
-			local Distance = (Player.Character.HumanoidRootPart.Position - localPlayerRootPart.Position).Magnitude
+			local Distance = (Player.Character.HumanoidRootPart.Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
 			if Distance < ClosestDistance then
 				ClosestPlayer = Player
 				ClosestDistance = Distance
@@ -407,9 +392,6 @@ function Jello:ToggleArrayList(State)
 		ArrayListContainer.Visible = State
 	end
 	ArrayListHeader.Visible = ArrayListContainer.Visible and GUIVisible
-	if ArrayListContainer.Visible then
-		RefreshArrayList()
-	end
 end
 
 function Jello:ToggleNotifications(State)
@@ -422,7 +404,7 @@ function Jello:ToggleNotifications(State)
         return
     end
 
-    IsTogglingNotifications = true
+    local IsTogglingNotifications = true
 
     NotificationsEnabled = NewState
 
@@ -478,17 +460,17 @@ function Jello:ToggleTargetHUD(State)
 					end
 
 					TargetHUDContainer.Visible = ShouldShow
-					TargetHUDHeader.Visible = TargetHUDContainer.Visible -- Only show header if container is visible
+					TargetHUDHeader.Visible = true 
 				end
 				TargetHUDContainer.Visible = false
-				TargetHUDHeader.Visible = false -- Hide header when HUD is disabled
+				TargetHUDHeader.Visible = true 
 				TargetHUDThread = nil
 			end)
 		end
 	else
 		TargetHUDEnabled = false
 		TargetHUDContainer.Visible = false
-		TargetHUDHeader.Visible = false
+		TargetHUDHeader.Visible = true
 	end
 end
 
@@ -497,7 +479,7 @@ ModalButton.BackgroundColor3 = Color3.new(0, 0, 0)
 ModalButton.BackgroundTransparency = 1
 ModalButton.BorderSizePixel = 0
 ModalButton.BorderColor3 = Color3.new(0, 0, 0)
-ModalButton.Size = UDim2.new(1,0,1,0) -- Full screen
+ModalButton.Size = UDim2.new()
 ModalButton.Text = ""
 ModalButton.Visible = false
 ModalButton.Modal = true
@@ -515,7 +497,6 @@ UIS.InputBegan:Connect(function(Input)
 		ModalButton.Visible = GUIVisible
 		TabsContainer.Visible = GUIVisible
 		ArrayListHeader.Visible = ArrayListContainer.Visible and GUIVisible
-		TargetHUDHeader.Visible = TargetHUDContainer.Visible and GUIVisible -- Ensure TargetHUDHeader visibility is linked to GUIVisible
 	end
 end)
 
