@@ -128,7 +128,7 @@ local function RefreshArrayList()
 	for _, ModuleName in ipairs(ActiveModules) do
 		local ActiveModule = Instance.new("TextLabel")
 		ActiveModule.BackgroundColor3 = Color3.new(0, 0, 0)
-		ActiveModule.BackgroundTransparency = 1
+		ActiveModule.BackgroundTransparency = 0.5
 		ActiveModule.BorderColor3 = Color3.new(0, 0, 0)
 		ActiveModule.BorderSizePixel = 0
 		ActiveModule.Font = Enum.Font.Sarpanch
@@ -146,6 +146,11 @@ local function RefreshArrayList()
 		end
 		ActiveModule.AutomaticSize = Enum.AutomaticSize.X
 		ActiveModule.Parent = ArrayListDisplay
+		
+		local ActiveModulePadding = Instance.new("UIPadding")
+        ActiveModulePadding.PaddingLeft = UDim.new(0, 5)
+        ActiveModulePadding.PaddingRight = UDim.new(0, 5)
+        ActiveModulePadding.Parent = ActiveModule
 	end
 end
 
