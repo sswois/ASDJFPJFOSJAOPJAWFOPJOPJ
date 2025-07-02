@@ -90,11 +90,11 @@ ArrayListLayout.Padding = UDim.new(0, 0)
 ArrayListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 ArrayListLayout.Parent = ArrayListDisplay
 
--- Add this function to your script
+-- Bu fonksiyonu komut dosyanıza ekleyin
 function GetTextWidthAdvanced(text, fontSize, font, wrapWidth)
-    fontSize = fontSize or 25 -- Default font size
-    font = font or Enum.Font.Sarpanch -- Default font
-    wrapWidth = wrapWidth or math.huge -- Effectively disable wrapping for true width
+    fontSize = fontSize or 25 -- Varsayılan yazı tipi boyutu
+    font = font or Enum.Font.Sarpanch -- Varsayılan yazı tipi
+    wrapWidth = wrapWidth or math.huge -- Gerçek genişlik için kaydırmayı (wrapping) etkili bir şekilde devre dışı bırakır
 
     local textSize = TextService:GetTextSize(text, fontSize, font, Vector2.new(wrapWidth, math.huge))
     return textSize.X
@@ -107,11 +107,18 @@ local function RefreshArrayList()
 		end
 	end
 
-	-- Use GetTextWidthAdvanced for sorting
+	-- Sıralama mantığını güncelliyoruz
 	table.sort(ActiveModules, function(a, b)
-		-- Assuming you want to sort by the unconstrained width of the text
-		-- You might want to pass the exact font size and font enum here if they differ
-		return GetTextWidthAdvanced(a, 20, Enum.Font.Sarpanch) > GetTextWidthAdvanced(b, 20, Enum.Font.Sarpanch)
+		local widthA = GetTextWidthAdvanced(a, 20, Enum.Font.Sarpanch)
+		local widthB = GetTextWidthAdvanced(b, 20, Enum.Font.Sarpanch)
+
+		-- Önce genişliğe göre azalan sırada sırala (en uzundan en kısaya)
+		if widthA ~= widthB then
+			return widthA > widthB
+		else
+			-- Genişlikler aynıysa, alfabetik olarak artan sırada sırala (A'dan Z'ye)
+			return a < b
+		end
 	end)
 
 	local IsArrayListOnRight = (ArrayListContainer.AbsolutePosition.X + ArrayListContainer.AbsoluteSize.X / 2) > (ScreenGui.AbsoluteSize.X / 2)
@@ -132,7 +139,7 @@ local function RefreshArrayList()
 		ActiveModule.Size = UDim2.new(0, 0, 0, 20)
 		ActiveModule.Text = ModuleName
 		ActiveModule.TextColor3 = Color3.new(1, 1, 1)
-		ActiveModule.TextSize = 20 -- Font size used for the TextLabel
+		ActiveModule.TextSize = 20 -- TextLabel için kullanılan yazı tipi boyutu
 		ActiveModule.TextStrokeTransparency = 0.5
 		ActiveModule.TextTransparency = 0
 		ActiveModule.TextWrapped = false
