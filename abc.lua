@@ -90,14 +90,13 @@ ArrayListLayout.Padding = UDim.new(0, 0)
 ArrayListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 ArrayListLayout.Parent = ArrayListDisplay
 
--- Bu fonksiyonu komut dosyanıza ekleyin
-function GetTextWidthAdvanced(text, fontSize, font, wrapWidth)
-    fontSize = fontSize or 25 -- Varsayılan yazı tipi boyutu
-    font = font or Enum.Font.Sarpanch -- Varsayılan yazı tipi
-    wrapWidth = wrapWidth or math.huge -- Gerçek genişlik için kaydırmayı (wrapping) etkili bir şekilde devre dışı bırakır
+function GetTextWidthAdvanced(Text, FontSize, Font, WrapWidth)
+    FontSize = FontSize or 25
+    Font = Font or Enum.Font.Sarpanch
+    WrapWidth = WrapWidth or math.huge
 
-    local textSize = TextService:GetTextSize(text, fontSize, font, Vector2.new(wrapWidth, math.huge))
-    return textSize.X
+    local TextSize = TextService:GetTextSize(Text, FontSize, Font, Vector2.new(WrapWidth, math.huge))
+    return TextSize.X
 end
 
 local function RefreshArrayList()
@@ -107,17 +106,14 @@ local function RefreshArrayList()
 		end
 	end
 
-	-- Sıralama mantığını güncelliyoruz
-	table.sort(ActiveModules, function(a, b)
-		local widthA = GetTextWidthAdvanced(a, 20, Enum.Font.Sarpanch)
-		local widthB = GetTextWidthAdvanced(b, 20, Enum.Font.Sarpanch)
+	table.sort(ActiveModules, function(A, B)
+		local WidthA = GetTextWidthAdvanced(A, 20, Enum.Font.Sarpanch)
+		local WidthB = GetTextWidthAdvanced(B, 20, Enum.Font.Sarpanch)
 
-		-- Önce genişliğe göre azalan sırada sırala (en uzundan en kısaya)
-		if widthA ~= widthB then
-			return widthA > widthB
+		if WidthA ~= WidthB then
+			return WidthA > WidthB
 		else
-			-- Genişlikler aynıysa, alfabetik olarak artan sırada sırala (A'dan Z'ye)
-			return a < b
+			return A < B
 		end
 	end)
 
@@ -132,14 +128,14 @@ local function RefreshArrayList()
 	for _, ModuleName in ipairs(ActiveModules) do
 		local ActiveModule = Instance.new("TextLabel")
 		ActiveModule.BackgroundColor3 = Color3.new(0, 0, 0)
-		ActiveModule.BackgroundTransparency = 1
+		ActiveModule.BackgroundTransparency = 0.5
 		ActiveModule.BorderColor3 = Color3.new(0, 0, 0)
 		ActiveModule.BorderSizePixel = 0
 		ActiveModule.Font = Enum.Font.Sarpanch
 		ActiveModule.Size = UDim2.new(0, 0, 0, 20)
 		ActiveModule.Text = ModuleName
 		ActiveModule.TextColor3 = Color3.new(1, 1, 1)
-		ActiveModule.TextSize = 20 -- TextLabel için kullanılan yazı tipi boyutu
+		ActiveModule.TextSize = 20
 		ActiveModule.TextStrokeTransparency = 0.5
 		ActiveModule.TextTransparency = 0
 		ActiveModule.TextWrapped = false
