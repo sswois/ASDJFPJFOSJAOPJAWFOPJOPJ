@@ -1,45 +1,13 @@
 local CoreGui = game:GetService("CoreGui")
 local UIS = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
-local TextService = game:GetService("TextService") -- TextService'i bir kez al ve tekrar kullan
+local TextService = game:GetService("TextService")
 
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
 if CoreGui:FindFirstChild("Jello") then
 	return
-end
-
---[[
-	GetTextWidth
-	Belirtilen metnin piksel cinsinden genişliğini döndürür.
-	Bu fonksiyon, UI düzenlemeleri ve dinamik metin boyutlandırması için kullanışlıdır.
-
-	@param text string -- Genişliği hesaplanacak metin.
-	@param fontSize number -- Metnin boyutu (varsayılan: 25).
-	@param font Enum.Font | Font -- Kullanılacak font (varsayılan: Enum.Font.Sarpanch).
-	@param preferredWidth number -- Metnin sarmalanabileceği maksimum genişlik (varsayılan: 1000).
-	@param preferredHeight number -- Metnin sarmalanabileceği maksimum yükseklik (varsayılan: fontSize + küçük bir pay, örn. 5).
-
-	@return number -- Metnin hesaplanan genişliği.
-]]
-local function GetTextWidth(text, fontSize, font, preferredWidth, preferredHeight)
-	-- Parametrelerin geçerliliğini kontrol et ve varsayılan değerleri ata
-	text = tostring(text) -- Metni her zaman string'e dönüştürerek hata olasılığını azalt
-	fontSize = typeof(fontSize) == "number" and fontSize > 0 and fontSize or 25
-	font = typeof(font) == "EnumItem" and font.EnumType == Enum.Font and font or Enum.Font.Sarpanch
-	preferredWidth = typeof(preferredWidth) == "number" and preferredWidth > 0 and preferredWidth or 1000
-	-- preferredHeight'i dinamik olarak belirle. TextService metnin sığabileceği alanı daha doğru hesaplayabilir.
-	preferredHeight = typeof(preferredHeight) == "number" and preferredHeight > 0 and preferredHeight or (fontSize + 5) -- Font boyutu + küçük bir pay
-
-	local textSizeVector = TextService:GetTextSize(
-		text,
-		fontSize,
-		font,
-		Vector2.new(preferredWidth, preferredHeight)
-	)
-
-	return textSizeVector.X
 end
 
 local Jello = {}
@@ -122,6 +90,16 @@ ArrayListLayout.Padding = UDim.new(0, 0)
 ArrayListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 ArrayListLayout.Parent = ArrayListDisplay
 
+-- Add this function to your script
+function GetTextWidthAdvanced(text, fontSize, font, wrapWidth)
+    fontSize = fontSize or 25 -- Default font size
+    font = font or Enum.Font.Sarpanch -- Default font
+    wrapWidth = wrapWidth or math.huge -- Effectively disable wrapping for true width
+
+    local textSize = TextService:GetTextSize(text, fontSize, font, Vector2.new(wrapWidth, math.huge))
+    return textSize.X
+end
+
 local function RefreshArrayList()
 	for _, v in pairs(ArrayListDisplay:GetChildren()) do
 		if v:IsA("TextLabel") then
@@ -129,8 +107,11 @@ local function RefreshArrayList()
 		end
 	end
 
+	-- Use GetTextWidthAdvanced for sorting
 	table.sort(ActiveModules, function(a, b)
-		return GetTextWidth(a) > GetTextWidth(b)
+		-- Assuming you want to sort by the unconstrained width of the text
+		-- You might want to pass the exact font size and font enum here if they differ
+		return GetTextWidthAdvanced(a, 20, Enum.Font.Sarpanch) > GetTextWidthAdvanced(b, 20, Enum.Font.Sarpanch)
 	end)
 
 	local IsArrayListOnRight = (ArrayListContainer.AbsolutePosition.X + ArrayListContainer.AbsoluteSize.X / 2) > (ScreenGui.AbsoluteSize.X / 2)
@@ -151,7 +132,7 @@ local function RefreshArrayList()
 		ActiveModule.Size = UDim2.new(0, 0, 0, 20)
 		ActiveModule.Text = ModuleName
 		ActiveModule.TextColor3 = Color3.new(1, 1, 1)
-		ActiveModule.TextSize = 20
+		ActiveModule.TextSize = 20 -- Font size used for the TextLabel
 		ActiveModule.TextStrokeTransparency = 0.5
 		ActiveModule.TextTransparency = 0
 		ActiveModule.TextWrapped = false
@@ -183,7 +164,6 @@ local function RepositionNotifications()
 		Data.y = y
 		Data.frame:TweenPosition(UDim2.new(1, -10, 1, y), "Out", "Quad", 0.2, true)
 	end
-RepositionNotifications() -- Initial call to position notifications if any exist
 end
 
 function SendNotification(Title, Message, Duration)
@@ -676,7 +656,6 @@ function Jello:AddTab(TabName)
 			end
 
 			RefreshArrayList()
-		ToggleModule()
 		end
 
 		Module.MouseButton1Click:Connect(ToggleModule)
