@@ -628,10 +628,10 @@ function Jello:AddTab(TabName)
 		Bind.BorderColor3 = Color3.new(0, 0, 0)
 		Bind.BorderSizePixel = 0
 		Bind.Font = Enum.Font.Sarpanch
-		Bind.Size = UDim2.new(1, 0, 0, **50**) -- **Changed Size to 50**
+		Bind.Size = UDim2.new(1, 0, 0, 25)
 		Bind.Text = "Bind: None"
 		Bind.TextColor3 = Color3.new(1, 1, 1)
-		Bind.TextSize = **20** -- **Changed TextSize to 20**
+		Bind.TextSize = 15
 		Bind.TextXAlignment = Enum.TextXAlignment.Left
 		Bind.Parent = ModuleOptions
 
@@ -708,7 +708,8 @@ function Jello:AddTab(TabName)
 			end
 		end)
 
-		local ModuleContext = {}
+		--- START OF CORRECTED SLIDER CODE (Module:AddSlider) ---
+		local ModuleContext = {} -- Create a context for the module to attach new functions
 
 		function ModuleContext:AddSlider(SliderText, DefaultValue, MinValue, MaxValue, Callback)
 			local SliderContainer = Instance.new("Frame")
@@ -716,7 +717,7 @@ function Jello:AddTab(TabName)
 			SliderContainer.BackgroundTransparency = 1
 			SliderContainer.BorderSizePixel = 0
 			SliderContainer.BorderColor3 = Color3.new(0, 0, 0)
-			SliderContainer.Size = UDim2.new(1, 0, 0, 50) 
+			SliderContainer.Size = UDim2.new(1, 0, 0, 50) -- Adjusted height for slider and label
 			SliderContainer.Parent = ModuleOptions
 
 			local SliderLabel = Instance.new("TextLabel")
@@ -726,15 +727,13 @@ function Jello:AddTab(TabName)
 			SliderLabel.BorderSizePixel = 0
 			SliderLabel.Font = Enum.Font.Sarpanch
 			SliderLabel.Size = UDim2.new(1, -50, 0, 20)
-			SliderLabel.Position = UDim2.new(0, 25, 0, 0)
-			SliderLabel.Text = SliderText .. ": " .. DefaultValue -- **Updated Text Format**
+			SliderLabel.Position = UDim2.new(0, 25, 0, 0) -- Adjusted position with padding
+			SliderLabel.Text = SliderText .. ": " .. DefaultValue
 			SliderLabel.TextColor3 = Color3.new(1, 1, 1)
-			SliderLabel.TextSize = **20** -- **Changed TextSize to 20**
+			SliderLabel.TextSize = 15
 			SliderLabel.TextXAlignment = Enum.TextXAlignment.Left
 			SliderLabel.Parent = SliderContainer
 
-			-- **Removed ValueLabel as it's now integrated into SliderLabel**
-			--[[
 			local ValueLabel = Instance.new("TextLabel")
 			ValueLabel.BackgroundColor3 = Color3.new(0, 0, 0)
 			ValueLabel.BackgroundTransparency = 1
@@ -742,32 +741,31 @@ function Jello:AddTab(TabName)
 			ValueLabel.BorderSizePixel = 0
 			ValueLabel.Font = Enum.Font.Sarpanch
 			ValueLabel.Size = UDim2.new(0, 50, 0, 20)
-			ValueLabel.Position = UDim2.new(1, -75, 0, 0)
+			ValueLabel.Position = UDim2.new(1, -75, 0, 0) -- Positioned to the right of the slider text
 			ValueLabel.Text = DefaultValue
 			ValueLabel.TextColor3 = Color3.new(1, 1, 1)
 			ValueLabel.TextSize = 15
 			ValueLabel.TextXAlignment = Enum.TextXAlignment.Right
 			ValueLabel.Parent = SliderContainer
-			--]]
 
 			local SliderBackground = Instance.new("Frame")
 			SliderBackground.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
 			SliderBackground.BackgroundTransparency = 0.5
 			SliderBackground.BorderSizePixel = 0
 			SliderBackground.BorderColor3 = Color3.new(0, 0, 0)
-			SliderBackground.Position = UDim2.new(0, 25, 0, 25)
+			SliderBackground.Position = UDim2.new(0, 25, 0, 25) -- Below the label
 			SliderBackground.Size = UDim2.new(1, -50, 0, 10)
 			SliderBackground.Parent = SliderContainer
 
 			local SliderFill = Instance.new("Frame")
-			SliderFill.BackgroundColor3 = Color3.new(0.8, 0.8, 0.8)
+			SliderFill.BackgroundColor3 = Color3.new(0.8, 0.8, 0.8) -- A subtle highlight color
 			SliderFill.BorderSizePixel = 0
 			SliderFill.BorderColor3 = Color3.new(0, 0, 0)
 			SliderFill.Size = UDim2.new(0, 0, 1, 0)
 			SliderFill.Parent = SliderBackground
 
 			local SliderHandle = Instance.new("ImageLabel")
-			SliderHandle.Image = "rbxassetid://15286940843"
+			SliderHandle.Image = "rbxassetid://15286940843" -- A simple circle image for the handle
 			SliderHandle.BackgroundColor3 = Color3.new(1, 1, 1)
 			SliderHandle.BackgroundTransparency = 0
 			SliderHandle.BorderSizePixel = 0
@@ -786,11 +784,12 @@ function Jello:AddTab(TabName)
 				local NormalizedValue = RelativeX / SliderBackground.AbsoluteSize.X
 				
 				CurrentValue = MinValue + (MaxValue - MinValue) * NormalizedValue
-				CurrentValue = math.round(CurrentValue)
+				CurrentValue = math.round(CurrentValue) -- Round to nearest whole number
 
 				SliderFill.Size = UDim2.new(NormalizedValue, 0, 1, 0)
 				SliderHandle.Position = UDim2.new(NormalizedValue, 0, 0.5, 0)
-				SliderLabel.Text = SliderText .. ": " .. CurrentValue -- **Updated Text Format**
+				SliderLabel.Text = SliderText .. ": " .. CurrentValue
+				ValueLabel.Text = CurrentValue
 				
 				if Callback then
 					Callback(CurrentValue)
@@ -801,7 +800,8 @@ function Jello:AddTab(TabName)
 			local initialNormalizedValue = (DefaultValue - MinValue) / (MaxValue - MinValue)
 			SliderFill.Size = UDim2.new(initialNormalizedValue, 0, 1, 0)
 			SliderHandle.Position = UDim2.new(initialNormalizedValue, 0, 0.5, 0)
-			SliderLabel.Text = SliderText .. ": " .. DefaultValue -- **Updated Text Format**
+			SliderLabel.Text = SliderText .. ": " .. DefaultValue
+			ValueLabel.Text = DefaultValue
 
 			SliderBackground.InputBegan:Connect(function(Input)
 				if Input.UserInputType == Enum.UserInputType.MouseButton1 then
@@ -829,12 +829,16 @@ function Jello:AddTab(TabName)
 				end
 			end)
 
+			-- Return the current value of the slider if needed externally
 			return function()
 				return CurrentValue
 			end
 		end
-
+		-- Assign the ModuleContext to a variable that will be returned
+		-- This makes the AddSlider function available on the returned Module object
 		return ModuleContext
+		--- END OF CORRECTED SLIDER CODE ---
+
 	end
 
 	return Tab
