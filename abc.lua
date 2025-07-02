@@ -18,6 +18,7 @@ local ActiveNotifications = {}
 
 local GUIVisible = false
 local NotificationsEnabled = false
+local IsTogglingNotifications = false -- Flag to prevent re-entry during toggle
 
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "Jello"
@@ -90,94 +91,60 @@ ArrayListLayout.Padding = UDim.new(0, 0)
 ArrayListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 ArrayListLayout.Parent = ArrayListDisplay
 
--- ScreenGui'nin içinde, fakat görünmez ve kullanıcının etkileşemeyeceği bir ölçüm alanı oluşturalım
-local MeasurementFrame = Instance.new("Frame")
-MeasurementFrame.Name = "JelloMeasurementFrame"
-MeasurementFrame.Size = UDim2.new(0, 1, 0, 1) -- Çok küçük bir boyut
-MeasurementFrame.BackgroundTransparency = 1
-MeasurementFrame.Visible = false -- Kullanıcının görmemesi için
-MeasurementFrame.Parent = ScreenGui -- Ekranın bir parçası olarak parent et
-
--- Orijinal fonksiyonlar ve değişkenler...
--- ...
+local function GetTextWidth(text, textSize, font)
+	return TextService:GetTextSize(text, textSize, font, Vector2.new(1000, textSize)).X
+end
 
 local function RefreshArrayList()
-    -- Mevcut TextLabel'ları temizle
-    for _, v in pairs(ArrayListDisplay:GetChildren()) do
-        if v:IsA("TextLabel") then
-            v:Destroy()
-        end
-    end
+	for _, v in pairs(ArrayListDisplay:GetChildren()) do
+		if v:IsA("TextLabel") then
+			v:Destroy()
+		end
+	end
 
-    local IsArrayListOnRight = (ArrayListContainer.AbsolutePosition.X + ArrayListContainer.AbsoluteSize.X / 2) > (ScreenGui.AbsoluteSize.X / 2)
+	-- Sort by text width in descending order
+	table.sort(ActiveModules, function(a, b)
+		return GetTextWidth(a, 20, Enum.Font.Sarpanch) > GetTextWidth(b, 20, Enum.Font.Sarpanch)
+	end)
 
-    if IsArrayListOnRight then
-        ArrayListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
-    else
-        ArrayListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
-    end
+	local IsArrayListOnRight = (ArrayListContainer.AbsolutePosition.X + ArrayListContainer.AbsoluteSize.X / 2) > (ScreenGui.AbsoluteSize.X / 2)
 
-    local modulesToMeasure = {} -- Her modül için {name, textLabel} çiftleri tutacağız
+	if IsArrayListOnRight then
+		ArrayListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
+	else
+		ArrayListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
+	end
 
-    -- Her bir modül adı için bir TextLabel oluştur, gizli ölçüm alanına ekle
-    for _, ModuleName in ipairs(ActiveModules) do
-        local ActiveModule = Instance.new("TextLabel")
-        ActiveModule.BackgroundColor3 = Color3.new(0, 0, 0)
-        ActiveModule.BackgroundTransparency = 1
-        ActiveModule.BorderColor3 = Color3.new(0, 0, 0)
-        ActiveModule.BorderSizePixel = 0
-        ActiveModule.Font = Enum.Font.Sarpanch
-        ActiveModule.Size = UDim2.new(0, 0, 0, 20)
-        ActiveModule.Text = ModuleName
-        ActiveModule.TextColor3 = Color3.new(1, 1, 1)
-        ActiveModule.TextSize = 20
-        ActiveModule.TextStrokeTransparency = 0.5
-        ActiveModule.TextTransparency = 0
-        ActiveModule.TextWrapped = false
-        -- Alignment burada önemli değil çünkü sadece boyutunu ölçüyoruz
-        ActiveModule.AutomaticSize = Enum.AutomaticSize.X
-        ActiveModule.Parent = MeasurementFrame -- **Gizli ölçüm alanına parent et**
+	local maxTextWidth = 0
+	if #ActiveModules > 0 then
+		maxTextWidth = GetTextWidth(ActiveModules[1], 20, Enum.Font.Sarpanch) -- Get width of the longest module name
+	end
 
-        table.insert(modulesToMeasure, {
-            name = ModuleName,
-            label = ActiveModule
-        })
-    end
+	-- Adjust ArrayListContainer width based on the longest text + padding
+	ArrayListContainer.Size = UDim2.new(0, math.max(250, maxTextWidth + 30), 0, ArrayListContainer.Size.Y.Offset) -- 30 for padding
 
-    -- Şimdi modülleri, ölçtüğümüz AbsoluteSize.X değerlerine göre sırala
-    table.sort(modulesToMeasure, function(a, b)
-        return a.label.AbsoluteSize.X > b.label.AbsoluteSize.X -- En uzundan en kısaya sırala
-    end)
-
-    -- Ölçüm amaçlı oluşturulan TextLabel'ları sil
-    for _, data in ipairs(modulesToMeasure) do
-        data.label:Destroy()
-    end
-
-    -- Sıralanmış listeye göre, gerçek ArrayListDisplay içine TextLabel'ları oluştur ve ekle
-    for _, data in ipairs(modulesToMeasure) do
-        local ModuleName = data.name -- Sıralanmış isimleri kullan
-        local ActiveModule = Instance.new("TextLabel")
-        ActiveModule.BackgroundColor3 = Color3.new(0, 0, 0)
-        ActiveModule.BackgroundTransparency = 1
-        ActiveModule.BorderColor3 = Color3.new(0, 0, 0)
-        ActiveModule.BorderSizePixel = 0
-        ActiveModule.Font = Enum.Font.Sarpanch
-        ActiveModule.Size = UDim2.new(0, 0, 0, 20)
-        ActiveModule.Text = ModuleName
-        ActiveModule.TextColor3 = Color3.new(1, 1, 1)
-        ActiveModule.TextSize = 20
-        ActiveModule.TextStrokeTransparency = 0.5
-        ActiveModule.TextTransparency = 0
-        ActiveModule.TextWrapped = false
-        if IsArrayListOnRight then
-            ActiveModule.TextXAlignment = Enum.TextXAlignment.Right
-        else
-            ActiveModule.TextXAlignment = Enum.TextXAlignment.Left
-        end
-        ActiveModule.AutomaticSize = Enum.AutomaticSize.X
-        ActiveModule.Parent = ArrayListDisplay
-    end
+	for _, ModuleName in ipairs(ActiveModules) do
+		local ActiveModule = Instance.new("TextLabel")
+		ActiveModule.BackgroundColor3 = Color3.new(0, 0, 0)
+		ActiveModule.BackgroundTransparency = 1
+		ActiveModule.BorderColor3 = Color3.new(0, 0, 0)
+		ActiveModule.BorderSizePixel = 0
+		ActiveModule.Font = Enum.Font.Sarpanch
+		ActiveModule.Size = UDim2.new(1, 0, 0, 20) -- Set to fixed size as requested
+		ActiveModule.Text = ModuleName
+		ActiveModule.TextColor3 = Color3.new(1, 1, 1)
+		ActiveModule.TextSize = 20
+		ActiveModule.TextStrokeTransparency = 0.5
+		ActiveModule.TextTransparency = 0
+		ActiveModule.TextWrapped = false
+		if IsArrayListOnRight then
+			ActiveModule.TextXAlignment = Enum.TextXAlignment.Right
+		else
+			ActiveModule.TextXAlignment = Enum.TextXAlignment.Left
+		end
+		-- ActiveModule.AutomaticSize = Enum.AutomaticSize.X -- No longer needed due to fixed size
+		ActiveModule.Parent = ArrayListDisplay
+	end
 end
 
 local NotificationsFolder = Instance.new("Folder")
@@ -358,6 +325,8 @@ HPBar.Parent = HPBG
 local function MakeDraggable(UIElement, DragHandle)
     local Dragging = false
     local DragStart, StartPosition
+	local InputChangedConnection
+	local InputEndedConnection
 
     DragHandle.InputBegan:Connect(function(Input)
         if Input.UserInputType == Enum.UserInputType.MouseButton1 then
@@ -385,8 +354,8 @@ local function MakeDraggable(UIElement, DragHandle)
             InputEndedConnection = UIS.InputEnded:Connect(function(InputEnded)
                 if InputEnded.UserInputType == Enum.UserInputType.MouseButton1 then
                     Dragging = false
-                    InputChangedConnection:Disconnect()
-                    InputEndedConnection:Disconnect()
+                    if InputChangedConnection then InputChangedConnection:Disconnect() end
+                    if InputEndedConnection then InputEndedConnection:Disconnect() end
                 end
             end)
         end
@@ -411,14 +380,17 @@ local function IsAlive(Player)
 end
 
 local function IsEnemy(Player)
-	return Player and Player ~= LocalPlayer and (Player.Neutral or Player.Team ~= LocalPlayer.Team)
+	return Player and Player ~= LocalPlayer and (Player.Neutral or (LocalPlayer.Team and Player.Team ~= LocalPlayer.Team))
 end
 
 local function GetClosestPlayer()
 	local ClosestPlayer, ClosestDistance = nil, MaxDistance
+	if not LocalPlayer or not LocalPlayer.Character or not LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then return nil end
+
+	local localPlayerRootPart = LocalPlayer.Character.HumanoidRootPart
 	for _, Player in ipairs(Players:GetPlayers()) do
 		if IsAlive(LocalPlayer) and IsAlive(Player) and IsEnemy(Player) then
-			local Distance = (Player.Character.HumanoidRootPart.Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
+			local Distance = (Player.Character.HumanoidRootPart.Position - localPlayerRootPart.Position).Magnitude
 			if Distance < ClosestDistance then
 				ClosestPlayer = Player
 				ClosestDistance = Distance
@@ -435,6 +407,9 @@ function Jello:ToggleArrayList(State)
 		ArrayListContainer.Visible = State
 	end
 	ArrayListHeader.Visible = ArrayListContainer.Visible and GUIVisible
+	if ArrayListContainer.Visible then
+		RefreshArrayList()
+	end
 end
 
 function Jello:ToggleNotifications(State)
@@ -447,7 +422,7 @@ function Jello:ToggleNotifications(State)
         return
     end
 
-    local IsTogglingNotifications = true
+    IsTogglingNotifications = true
 
     NotificationsEnabled = NewState
 
@@ -503,17 +478,17 @@ function Jello:ToggleTargetHUD(State)
 					end
 
 					TargetHUDContainer.Visible = ShouldShow
-					TargetHUDHeader.Visible = true 
+					TargetHUDHeader.Visible = TargetHUDContainer.Visible -- Only show header if container is visible
 				end
 				TargetHUDContainer.Visible = false
-				TargetHUDHeader.Visible = true 
+				TargetHUDHeader.Visible = false -- Hide header when HUD is disabled
 				TargetHUDThread = nil
 			end)
 		end
 	else
 		TargetHUDEnabled = false
 		TargetHUDContainer.Visible = false
-		TargetHUDHeader.Visible = true
+		TargetHUDHeader.Visible = false
 	end
 end
 
@@ -522,7 +497,7 @@ ModalButton.BackgroundColor3 = Color3.new(0, 0, 0)
 ModalButton.BackgroundTransparency = 1
 ModalButton.BorderSizePixel = 0
 ModalButton.BorderColor3 = Color3.new(0, 0, 0)
-ModalButton.Size = UDim2.new()
+ModalButton.Size = UDim2.new(1,0,1,0) -- Full screen
 ModalButton.Text = ""
 ModalButton.Visible = false
 ModalButton.Modal = true
@@ -540,6 +515,7 @@ UIS.InputBegan:Connect(function(Input)
 		ModalButton.Visible = GUIVisible
 		TabsContainer.Visible = GUIVisible
 		ArrayListHeader.Visible = ArrayListContainer.Visible and GUIVisible
+		TargetHUDHeader.Visible = TargetHUDContainer.Visible and GUIVisible -- Ensure TargetHUDHeader visibility is linked to GUIVisible
 	end
 end)
 
