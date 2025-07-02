@@ -91,62 +91,58 @@ ArrayListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 ArrayListLayout.Parent = ArrayListDisplay
 
 local function RefreshArrayList()
-	for _, v in pairs(ArrayListDisplay:GetChildren()) do
-		if v:IsA("TextLabel") then
-			v:Destroy()
-		end
-	end
+    -- Clear existing TextLabels
+    for _, v in pairs(ArrayListDisplay:GetChildren()) do
+        if v:IsA("TextLabel") then
+            v:Destroy()
+        end
+    end
 
-	local IsArrayListOnRight = (ArrayListContainer.AbsolutePosition.X + ArrayListContainer.AbsoluteSize.X / 2) > (ScreenGui.AbsoluteSize.X / 2)
+    local IsArrayListOnRight = (ArrayListContainer.AbsolutePosition.X + ArrayListContainer.AbsoluteSize.X / 2) > (ScreenGui.AbsoluteSize.X / 2)
 
-	if IsArrayListOnRight then
-		ArrayListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
-	else
-		ArrayListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
-	end
+    if IsArrayListOnRight then
+        ArrayListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
+    else
+        ArrayListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
+    end
 
-	local LabelList = {}
+    local currentModuleLabels = {} -- To store the TextLabel instances
 
-	for _, ModuleName in ipairs(ActiveModules) do
-		local Label = Instance.new("TextLabel")
-		Label.BackgroundColor3 = Color3.new(0, 0, 0)
-		Label.BackgroundTransparency = 1
-		Label.BorderColor3 = Color3.new(0, 0, 0)
-		Label.BorderSizePixel = 0
-		Label.Font = Enum.Font.Sarpanch
-		Label.Size = UDim2.new(0, 0, 0, 20)
-		Label.Text = ModuleName
-		Label.TextColor3 = Color3.new(1, 1, 1)
-		Label.TextSize = 20
-		Label.TextStrokeTransparency = 0.5
-		Label.TextTransparency = 0
-		Label.TextWrapped = false
-		Label.AutomaticSize = Enum.AutomaticSize.X
-		Label.TextXAlignment = IsArrayListOnRight and Enum.TextXAlignment.Right or Enum.TextXAlignment.Left
-		Label.Parent = nil
-		table.insert(LabelList, Label)
-	end
+    -- Create all TextLabel instances first
+    for _, ModuleName in ipairs(ActiveModules) do
+        local ActiveModule = Instance.new("TextLabel")
+        ActiveModule.BackgroundColor3 = Color3.new(0, 0, 0)
+        ActiveModule.BackgroundTransparency = 1
+        ActiveModule.BorderColor3 = Color3.new(0, 0, 0)
+        ActiveModule.BorderSizePixel = 0
+        ActiveModule.Font = Enum.Font.Sarpanch
+        ActiveModule.Size = UDim2.new(0, 0, 0, 20)
+        ActiveModule.Text = ModuleName
+        ActiveModule.TextColor3 = Color3.new(1, 1, 1)
+        ActiveModule.TextSize = 20
+        ActiveModule.TextStrokeTransparency = 0.5
+        ActiveModule.TextTransparency = 0
+        ActiveModule.TextWrapped = false
+        if IsArrayListOnRight then
+            ActiveModule.TextXAlignment = Enum.TextXAlignment.Right
+        else
+            ActiveModule.TextXAlignment = Enum.TextXAlignment.Left
+        end
+        ActiveModule.AutomaticSize = Enum.AutomaticSize.X
+        -- Temporarily parent to ensure AbsoluteSize is calculated
+        ActiveModule.Parent = ArrayListDisplay
+        table.insert(currentModuleLabels, ActiveModule)
+    end
 
-	local TempContainer = Instance.new("Frame")
-	TempContainer.Size = UDim2.new(0, 1000, 0, 1000)
-	TempContainer.Visible = false
-	TempContainer.Parent = ScreenGui
+    -- Sort the created TextLabel instances by AbsoluteSize.X
+    table.sort(currentModuleLabels, function(a, b)
+        return a.AbsoluteSize.X > b.AbsoluteSize.X
+    end)
 
-	for _, Label in ipairs(LabelList) do
-		Label.Parent = TempContainer
-	end
-
-	task.wait()
-
-	table.sort(LabelList, function(a, b)
-		return a.AbsoluteSize.X > b.AbsoluteSize.X
-	end)
-
-	for _, Label in ipairs(LabelList) do
-		Label.Parent = ArrayListDisplay
-	end
-
-	TempContainer:Destroy()
+    -- Re-parent them in the sorted order to update the UIListLayout
+    for i, moduleLabel in ipairs(currentModuleLabels) do
+        moduleLabel.LayoutOrder = i -- This makes UIListLayout sort them
+    end
 end
 
 local NotificationsFolder = Instance.new("Folder")
