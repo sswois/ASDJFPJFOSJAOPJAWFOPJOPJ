@@ -144,10 +144,6 @@ local function RefreshArrayList()
         })
     end
 
-    -- **Çok Önemli:** UI layout'ının güncellenmesi için bir sonraki frame'i bekle.
-    -- Bu, AbsoluteSize.X'in doğru hesaplanması için gereklidir.
-    task.wait() 
-
     -- Şimdi modülleri, ölçtüğümüz AbsoluteSize.X değerlerine göre sırala
     table.sort(modulesToMeasure, function(a, b)
         return a.label.AbsoluteSize.X > b.label.AbsoluteSize.X -- En uzundan en kısaya sırala
