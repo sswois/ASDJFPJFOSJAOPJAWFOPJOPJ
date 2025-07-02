@@ -123,8 +123,17 @@ local function RefreshArrayList()
 		Label.TextWrapped = false
 		Label.AutomaticSize = Enum.AutomaticSize.X
 		Label.TextXAlignment = IsArrayListOnRight and Enum.TextXAlignment.Right or Enum.TextXAlignment.Left
-		Label.Parent = ArrayListDisplay
+		Label.Parent = nil
 		table.insert(LabelList, Label)
+	end
+
+	local TempContainer = Instance.new("Frame")
+	TempContainer.Size = UDim2.new(0, 1000, 0, 1000)
+	TempContainer.Visible = false
+	TempContainer.Parent = ScreenGui
+
+	for _, Label in ipairs(LabelList) do
+		Label.Parent = TempContainer
 	end
 
 	task.wait()
@@ -134,9 +143,10 @@ local function RefreshArrayList()
 	end)
 
 	for _, Label in ipairs(LabelList) do
-		Label.Parent = nil
 		Label.Parent = ArrayListDisplay
 	end
+
+	TempContainer:Destroy()
 end
 
 local NotificationsFolder = Instance.new("Folder")
