@@ -707,6 +707,138 @@ function Jello:AddTab(TabName)
 				ToggleModule()
 			end
 		end)
+
+		--- START OF CORRECTED SLIDER CODE (Module:AddSlider) ---
+		local ModuleContext = {} -- Create a context for the module to attach new functions
+
+		function ModuleContext:AddSlider(SliderText, DefaultValue, MinValue, MaxValue, Callback)
+			local SliderContainer = Instance.new("Frame")
+			SliderContainer.BackgroundColor3 = Color3.new(0, 0, 0)
+			SliderContainer.BackgroundTransparency = 1
+			SliderContainer.BorderSizePixel = 0
+			SliderContainer.BorderColor3 = Color3.new(0, 0, 0)
+			SliderContainer.Size = UDim2.new(1, 0, 0, 50) -- Adjusted height for slider and label
+			SliderContainer.Parent = ModuleOptions
+
+			local SliderLabel = Instance.new("TextLabel")
+			SliderLabel.BackgroundColor3 = Color3.new(0, 0, 0)
+			SliderLabel.BackgroundTransparency = 1
+			SliderLabel.BorderColor3 = Color3.new(0, 0, 0)
+			SliderLabel.BorderSizePixel = 0
+			SliderLabel.Font = Enum.Font.Sarpanch
+			SliderLabel.Size = UDim2.new(1, -50, 0, 20)
+			SliderLabel.Position = UDim2.new(0, 25, 0, 0) -- Adjusted position with padding
+			SliderLabel.Text = SliderText .. ": " .. DefaultValue
+			SliderLabel.TextColor3 = Color3.new(1, 1, 1)
+			SliderLabel.TextSize = 15
+			SliderLabel.TextXAlignment = Enum.TextXAlignment.Left
+			SliderLabel.Parent = SliderContainer
+
+			local ValueLabel = Instance.new("TextLabel")
+			ValueLabel.BackgroundColor3 = Color3.new(0, 0, 0)
+			ValueLabel.BackgroundTransparency = 1
+			ValueLabel.BorderColor3 = Color3.new(0, 0, 0)
+			ValueLabel.BorderSizePixel = 0
+			ValueLabel.Font = Enum.Font.Sarpanch
+			ValueLabel.Size = UDim2.new(0, 50, 0, 20)
+			ValueLabel.Position = UDim2.new(1, -75, 0, 0) -- Positioned to the right of the slider text
+			ValueLabel.Text = DefaultValue
+			ValueLabel.TextColor3 = Color3.new(1, 1, 1)
+			ValueLabel.TextSize = 15
+			ValueLabel.TextXAlignment = Enum.TextXAlignment.Right
+			ValueLabel.Parent = SliderContainer
+
+			local SliderBackground = Instance.new("Frame")
+			SliderBackground.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+			SliderBackground.BackgroundTransparency = 0.5
+			SliderBackground.BorderSizePixel = 0
+			SliderBackground.BorderColor3 = Color3.new(0, 0, 0)
+			SliderBackground.Position = UDim2.new(0, 25, 0, 25) -- Below the label
+			SliderBackground.Size = UDim2.new(1, -50, 0, 10)
+			SliderBackground.Parent = SliderContainer
+
+			local SliderFill = Instance.new("Frame")
+			SliderFill.BackgroundColor3 = Color3.new(0.8, 0.8, 0.8) -- A subtle highlight color
+			SliderFill.BorderSizePixel = 0
+			SliderFill.BorderColor3 = Color3.new(0, 0, 0)
+			SliderFill.Size = UDim2.new(0, 0, 1, 0)
+			SliderFill.Parent = SliderBackground
+
+			local SliderHandle = Instance.new("ImageLabel")
+			SliderHandle.Image = "rbxassetid://15286940843" -- A simple circle image for the handle
+			SliderHandle.BackgroundColor3 = Color3.new(1, 1, 1)
+			SliderHandle.BackgroundTransparency = 0
+			SliderHandle.BorderSizePixel = 0
+			SliderHandle.BorderColor3 = Color3.new(0, 0, 0)
+			SliderHandle.Size = UDim2.new(0, 15, 0, 15)
+			SliderHandle.ZIndex = 2
+			SliderHandle.AnchorPoint = Vector2.new(0.5, 0.5)
+			SliderHandle.Position = UDim2.new(0, 0, 0.5, 0)
+			SliderHandle.Parent = SliderBackground
+
+			local CurrentValue = DefaultValue or 0
+			local IsDraggingSlider = false
+
+			local function UpdateSlider(Input)
+				local RelativeX = math.clamp(Input.Position.X - SliderBackground.AbsolutePosition.X, 0, SliderBackground.AbsoluteSize.X)
+				local NormalizedValue = RelativeX / SliderBackground.AbsoluteSize.X
+				
+				CurrentValue = MinValue + (MaxValue - MinValue) * NormalizedValue
+				CurrentValue = math.round(CurrentValue) -- Round to nearest whole number
+
+				SliderFill.Size = UDim2.new(NormalizedValue, 0, 1, 0)
+				SliderHandle.Position = UDim2.new(NormalizedValue, 0, 0.5, 0)
+				SliderLabel.Text = SliderText .. ": " .. CurrentValue
+				ValueLabel.Text = CurrentValue
+				
+				if Callback then
+					Callback(CurrentValue)
+				end
+			end
+
+			-- Set initial slider position and value
+			local initialNormalizedValue = (DefaultValue - MinValue) / (MaxValue - MinValue)
+			SliderFill.Size = UDim2.new(initialNormalizedValue, 0, 1, 0)
+			SliderHandle.Position = UDim2.new(initialNormalizedValue, 0, 0.5, 0)
+			SliderLabel.Text = SliderText .. ": " .. DefaultValue
+			ValueLabel.Text = DefaultValue
+
+			SliderBackground.InputBegan:Connect(function(Input)
+				if Input.UserInputType == Enum.UserInputType.MouseButton1 then
+					IsDraggingSlider = true
+					UpdateSlider(Input)
+				end
+			end)
+
+			SliderHandle.InputBegan:Connect(function(Input)
+				if Input.UserInputType == Enum.UserInputType.MouseButton1 then
+					IsDraggingSlider = true
+					UpdateSlider(Input)
+				end
+			end)
+
+			UIS.InputChanged:Connect(function(Input)
+				if IsDraggingSlider and Input.UserInputType == Enum.UserInputType.MouseMovement then
+					UpdateSlider(Input)
+				end
+			end)
+
+			UIS.InputEnded:Connect(function(Input)
+				if Input.UserInputType == Enum.UserInputType.MouseButton1 then
+					IsDraggingSlider = false
+				end
+			end)
+
+			-- Return the current value of the slider if needed externally
+			return function()
+				return CurrentValue
+			end
+		end
+		-- Assign the ModuleContext to a variable that will be returned
+		-- This makes the AddSlider function available on the returned Module object
+		return ModuleContext
+		--- END OF CORRECTED SLIDER CODE ---
+
 	end
 
 	return Tab
