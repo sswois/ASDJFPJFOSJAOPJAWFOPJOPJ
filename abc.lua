@@ -608,7 +608,7 @@ function Jello:AddTab(TabName)
 
 		local ModuleOptions = Instance.new("Frame")
 		ModuleOptions.BackgroundColor3 = Color3.new(0, 0, 0)
-		ModuleOptions.BackgroundTransparency = 0.25
+		ModuleOptions.BackgroundTransparency = 0.75
 		ModuleOptions.BorderColor3 = Color3.new(0, 0, 0)
 		ModuleOptions.BorderSizePixel = 0
 		ModuleOptions.Size = UDim2.new(1, 0, 0, 0)
