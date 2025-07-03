@@ -91,12 +91,12 @@ ArrayListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 ArrayListLayout.Parent = ArrayListDisplay
 
 function GetTextWidthAdvanced(Text, FontSize, Font, WrapWidth)
-    FontSize = FontSize or 25
-    Font = Font or Enum.Font.Sarpanch
-    WrapWidth = WrapWidth or math.huge
+	FontSize = FontSize or 25
+	Font = Font or Enum.Font.Sarpanch
+	WrapWidth = WrapWidth or math.huge
 
-    local TextSize = TextService:GetTextSize(Text, FontSize, Font, Vector2.new(WrapWidth, math.huge))
-    return TextSize.X
+	local TextSize = TextService:GetTextSize(Text, FontSize, Font, Vector2.new(WrapWidth, math.huge))
+	return TextSize.X
 end
 
 local function RefreshArrayList()
@@ -141,13 +141,13 @@ local function RefreshArrayList()
 		ActiveModule.TextWrapped = false
 		ActiveModule.AutomaticSize = Enum.AutomaticSize.X
 		ActiveModule.Parent = ArrayListDisplay
-		
+
 		if IsArrayListOnRight then
 			ActiveModule.TextXAlignment = Enum.TextXAlignment.Right
 		else
 			ActiveModule.TextXAlignment = Enum.TextXAlignment.Left
 		end
-		
+
 		local TextPadding = Instance.new("UIPadding")
 		TextPadding.PaddingLeft = UDim.new(0, 5)
 		TextPadding.PaddingRight = UDim.new(0, 5)
@@ -177,8 +177,8 @@ end
 
 function SendNotification(Title, Message, Duration)
 	if not NotificationsEnabled then
-        return
-    end
+		return
+	end
 
 	Duration = Duration or 3
 	local y = -80 - (#ActiveNotifications * 70)
@@ -331,41 +331,41 @@ HPBar.Size = UDim2.new(0, 0, 1, 0)
 HPBar.Parent = HPBG
 
 local function MakeDraggable(UIElement, DragHandle)
-    local Dragging = false
-    local DragStart, StartPosition
+	local Dragging = false
+	local DragStart, StartPosition
 
-    DragHandle.InputBegan:Connect(function(Input)
-        if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-            if (DragHandle == TargetHUDHeader or DragHandle == ArrayListHeader) and not GUIVisible then
-                return
-            end
+	DragHandle.InputBegan:Connect(function(Input)
+		if Input.UserInputType == Enum.UserInputType.MouseButton1 then
+			if (DragHandle == TargetHUDHeader or DragHandle == ArrayListHeader) and not GUIVisible then
+				return
+			end
 
-            Dragging = true
-            DragStart = Input.Position
-            StartPosition = UIElement.Position
-            
-            InputChangedConnection = UIS.InputChanged:Connect(function(InputChanged)
-                if Dragging and InputChanged.UserInputType == Enum.UserInputType.MouseMovement then
-                    local Delta = InputChanged.Position - DragStart
-                    UIElement.Position = UDim2.new(
-                        StartPosition.X.Scale, StartPosition.X.Offset + Delta.X,
-                        StartPosition.Y.Scale, StartPosition.Y.Offset + Delta.Y
-                    )
-                    if UIElement == ArrayListContainer then
-                        RefreshArrayList()
-                    end
-                end
-            end)
+			Dragging = true
+			DragStart = Input.Position
+			StartPosition = UIElement.Position
 
-            InputEndedConnection = UIS.InputEnded:Connect(function(InputEnded)
-                if InputEnded.UserInputType == Enum.UserInputType.MouseButton1 then
-                    Dragging = false
-                    InputChangedConnection:Disconnect()
-                    InputEndedConnection:Disconnect()
-                end
-            end)
-        end
-    end)
+			InputChangedConnection = UIS.InputChanged:Connect(function(InputChanged)
+				if Dragging and InputChanged.UserInputType == Enum.UserInputType.MouseMovement then
+					local Delta = InputChanged.Position - DragStart
+					UIElement.Position = UDim2.new(
+						StartPosition.X.Scale, StartPosition.X.Offset + Delta.X,
+						StartPosition.Y.Scale, StartPosition.Y.Offset + Delta.Y
+					)
+					if UIElement == ArrayListContainer then
+						RefreshArrayList()
+					end
+				end
+			end)
+
+			InputEndedConnection = UIS.InputEnded:Connect(function(InputEnded)
+				if InputEnded.UserInputType == Enum.UserInputType.MouseButton1 then
+					Dragging = false
+					InputChangedConnection:Disconnect()
+					InputEndedConnection:Disconnect()
+				end
+			end)
+		end
+	end)
 end
 
 MakeDraggable(TargetHUDContainer, TargetHUDHeader)
@@ -412,38 +412,39 @@ function Jello:ToggleArrayList(State)
 	ArrayListHeader.Visible = ArrayListContainer.Visible and GUIVisible
 end
 
+local IsTogglingNotifications = false
 function Jello:ToggleNotifications(State)
-    local NewState = State
-    if NewState == nil then
-        NewState = not NotificationsEnabled
-    end
-    
-    if NotificationsEnabled == NewState or IsTogglingNotifications then
-        return
-    end
+	local NewState = State
+	if NewState == nil then
+		NewState = not NotificationsEnabled
+	end
 
-    local IsTogglingNotifications = true
+	if NotificationsEnabled == NewState or IsTogglingNotifications then
+		return
+	end
 
-    NotificationsEnabled = NewState
+	IsTogglingNotifications = true
 
-    if NotificationsEnabled then
-        NotificationsContainer.Visible = true
-        IsTogglingNotifications = false
-    else
-        task.spawn(function()
-            while #ActiveNotifications > 0 do
-                for i = #ActiveNotifications, 1, -1 do
-                    local Data = ActiveNotifications[i]
-                    if not Data.frame or not Data.frame.Parent then
-                        table.remove(ActiveNotifications, i)
-                    end
-                end
-                task.wait()
-            end
-            NotificationsContainer.Visible = false
-            IsTogglingNotifications = false
-        end)
-    end
+	NotificationsEnabled = NewState
+
+	if NotificationsEnabled then
+		NotificationsContainer.Visible = true
+		IsTogglingNotifications = false
+	else
+		task.spawn(function()
+			while #ActiveNotifications > 0 do
+				for i = #ActiveNotifications, 1, -1 do
+					local Data = ActiveNotifications[i]
+					if not Data.frame or not Data.frame.Parent then
+						table.remove(ActiveNotifications, i)
+					end
+				end
+				task.wait()
+			end
+			NotificationsContainer.Visible = false
+			IsTogglingNotifications = false
+		end)
+	end
 end
 
 function Jello:ToggleTargetHUD(State)
@@ -478,10 +479,10 @@ function Jello:ToggleTargetHUD(State)
 					end
 
 					TargetHUDContainer.Visible = ShouldShow
-					TargetHUDHeader.Visible = true 
+					TargetHUDHeader.Visible = true
 				end
 				TargetHUDContainer.Visible = false
-				TargetHUDHeader.Visible = true 
+				TargetHUDHeader.Visible = true
 				TargetHUDThread = nil
 			end)
 		end
@@ -497,7 +498,7 @@ ModalButton.BackgroundColor3 = Color3.new(0, 0, 0)
 ModalButton.BackgroundTransparency = 1
 ModalButton.BorderSizePixel = 0
 ModalButton.BorderColor3 = Color3.new(0, 0, 0)
-ModalButton.Size = UDim2.new()
+ModalButton.Size = UDim2.new(1, 0, 1, 0)
 ModalButton.Text = ""
 ModalButton.Visible = false
 ModalButton.Modal = true
@@ -608,7 +609,7 @@ function Jello:AddTab(TabName)
 
 		local ModuleOptions = Instance.new("Frame")
 		ModuleOptions.BackgroundColor3 = Color3.new(0, 0, 0)
-		ModuleOptions.BackgroundTransparency = 0.35
+		ModuleOptions.BackgroundTransparency = 0.25
 		ModuleOptions.BorderColor3 = Color3.new(0, 0, 0)
 		ModuleOptions.BorderSizePixel = 0
 		ModuleOptions.Size = UDim2.new(1, 0, 0, 0)
@@ -628,13 +629,12 @@ function Jello:AddTab(TabName)
 		Bind.BorderColor3 = Color3.new(0, 0, 0)
 		Bind.BorderSizePixel = 0
 		Bind.Font = Enum.Font.Sarpanch
-		Bind.Size = UDim2.new(1, 0, 0, 50)
+		Bind.Size = UDim2.new(1, 0, 0, 25)
 		Bind.Text = "Bind: None"
 		Bind.TextColor3 = Color3.new(1, 1, 1)
-		Bind.TextSize = 20
+		Bind.TextSize = 15
 		Bind.TextXAlignment = Enum.TextXAlignment.Left
 		Bind.Parent = ModuleOptions
-		Bind.LayoutOrder = 9999
 
 		local BindPadding = Instance.new("UIPadding")
 		BindPadding.PaddingLeft = UDim.new(0, 25)
@@ -651,7 +651,7 @@ function Jello:AddTab(TabName)
 			if callback then
 				callback(Enabled)
 			end
-			
+
 			SendNotification("Jello", (Enabled and "Enabled " or "Disabled ") .. ModuleName, 1)
 
 			if Enabled then
@@ -669,7 +669,7 @@ function Jello:AddTab(TabName)
 		end
 
 		Module.MouseButton1Click:Connect(ToggleModule)
-		
+
 		Module.MouseButton2Click:Connect(function()
 			ModuleOptions.Visible = not ModuleOptions.Visible
 		end)
@@ -708,116 +708,6 @@ function Jello:AddTab(TabName)
 				ToggleModule()
 			end
 		end)
-
-		local ModuleContext = {}
-
-		function ModuleContext:AddSlider(SliderText, DefaultValue, MinValue, MaxValue, Callback)
-			local SliderContainer = Instance.new("Frame")
-			SliderContainer.BackgroundColor3 = Color3.new(0, 0, 0)
-			SliderContainer.BackgroundTransparency = 1
-			SliderContainer.BorderSizePixel = 0
-			SliderContainer.BorderColor3 = Color3.new(0, 0, 0)
-			SliderContainer.Size = UDim2.new(1, 0, 0, 50) 
-			SliderContainer.Parent = ModuleOptions
-
-			local SliderLabel = Instance.new("TextLabel")
-			SliderLabel.BackgroundColor3 = Color3.new(0, 0, 0)
-			SliderLabel.BackgroundTransparency = 1
-			SliderLabel.BorderColor3 = Color3.new(0, 0, 0)
-			SliderLabel.BorderSizePixel = 0
-			SliderLabel.Font = Enum.Font.Sarpanch
-			SliderLabel.Size = UDim2.new(1, -50, 0, 20)
-			SliderLabel.Position = UDim2.new(0, 25, 0, 0)
-			SliderLabel.Text = SliderText .. ": " .. DefaultValue
-			SliderLabel.TextColor3 = Color3.new(1, 1, 1)
-			SliderLabel.TextSize = 20
-			SliderLabel.TextXAlignment = Enum.TextXAlignment.Left
-			SliderLabel.Parent = SliderContainer
-
-			local SliderBackground = Instance.new("Frame")
-			SliderBackground.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
-			SliderBackground.BackgroundTransparency = 0.5
-			SliderBackground.BorderSizePixel = 0
-			SliderBackground.BorderColor3 = Color3.new(0, 0, 0)
-			SliderBackground.Position = UDim2.new(0, 25, 0, 25)
-			SliderBackground.Size = UDim2.new(1, -50, 0, 10)
-			SliderBackground.Parent = SliderContainer
-
-			local SliderFill = Instance.new("Frame")
-			SliderFill.BackgroundColor3 = Color3.new(0.8, 0.8, 0.8)
-			SliderFill.BorderSizePixel = 0
-			SliderFill.BorderColor3 = Color3.new(0, 0, 0)
-			SliderFill.Size = UDim2.new(0, 0, 1, 0)
-			SliderFill.Parent = SliderBackground
-
-			local SliderHandle = Instance.new("ImageLabel")
-			SliderHandle.Image = "rbxassetid://15286940843"
-			SliderHandle.BackgroundColor3 = Color3.new(1, 1, 1)
-			SliderHandle.BackgroundTransparency = 0
-			SliderHandle.BorderSizePixel = 0
-			SliderHandle.BorderColor3 = Color3.new(0, 0, 0)
-			SliderHandle.Size = UDim2.new(0, 15, 0, 15)
-			SliderHandle.ZIndex = 2
-			SliderHandle.AnchorPoint = Vector2.new(0.5, 0.5)
-			SliderHandle.Position = UDim2.new(0, 0, 0.5, 0)
-			SliderHandle.Parent = SliderBackground
-
-			local CurrentValue = DefaultValue or 0
-			local IsDraggingSlider = false
-
-			local function UpdateSlider(Input)
-				local RelativeX = math.clamp(Input.Position.X - SliderBackground.AbsolutePosition.X, 0, SliderBackground.AbsoluteSize.X)
-				local NormalizedValue = RelativeX / SliderBackground.AbsoluteSize.X
-				
-				CurrentValue = MinValue + (MaxValue - MinValue) * NormalizedValue
-				CurrentValue = math.round(CurrentValue)
-
-				SliderFill.Size = UDim2.new(NormalizedValue, 0, 1, 0)
-				SliderHandle.Position = UDim2.new(NormalizedValue, 0, 0.5, 0)
-				SliderLabel.Text = SliderText .. ": " .. CurrentValue
-				
-				if Callback then
-					Callback(CurrentValue)
-				end
-			end
-
-			local initialNormalizedValue = (DefaultValue - MinValue) / (MaxValue - MinValue)
-			SliderFill.Size = UDim2.new(initialNormalizedValue, 0, 1, 0)
-			SliderHandle.Position = UDim2.new(initialNormalizedValue, 0, 0.5, 0)
-			SliderLabel.Text = SliderText .. ": " .. DefaultValue
-
-			SliderBackground.InputBegan:Connect(function(Input)
-				if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-					IsDraggingSlider = true
-					UpdateSlider(Input)
-				end
-			end)
-
-			SliderHandle.InputBegan:Connect(function(Input)
-				if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-					IsDraggingSlider = true
-					UpdateSlider(Input)
-				end
-			end)
-
-			UIS.InputChanged:Connect(function(Input)
-				if IsDraggingSlider and Input.UserInputType == Enum.UserInputType.MouseMovement then
-					UpdateSlider(Input)
-				end
-			end)
-
-			UIS.InputEnded:Connect(function(Input)
-				if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-					IsDraggingSlider = false
-				end
-			end)
-
-			return function()
-				return CurrentValue
-			end
-		end
-
-		return ModuleContext
 	end
 
 	return Tab
