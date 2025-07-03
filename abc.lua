@@ -62,6 +62,7 @@ ArrayListHeader.Position = UDim2.new(0, 0, 0, 0)
 ArrayListHeader.Parent = ArrayListContainer
 
 local ArrayListHeaderText = Instance.new("TextLabel")
+ArrayListHeaderText.BackgroundColor3 = Color3.new(0, 0, 0)
 ArrayListHeaderText.BackgroundTransparency = 1
 ArrayListHeaderText.BorderSizePixel = 0
 ArrayListHeaderText.BorderColor3 = Color3.new(0, 0, 0)
@@ -271,6 +272,7 @@ TargetHUDHeader.Position = UDim2.new(0, 0, 0, 0)
 TargetHUDHeader.Parent = TargetHUDContainer
 
 local TargetHUDHeaderText = Instance.new("TextLabel")
+TargetHUDHeaderText.BackgroundColor3 = Color3.new(0, 0, 0)
 TargetHUDHeaderText.BackgroundTransparency = 1
 TargetHUDHeaderText.BorderSizePixel = 0
 TargetHUDHeaderText.BorderColor3 = Color3.new(0, 0, 0)
@@ -292,6 +294,7 @@ TargetHUD.Size = UDim2.new(0, 250, 0, 75)
 TargetHUD.Parent = TargetHUDContainer
 
 local TargetPhoto = Instance.new("ImageLabel")
+TargetPhoto.BackgroundColor3 = Color3.new(0, 0, 0)
 TargetPhoto.BackgroundTransparency = 1
 TargetPhoto.BorderSizePixel = 0
 TargetPhoto.BorderColor3 = Color3.new(0, 0, 0)
@@ -301,6 +304,7 @@ TargetPhoto.Image = "rbxasset://textures/ui/GuiImagePlaceholder.png"
 TargetPhoto.Parent = TargetHUD
 
 local TargetName = Instance.new("TextLabel")
+TargetName.BackgroundColor3 = Color3.new(0, 0, 0)
 TargetName.BackgroundTransparency = 1
 TargetName.BorderSizePixel = 0
 TargetName.BorderColor3 = Color3.new(0, 0, 0)
@@ -314,7 +318,7 @@ TargetName.TextXAlignment = Enum.TextXAlignment.Left
 TargetName.Parent = TargetHUD
 
 local HPBG = Instance.new("Frame")
-HPBG.BackgroundColor3 = Color3.new(1, 1, 1)
+HPBG.BackgroundColor3 = Color3.new(0, 0, 0)
 HPBG.BackgroundTransparency = 0.85
 HPBG.BorderSizePixel = 0
 HPBG.BorderColor3 = Color3.new(0, 0, 0)
