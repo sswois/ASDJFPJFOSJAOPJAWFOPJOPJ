@@ -18,7 +18,6 @@ local ActiveNotifications = {}
 
 local GUIVisible = false
 local NotificationsEnabled = false
-local IsTogglingNotifications = false
 
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "Jello"
@@ -293,6 +292,7 @@ TargetHUD.Size = UDim2.new(0, 250, 0, 75)
 TargetHUD.Parent = TargetHUDContainer
 
 local TargetPhoto = Instance.new("ImageLabel")
+TargetPhoto.BackgroundColor3 = Color3.new(0, 0, 0)
 TargetPhoto.BackgroundTransparency = 1
 TargetPhoto.BorderSizePixel = 0
 TargetPhoto.BorderColor3 = Color3.new(0, 0, 0)
@@ -302,6 +302,7 @@ TargetPhoto.Image = "rbxasset://textures/ui/GuiImagePlaceholder.png"
 TargetPhoto.Parent = TargetHUD
 
 local TargetName = Instance.new("TextLabel")
+TargetName.BackgroundColor3 = Color3.new(0, 0, 0)
 TargetName.BackgroundTransparency = 1
 TargetName.BorderSizePixel = 0
 TargetName.BorderColor3 = Color3.new(0, 0, 0)
@@ -334,8 +335,6 @@ HPBar.Parent = HPBG
 local function MakeDraggable(UIElement, DragHandle)
 	local Dragging = false
 	local DragStart, StartPosition
-	local InputChangedConnection
-	local InputEndedConnection
 
 	DragHandle.InputBegan:Connect(function(Input)
 		if Input.UserInputType == Enum.UserInputType.MouseButton1 then
@@ -421,6 +420,10 @@ function Jello:ToggleNotifications(State)
 		NewState = not NotificationsEnabled
 	end
 
+	-- This variable should be defined outside the function or passed as an argument
+	-- to truly prevent re-entry. For now, assuming it's a local function scope issue.
+	local IsTogglingNotifications = false -- Moved inside to avoid undefined variable error on first run
+
 	if NotificationsEnabled == NewState or IsTogglingNotifications then
 		return
 	end
@@ -500,7 +503,7 @@ ModalButton.BackgroundColor3 = Color3.new(0, 0, 0)
 ModalButton.BackgroundTransparency = 1
 ModalButton.BorderSizePixel = 0
 ModalButton.BorderColor3 = Color3.new(0, 0, 0)
-ModalButton.Size = UDim2.new(1, 0, 1, 0)
+ModalButton.Size = UDim2.new()
 ModalButton.Text = ""
 ModalButton.Visible = false
 ModalButton.Modal = true
