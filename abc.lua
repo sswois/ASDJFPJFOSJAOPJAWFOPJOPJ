@@ -18,6 +18,7 @@ local ActiveNotifications = {}
 
 local GUIVisible = false
 local NotificationsEnabled = false
+local IsTogglingNotifications = false
 
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "Jello"
@@ -62,7 +63,6 @@ ArrayListHeader.Position = UDim2.new(0, 0, 0, 0)
 ArrayListHeader.Parent = ArrayListContainer
 
 local ArrayListHeaderText = Instance.new("TextLabel")
-ArrayListHeaderText.BackgroundColor3 = Color3.new(0, 0, 0)
 ArrayListHeaderText.BackgroundTransparency = 1
 ArrayListHeaderText.BorderSizePixel = 0
 ArrayListHeaderText.BorderColor3 = Color3.new(0, 0, 0)
@@ -272,7 +272,6 @@ TargetHUDHeader.Position = UDim2.new(0, 0, 0, 0)
 TargetHUDHeader.Parent = TargetHUDContainer
 
 local TargetHUDHeaderText = Instance.new("TextLabel")
-TargetHUDHeaderText.BackgroundColor3 = Color3.new(0, 0, 0)
 TargetHUDHeaderText.BackgroundTransparency = 1
 TargetHUDHeaderText.BorderSizePixel = 0
 TargetHUDHeaderText.BorderColor3 = Color3.new(0, 0, 0)
@@ -294,7 +293,6 @@ TargetHUD.Size = UDim2.new(0, 250, 0, 75)
 TargetHUD.Parent = TargetHUDContainer
 
 local TargetPhoto = Instance.new("ImageLabel")
-TargetPhoto.BackgroundColor3 = Color3.new(0, 0, 0)
 TargetPhoto.BackgroundTransparency = 1
 TargetPhoto.BorderSizePixel = 0
 TargetPhoto.BorderColor3 = Color3.new(0, 0, 0)
@@ -304,7 +302,6 @@ TargetPhoto.Image = "rbxasset://textures/ui/GuiImagePlaceholder.png"
 TargetPhoto.Parent = TargetHUD
 
 local TargetName = Instance.new("TextLabel")
-TargetName.BackgroundColor3 = Color3.new(0, 0, 0)
 TargetName.BackgroundTransparency = 1
 TargetName.BorderSizePixel = 0
 TargetName.BorderColor3 = Color3.new(0, 0, 0)
@@ -318,7 +315,7 @@ TargetName.TextXAlignment = Enum.TextXAlignment.Left
 TargetName.Parent = TargetHUD
 
 local HPBG = Instance.new("Frame")
-HPBG.BackgroundColor3 = Color3.new(0, 0, 0)
+HPBG.BackgroundColor3 = Color3.new(1, 1, 1)
 HPBG.BackgroundTransparency = 0.85
 HPBG.BorderSizePixel = 0
 HPBG.BorderColor3 = Color3.new(0, 0, 0)
@@ -337,6 +334,8 @@ HPBar.Parent = HPBG
 local function MakeDraggable(UIElement, DragHandle)
 	local Dragging = false
 	local DragStart, StartPosition
+	local InputChangedConnection
+	local InputEndedConnection
 
 	DragHandle.InputBegan:Connect(function(Input)
 		if Input.UserInputType == Enum.UserInputType.MouseButton1 then
@@ -416,7 +415,6 @@ function Jello:ToggleArrayList(State)
 	ArrayListHeader.Visible = ArrayListContainer.Visible and GUIVisible
 end
 
-local IsTogglingNotifications = false
 function Jello:ToggleNotifications(State)
 	local NewState = State
 	if NewState == nil then
