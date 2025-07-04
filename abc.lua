@@ -174,7 +174,7 @@ local function RepositionNotifications()
     end
 end
 
-function SendNotification(Title, Message, Duration)
+local function SendNotification(Title, Message, Duration)
     if not NotificationsEnabled then
         return
     end
@@ -222,10 +222,32 @@ function SendNotification(Title, Message, Duration)
     MessageLabel.TextWrapped = true
     MessageLabel.TextXAlignment = Enum.TextXAlignment.Left
 
+    local DurationBarBackground = Instance.new("Frame")
+    DurationBarBackground.Parent = Notification
+    DurationBarBackground.BackgroundColor3 = Color3.new(1, 1, 1)
+    DurationBarBackground.BackgroundTransparency = 0.75
+    DurationBarBackground.BorderColor3 = Color3.new(0, 0, 0)
+    DurationBarBackground.BorderSizePixel = 0
+    DurationBarBackground.Position = UDim2.new(0, 5, 1, -5)
+    DurationBarBackground.Size = UDim2.new(1, -10, 0, 2)
+
+    local DurationBar = Instance.new("Frame")
+    DurationBar.Parent = DurationBarBackground
+    DurationBar.BackgroundColor3 = Color3.new(1, 1, 1)
+    DurationBar.BackgroundTransparency = 0
+    DurationBar.BorderColor3 = Color3.new(0, 0, 0)
+    DurationBar.BorderSizePixel = 0
+    DurationBar.Position = UDim2.new(0, 0, 0, 0)
+    DurationBar.Size = UDim2.new(1, 0, 1, 0)
+
     local Data = { frame = Notification, y = y }
     table.insert(ActiveNotifications, Data)
 
     Notification:TweenPosition(UDim2.new(1, -10, 1, y), "Out", "Quad", 0.3, true)
+
+    local BarTweenInfo = TweenInfo.new(Duration, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
+    local BarTween = TweenService:Create(DurationBar, BarTweenInfo, { Size = UDim2.new(0, 0, 1, 0) })
+    BarTween:Play()
 
     task.delay(Duration, function()
         if Notification and Notification.Parent then
@@ -496,6 +518,11 @@ function Jello:ToggleTargetHUD(State)
     end
 end
 
+local BlurEffect = Instance.new("BlurEffect")
+BlurEffect.Parent = game.Lighting
+BlurEffect.Enabled = false
+BlurEffect.Size = 25
+
 local ModalButton = Instance.new("TextButton")
 ModalButton.Parent = ScreenGui
 ModalButton.BackgroundTransparency = 1
@@ -504,18 +531,13 @@ ModalButton.Size = UDim2.new()
 ModalButton.Text = ""
 ModalButton.Visible = false
 
-local BlurEffect = Instance.new("BlurEffect")
-BlurEffect.Parent = game.Lighting
-BlurEffect.Enabled = false
-BlurEffect.Size = 25
-
 UIS.InputBegan:Connect(function(Input)
     if Input.KeyCode == Enum.KeyCode.RightShift then
         GUIVisible = not GUIVisible
+        ArrayListHeader.Visible = GUIVisible
         BlurEffect.Enabled = GUIVisible
         ModalButton.Visible = GUIVisible
         TabsContainer.Visible = GUIVisible
-        ArrayListHeader.Visible = ArrayListContainer.Visible and GUIVisible
     end
 end)
 
@@ -650,7 +672,7 @@ function Jello:AddTab(TabName)
                 callback(Enabled)
             end
 
-            SendNotification("Jello", (Enabled and "Enabled " or "Disabled ") .. ModuleName, 1)
+            SendNotification("Module", (Enabled and "Enabled " or "Disabled ") .. ModuleName, 1)
 
             if Enabled then
                 table.insert(ActiveModules, ModuleName)
