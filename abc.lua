@@ -129,7 +129,7 @@ local function RefreshArrayList()
         ActiveModule.Parent = ArrayListDisplay
         ActiveModule.AutomaticSize = Enum.AutomaticSize.X
         ActiveModule.BackgroundColor3 = Color3.new(0, 0, 0)
-        ActiveModule.BackgroundTransparency = 1
+        ActiveModule.BackgroundTransparency = 0.5
         ActiveModule.BorderColor3 = Color3.new(0, 0, 0)
         ActiveModule.BorderSizePixel = 0
         ActiveModule.Font = Enum.Font.Sarpanch
