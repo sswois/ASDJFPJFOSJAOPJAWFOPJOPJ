@@ -186,7 +186,7 @@ function SendNotification(Title, Message, Duration)
     Notification.Parent = NotificationsContainer
     Notification.AnchorPoint = Vector2.new(1, 1)
     Notification.BackgroundColor3 = Color3.new(0, 0, 0)
-    Notification.BackgroundTransparency = 0.5
+    Notification.BackgroundTransparency = 0.25
     Notification.BorderColor3 = Color3.new(0, 0, 0)
     Notification.BorderSizePixel = 0
     Notification.Position = UDim2.new(1, 500, 1, y)
