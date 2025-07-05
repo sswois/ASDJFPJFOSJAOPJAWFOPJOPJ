@@ -366,6 +366,8 @@ HPBar.Size = UDim2.new(0, 0, 1, 0)
 local function MakeDraggable(UIElement, DragHandle)
     local Dragging = false
     local DragStart, StartPosition
+    local InputChangedConnection
+    local InputEndedConnection
 
     DragHandle.InputBegan:Connect(function(Input)
         if Input.UserInputType == Enum.UserInputType.MouseButton1 then
@@ -393,8 +395,8 @@ local function MakeDraggable(UIElement, DragHandle)
             InputEndedConnection = UIS.InputEnded:Connect(function(InputEnded)
                 if InputEnded.UserInputType == Enum.UserInputType.MouseButton1 then
                     Dragging = false
-                    InputChangedConnection:Disconnect()
-                    InputEndedConnection:Disconnect()
+                    if InputChangedConnection then InputChangedConnection:Disconnect() end
+                    if InputEndedConnection then InputEndedConnection:Disconnect() end
                 end
             end)
         end
@@ -673,6 +675,18 @@ function Jello:AddTab(TabName)
         BindPadding.PaddingLeft = UDim.new(0, 25)
 
         local Enabled = false
+        local CurrentBind = nil
+        local Binding = false
+        local InputBeganConnection = nil
+        local SkipNextToggle = false
+
+        local function UpdateBindText()
+            if CurrentBind then
+                Bind.Text = "Bind: " .. CurrentBind.Name
+            else
+                Bind.Text = "Bind"
+            end
+        end
 
         local function ToggleModule()
             Enabled = not Enabled
@@ -703,45 +717,46 @@ function Jello:AddTab(TabName)
             ModuleOptions.Visible = not ModuleOptions.Visible
         end)
 
-        local Binding = false
-        local CurrentBind = nil
-        local SkipNext = false
-
         Bind.MouseButton1Click:Connect(function()
             if Binding then
                 return
             end
             Binding = true
             Bind.Text = "Press Key"
-            BindConnection = UIS.InputBegan:Connect(function(Input)
+
+            if InputBeganConnection then InputBeganConnection:Disconnect() end
+            InputBeganConnection = UIS.InputBegan:Connect(function(Input)
                 if Input.UserInputType == Enum.UserInputType.Keyboard then
                     if CurrentBind == Input.KeyCode then
                         CurrentBind = nil
                         Bind.Text = "Bind Removed"
-                        task.delay(1, function()
-                            Bind.Text = "Bind"
+                        task.delay(0.5, function()
+                            if not Binding then
+                                UpdateBindText()
+                            end
                         end)
-                        SkipNext = true
                     else
                         CurrentBind = Input.KeyCode
-                        Bind.Text = "Bind: " .. Input.KeyCode.Name
-                        SkipNext = true
+                        UpdateBindText()
+                        SkipNextToggle = true
                     end
-                    BindConnection:Disconnect()
                     Binding = false
+                    if InputBeganConnection then InputBeganConnection:Disconnect() end
                 end
             end)
         end)
 
         UIS.InputBegan:Connect(function(Input)
-            if CurrentBind == Input.KeyCode then
-                if SkipNext then
-                    SkipNext = false
+            if not Binding and CurrentBind and CurrentBind == Input.KeyCode then
+                if SkipNextToggle then
+                    SkipNextToggle = false
                     return
                 end
                 ToggleModule()
             end
         end)
+        
+        UpdateBindText()
     end
 
     return Tab
