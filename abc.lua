@@ -641,7 +641,7 @@ function Jello:AddTab(TabName)
 
         local function UpdateBindText()
             if CurrentBind then
-                Bind.Text = "Bind: " .. CurrentBind.Name
+                Bind.Text = "Bind { " .. CurrentBind.Name .. " }"
             else
                 Bind.Text = "Bind"
             end
