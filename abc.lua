@@ -17,7 +17,6 @@ local ActiveModules = {}
 local ActiveNotifications = {}
 
 local GUIVisible = false
-local NotificationsEnabled = false
 
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "Jello"
@@ -164,7 +163,7 @@ NotificationsContainer.BackgroundTransparency = 1
 NotificationsContainer.BorderColor3 = Color3.new(0, 0, 0)
 NotificationsContainer.BorderSizePixel = 0
 NotificationsContainer.Size = UDim2.new(1, 0, 1, 0)
-NotificationsContainer.Visible = false
+NotificationsContainer.Visible = true
 
 local function RepositionNotifications()
     for i, Data in ipairs(ActiveNotifications) do
@@ -175,10 +174,6 @@ local function RepositionNotifications()
 end
 
 local function SendNotification(Title, Message, Duration)
-    if not NotificationsEnabled then
-        return
-    end
-
     Duration = Duration or 3
     local y = -100 - (#ActiveNotifications * 65)
 
@@ -445,42 +440,6 @@ function Jello:ToggleArrayList(State)
         ArrayListContainer.Visible = State
     end
     ArrayListHeader.Visible = ArrayListContainer.Visible and GUIVisible
-end
-
-function Jello:ToggleNotifications(State)
-    local NewState = State
-    if NewState == nil then
-        NewState = not NotificationsEnabled
-    end
-
-    local IsTogglingNotifications = false
-
-    if NotificationsEnabled == NewState or IsTogglingNotifications then
-        return
-    end
-
-    IsTogglingNotifications = true
-
-    NotificationsEnabled = NewState
-
-    if NotificationsEnabled then
-        NotificationsContainer.Visible = true
-        IsTogglingNotifications = false
-    else
-        task.spawn(function()
-            while #ActiveNotifications > 0 do
-                for i = #ActiveNotifications, 1, -1 do
-                    local Data = ActiveNotifications[i]
-                    if not Data.frame or not Data.frame.Parent then
-                        table.remove(ActiveNotifications, i)
-                    end
-                end
-                task.wait()
-            end
-            NotificationsContainer.Visible = false
-            IsTogglingNotifications = false
-        end)
-    end
 end
 
 function Jello:ToggleTargetHUD(State)
