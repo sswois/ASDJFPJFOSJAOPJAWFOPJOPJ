@@ -168,9 +168,9 @@ NotificationsContainer.Visible = false
 
 local function RepositionNotifications()
     for i, Data in ipairs(ActiveNotifications) do
-        local y = -80 - ((i - 1) * 70)
+        local y = -100 - ((i - 1) * 65)
         Data.y = y
-        Data.frame:TweenPosition(UDim2.new(1, -10, 1, y), "Out", "Quad", 0.2, true)
+        Data.frame:TweenPosition(UDim2.new(1, -10, 1, y), "Out", "Quad", 0.25, true)
     end
 end
 
@@ -180,7 +180,7 @@ local function SendNotification(Title, Message, Duration)
     end
 
     Duration = Duration or 3
-    local y = -80 - (#ActiveNotifications * 70)
+    local y = -100 - (#ActiveNotifications * 65)
 
     local Notification = Instance.new("Frame")
     Notification.Parent = NotificationsContainer
@@ -191,7 +191,7 @@ local function SendNotification(Title, Message, Duration)
     Notification.BorderSizePixel = 0
     Notification.Position = UDim2.new(1, 500, 1, y)
     Notification.Size = UDim2.new(0, 300, 0, 60)
-
+    
     local TitleLabel = Instance.new("TextLabel")
     TitleLabel.Parent = Notification
     TitleLabel.BackgroundTransparency = 1
@@ -199,12 +199,17 @@ local function SendNotification(Title, Message, Duration)
     TitleLabel.BorderColor3 = Color3.new(0, 0, 0)
     TitleLabel.BorderSizePixel = 0
     TitleLabel.Font = Enum.Font.Sarpanch
-    TitleLabel.Position = UDim2.new(0, 10, 0, 5)
-    TitleLabel.Size = UDim2.new(1, -20, 0, 20)
+    TitleLabel.Position = UDim2.new(0, 0, 0, 0)
+    TitleLabel.Size = UDim2.new(1, 0, 0, 25)
     TitleLabel.Text = Title
     TitleLabel.TextColor3 = Color3.new(1, 1, 1)
     TitleLabel.TextSize = 20
     TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+    local TitleLabelPadding = Instance.new("UIPadding")
+    TitleLabelPadding.Parent = TitleLabel
+    TitleLabelPadding.PaddingTop = UDim.new(0, 5)
+    TitleLabelPadding.PaddingLeft = UDim.new(0, 10)
 
     local MessageLabel = Instance.new("TextLabel")
     MessageLabel.Parent = Notification
@@ -213,14 +218,18 @@ local function SendNotification(Title, Message, Duration)
     MessageLabel.BorderColor3 = Color3.new(0, 0, 0)
     MessageLabel.BorderSizePixel = 0
     MessageLabel.Font = Enum.Font.Sarpanch
-    MessageLabel.Position = UDim2.new(0, 10, 0, 25)
-    MessageLabel.Size = UDim2.new(1, -20, 0, 30)
+    MessageLabel.Position = UDim2.new(0, 0, 0, 25)
+    MessageLabel.Size = UDim2.new(1, 0, 0, 25)
     MessageLabel.Text = Message
     MessageLabel.TextColor3 = Color3.new(1, 1, 1)
     MessageLabel.TextSize = 20
     MessageLabel.TextTransparency = 0.25
     MessageLabel.TextWrapped = true
     MessageLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+    local MessageLabelPadding = Instance.new("UIPadding")
+    MessageLabelPadding.Parent = MessageLabel
+    MessageLabelPadding.PaddingLeft = UDim.new(0, 10)
 
     local DurationBarBackground = Instance.new("Frame")
     DurationBarBackground.Parent = Notification
